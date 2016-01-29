@@ -1,0 +1,22 @@
+{
+  "name": "chrome-devtools-client",
+  "version": "0.1.0",
+  "description": "Chrome DevTools client",
+  "main": "dist/index.js",
+  "typescript": {
+    "definition": "dist/index.d.ts"
+  },
+  "scripts": {
+    "prepublish": "tsc",
+    "compile": "tsc --watch",
+    "test": "tsc && node dist/test.js"
+  },
+  "author": "Kris Selden",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^1.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^1.8.0"
+  }
+}

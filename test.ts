@@ -1,8 +1,8 @@
-import { DevToolsHTTPClient, RemoteDebuggingClient } from "./index";
+import * as devtools from "./index";
 import * as assert from "assert";
 
 async function testHTTPClient() {
-  let client = new DevToolsHTTPClient();
+  let client = new devtools.HTTPClient();
   let version = await client.version();
   assert(version, "has version");
 
@@ -18,23 +18,23 @@ async function testHTTPClient() {
 
   tab = await client.new(url);
 
-  let debugClient = new RemoteDebuggingClient(tab.webSocketDebuggerUrl);
+  let debugClient = new devtools.WebSocketClient(tab.webSocketDebuggerUrl);
 
-  await debugClient.sendCommand("DOM.enable", {});
+  debugClient.verbose = true;
 
-  let document: any = await debugClient.sendCommand("DOM.getDocument", {});
-  let updated = new Promise((resolve) => {
-    debugClient.on("DOM.documentUpdated", resolve);
+  await debugClient.send("HeapProfiler.enable", {});
+
+  let buffer = "";
+
+  debugClient.on("HeapProfiler.addHeapSnapshotChunk", (evt: {chunk: string}) => {
+    buffer += evt.chunk;
   });
 
-  let res = await debugClient.sendCommand("DOM.requestChildNodes", {
-    nodeId: document.root.nodeId,
-    depth: 20
-  });
+  await debugClient.send("HeapProfiler.takeHeapSnapshot", {});
 
-  await updated;
+  let data = JSON.parse(buffer);
 
-  document = await debugClient.sendCommand("DOM.getDocument", {});
+  assert(data.snapshot.meta, "has snapshot meta");
 
   try {
     await client.close("bad-id");

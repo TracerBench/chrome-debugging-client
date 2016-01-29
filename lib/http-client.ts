@@ -1,4 +1,5 @@
 import * as http from "http";
+import { eventPromise } from "./utils";
 
 export interface HTTPOptions {
   host?: string;
@@ -31,29 +32,23 @@ export class HTTPError extends Error {
   }
 }
 
-function httpGet(host: string, port: number, path: string): Promise<http.IncomingMessage> {
-  return new Promise<http.IncomingMessage>((resolve, reject) => {
-    http.get({
-      host: host, port: port, path: path
-    }, resolve).once("error", reject);
+async function httpGet(host: string, port: number, path: string): Promise<http.IncomingMessage> {
+  let req = http.get({
+    host: host, port: port, path: path
   });
+  return eventPromise<http.IncomingMessage>(req, "response", "error");
 }
 
-function readBody(res: http.IncomingMessage): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    let body = "";
-    res.setEncoding("utf8");
-    res.on("readable", () => {
-      body += res.read();
-    });
-    res.once("error", reject);
-    res.on("end", () => {
-      resolve(body);
-    });
+async function readBody(res: http.IncomingMessage): Promise<string> {
+  let body = "";
+  res.setEncoding("utf8");
+  res.on("data", (chunk) => {
+    body += chunk;
   });
+  return eventPromise(res, "end", "error").then(() => body);
 }
 
-export default class DevToolsHTTPClient {
+export default class HTTPClient {
   host: string;
   port: number;
 

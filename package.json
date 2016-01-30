@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "Chrome DevTools client",
   "main": "dist/index.js",
-  "typescript": {
-    "definition": "dist/index.d.ts"
-  },
+  "typings": "dist/index.d.ts",
   "scripts": {
     "prepublish": "tsc",
     "compile": "tsc --watch",

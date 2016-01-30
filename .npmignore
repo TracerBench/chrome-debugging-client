@@ -2,4 +2,7 @@
 /typings/
 /.gitignore
 /.npmignore
-/tsconfig.json
+/dist/test.js
+/test.ts
+/test.html
+/*.tgz

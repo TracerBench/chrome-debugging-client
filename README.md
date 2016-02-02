@@ -4,7 +4,7 @@ chrome-debugging-client
 Example:
 
 ```js
-import { createSession } from "./index";
+import { createSession } from "chrome-debugging-client";
 
 createSession(async (session) => {
   let process = await session.spawn("canary");

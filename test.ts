@@ -1,8 +1,18 @@
 import { createSession } from "./index";
 
 createSession(async (session) => {
-  let process = await session.spawn("canary");
-  let client = session.createAPIClient("localhost", process.remoteDebuggingPort);
+  let browserType;
+  let resolverOptions;
+  if (process.env.CHROME_BIN) {
+    browserType = "exact";
+    resolverOptions = {
+      executablePath: process.env.CHROME_BIN
+    };
+  } else {
+    browserType = "canary";
+  }
+  let browser = await session.spawn(browserType, resolverOptions);
+  let client = session.createAPIClient("localhost", browser.remoteDebuggingPort);
   let version = await client.version();
   console.log(JSON.stringify(version, null, 2));
   let tabs = await client.listTabs();
@@ -20,4 +30,5 @@ createSession(async (session) => {
   console.log(data.snapshot.meta);
 }).catch((err) => {
   console.error(err);
+  process.exit(1);
 });

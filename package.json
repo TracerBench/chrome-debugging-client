@@ -1,7 +1,12 @@
 {
-  "name": "chrome-devtools-client",
+  "name": "chrome-debugging-client",
   "version": "0.1.0",
-  "description": "Chrome DevTools client",
+  "description": "Chrome debugging client",
+  "keywords": [
+    "chrome",
+    "debugging",
+    "protocol"
+  ],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -19,5 +24,6 @@
   "devDependencies": {
     "tslint": "^3.3.0",
     "typescript": "^1.8.0"
-  }
+  },
+  "engine": "node >= 4.0.0"
 }

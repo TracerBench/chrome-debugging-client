@@ -11,13 +11,13 @@ createSession(async (session) => {
   let debugging = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
   await debugging.send("HeapProfiler.enable", {});
   let buffer = "";
-  debugging.on("HeapProfiler.addHeapSnapshotChunk", (evt: {chunk: string}) => {
+  debugging.on("HeapProfiler.addHeapSnapshotChunk", (evt) => {
     buffer += evt.chunk;
   });
   await debugging.send("HeapProfiler.takeHeapSnapshot", {});
   return JSON.parse(buffer);
 }).then((data) => {
-  console.log(data.snapshot.meta)
+  console.log(data.snapshot.meta);
 }).catch((err) => {
   console.error(err);
 });

@@ -12,9 +12,12 @@
   "author": "Kris Selden",
   "license": "MIT",
   "dependencies": {
+    "mktemp": "^0.4.0",
+    "rimraf": "^2.5.1",
     "ws": "^1.0.1"
   },
   "devDependencies": {
+    "tslint": "^3.3.0",
     "typescript": "^1.8.0"
   }
 }

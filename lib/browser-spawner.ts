@@ -52,6 +52,8 @@ export default class BrowserSpawnerImpl implements BrowserSpawner {
       "--no-first-run",
       "--enable-gpu-benchmarking",
       "--disable-background-networking",
+      "--disable-cache",
+      "--v8-cache-options=none",
       "--no-proxy-server",
       "--disable-component-extensions-with-background-pages",
       "--disable-default-apps",

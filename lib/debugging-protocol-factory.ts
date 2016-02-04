@@ -7,8 +7,8 @@ export interface DebuggingProtocolFactory {
 }
 
 export interface DebuggingProtocol extends EventNotifier, WebSocketDelegate {
-  send<R, P>(command: string, params?: P): Promise<R>;
   send(command: string, params?: any): Promise<any>;
+  domains(protocol: Protocol): any;
 }
 
 export default class DebuggingProtocolFactoryImpl implements DebuggingProtocolFactory {
@@ -35,6 +35,14 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
 
   constructor() {
     super();
+  }
+
+  domains(protocol?: Protocol): any {
+    let all;
+    protocol.domains.forEach(domain => {
+      all[domain.domain] = new Domain(this, domain);
+    });
+    return all;
   }
 
   onMessage(data: string) {
@@ -83,6 +91,38 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
   }
 }
 
+class Domain {
+  private _client: DebuggingProtocol;
+  private _domain: Protocol.Domain;
+
+  constructor(client: DebuggingProtocol, domain: Protocol.Domain) {
+    this._client = client;
+    this._domain = domain;
+    domain.commands.forEach(command => {
+      let prefixed = `${domain.domain}.${command.name}`;
+      this[command.name] = (params) => {
+        return this._client.send(prefixed, params);
+      };
+    });
+    domain.events.forEach(event => {
+      let prefixed = `${domain.domain}.${event.name}`;
+      let listener;
+      Object.defineProperty(this, event.name, {
+        get: () => {
+          return listener;
+        },
+        set: (v) => {
+          if (listener) {
+            this._client.removeListener(prefixed, listener);
+          }
+          listener = v;
+          this._client.on(prefixed, v);
+        }
+      });
+    });
+  }
+}
+
 interface Event {
   method: string;
   params: any;
@@ -111,4 +151,60 @@ class ProtocolError extends Error {
     super(err.message);
     this.code = err.code;
   }
+}
+
+export namespace Protocol {
+  export interface Version {
+    major: string;
+    minor: string;
+  }
+
+  export interface Domain {
+    domain: string;
+    description?: string;
+    hidden?: boolean;
+    commands?: Command[];
+    events?: Event[];
+    types?: Type[];
+  }
+
+  export interface Command {
+    name: string;
+    description?: string;
+    hidden?: boolean;
+    parameters?: NamedDescriptor[];
+    returns?: NamedDescriptor[];
+  }
+
+  export interface Event {
+    name: string;
+    description?: string;
+    hidden?: boolean;
+    deprecated?: boolean;
+    parameters?: NamedDescriptor[];
+  }
+
+  export interface Type extends Descriptor {
+    id: string;
+  }
+
+  export interface NamedDescriptor extends Descriptor {
+    name: string;
+    optional?: boolean;
+  }
+
+  export interface Descriptor {
+    description?: string;
+    hidden?: boolean;
+    $ref?: string;
+    type?: string;
+    enum?: string[];
+    items?: Descriptor;
+    properties?: NamedDescriptor[];
+  }
+}
+
+export interface Protocol {
+  domains: Protocol.Domain[];
+  version: Protocol.Version;
 }

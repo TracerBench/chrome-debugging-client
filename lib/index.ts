@@ -8,5 +8,5 @@ export * from "./session";
 export * from "./web-socket-opener";
 export * from "./tmpdir-creator";
 
+export { default as ProtocolCodegen } from "./protocol-codegen";
 export { default as createSession } from "./session";
-

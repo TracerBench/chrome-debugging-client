@@ -119,7 +119,9 @@ class Domain {
               this._client.removeListener(prefixed, listener);
             }
             listener = v;
-            this._client.on(prefixed, v);
+            if (v) {
+              this._client.on(prefixed, v);
+            }
           }
         });
       });

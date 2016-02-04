@@ -38,7 +38,7 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
   }
 
   domains(protocol?: Protocol): any {
-    let all;
+    let all = {};
     protocol.domains.forEach(domain => {
       all[domain.domain] = new Domain(this, domain);
     });
@@ -98,28 +98,32 @@ class Domain {
   constructor(client: DebuggingProtocol, domain: Protocol.Domain) {
     this._client = client;
     this._domain = domain;
-    domain.commands.forEach(command => {
-      let prefixed = `${domain.domain}.${command.name}`;
-      this[command.name] = (params) => {
-        return this._client.send(prefixed, params);
-      };
-    });
-    domain.events.forEach(event => {
-      let prefixed = `${domain.domain}.${event.name}`;
-      let listener;
-      Object.defineProperty(this, event.name, {
-        get: () => {
-          return listener;
-        },
-        set: (v) => {
-          if (listener) {
-            this._client.removeListener(prefixed, listener);
-          }
-          listener = v;
-          this._client.on(prefixed, v);
-        }
+    if (domain.commands) {
+      domain.commands.forEach(command => {
+        let prefixed = `${domain.domain}.${command.name}`;
+        this[command.name] = (params) => {
+          return this._client.send(prefixed, params);
+        };
       });
-    });
+    }
+    if (domain.events) {
+      domain.events.forEach(event => {
+        let prefixed = `${domain.domain}.${event.name}`;
+        let listener;
+        Object.defineProperty(this, event.name, {
+          get: () => {
+            return listener;
+          },
+          set: (v) => {
+            if (listener) {
+              this._client.removeListener(prefixed, listener);
+            }
+            listener = v;
+            this._client.on(prefixed, v);
+          }
+        });
+      });
+    }
   }
 }
 

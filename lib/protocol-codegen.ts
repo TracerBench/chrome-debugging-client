@@ -1,18 +1,22 @@
 import * as fs from "fs";
 import * as os from "os";
-import * as path from "path";
 import { Protocol } from "./debugging-protocol-factory";
 
 export default class ProtocolCodegen {
   code: string;
-  indentStack: string[] = [""];
+  indentStack: string[];
   indent = "  ";
   get currentIndent(): string {
     return this.indentStack[this.indentStack.length - 1];
   }
 
-  generate(protocol: Protocol): string {
+  generate(protocol: Protocol, filename: string): string {
     this.code = "";
+    this.indentStack = [""];
+    this.append("/**");
+    this.append(` * Generated from protocol ${filename} (version ${protocol.version.major}.${protocol.version.minor})`);
+    this.append(" */");
+    this.append("");
     protocol.domains.forEach(domain => {
       this.generateInterface(domain);
     });
@@ -128,7 +132,7 @@ export default class ProtocolCodegen {
   generateEvent(event: Protocol.Event, domain: string) {
     this.generateComment(event);
     if (event.parameters) {
-      this.append(`${event.name}: ({`);
+      this.append(`${event.name}: (evt: {`);
       this.pushIndent();
       this.generateProperties(event.parameters, domain);
       this.popIndent();
@@ -180,7 +184,7 @@ export default class ProtocolCodegen {
         if (desc.properties) {
           return "{ " + desc.properties.map(p => this.namedTypeString(p, domain)).join("; ") + " }";
         }
-        return "{}";
+        return "any";
       default:
         throw new Error("unexpected type" + JSON.stringify(desc));
     }

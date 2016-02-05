@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import * as os from "os";
-import { Protocol } from "./debugging-protocol-factory";
+import * as Protocol from "./protocol";
 
+/**
+ * Generate Typescript interface to use with the DebuggingProtocol#domains(protocol) method.
+ */
 export default class ProtocolCodegen {
   code: string;
   indentStack: string[];
@@ -10,13 +13,9 @@ export default class ProtocolCodegen {
     return this.indentStack[this.indentStack.length - 1];
   }
 
-  generate(protocol: Protocol, filename: string): string {
+  generate(protocol: Protocol.Protocol): string {
     this.code = "";
     this.indentStack = [""];
-    this.append("/**");
-    this.append(` * Generated from protocol ${filename} (version ${protocol.version.major}.${protocol.version.minor})`);
-    this.append(" */");
-    this.append("");
     protocol.domains.forEach(domain => {
       this.generateInterface(domain);
     });
@@ -182,7 +181,9 @@ export default class ProtocolCodegen {
         return this.typeString(desc.items, domain) + "[]";
       case "object":
         if (desc.properties) {
-          return "{ " + desc.properties.map(p => this.namedTypeString(p, domain)).join("; ") + " }";
+          return "{ " + desc.properties.map(p => {
+            this.namedTypeString(p, domain);
+          }).join("; ") + " }";
         }
         return "any";
       default:

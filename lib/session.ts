@@ -27,16 +27,19 @@ import {
   WebSocketOpener
 } from "./web-socket-opener";
 import {
-  default as DefaultDebuggingProtocolFactory,
-  DebuggingProtocolFactory,
-  DebuggingProtocol
+  default as DefaultDebuggingProtocolClientFactory,
+  DebuggingProtocolClientFactory,
+  DebuggingProtocolClient
 } from "./debugging-protocol-factory";
 import { Disposable } from "./common";
 
+/**
+ * The session is a factory for the various debugging tools/clients that disposes them at the end.
+ */
 export interface Session extends Disposable {
-  spawn(browserType: string, options?: ResolveOptions): Promise<BrowserProcess>;
+  spawnBrowser(browserType: string, options?: ResolveOptions): Promise<BrowserProcess>;
   createAPIClient(host, port): APIClient;
-  openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<DebuggingProtocol>;
+  openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<DebuggingProtocolClient>;
 }
 
 export default async function createSession<T>(cb: (session: Session) => T | PromiseLike<T>): Promise<T> {
@@ -47,7 +50,7 @@ export default async function createSession<T>(cb: (session: Session) => T | Pro
     new DefaultHTTPClientFactory(),
     new DefaultAPIClientFactory(),
     new DefaultWebSocketOpener(),
-    new DefaultDebuggingProtocolFactory()
+    new DefaultDebuggingProtocolClientFactory()
   );
   try {
     return await cb(session);
@@ -65,7 +68,7 @@ class SessionImpl {
   httpClientFactory: HTTPClientFactory;
   apiClientFactory: APIClientFactory;
   webSocketOpener: WebSocketOpener;
-  debuggingProtocolFactory: DebuggingProtocolFactory;
+  debuggingProtocolFactory: DebuggingProtocolClientFactory;
 
   constructor(
     browserResolver: BrowserResolver,
@@ -74,7 +77,7 @@ class SessionImpl {
     httpClientFactory: HTTPClientFactory,
     apiClientFactory: APIClientFactory,
     webSocketOpener: WebSocketOpener,
-    debuggingProtocolFactory: DebuggingProtocolFactory
+    debuggingProtocolFactory: DebuggingProtocolClientFactory
   ) {
     this.browserResolver = browserResolver;
     this.tmpDirCreator = tmpDirCreator;
@@ -85,7 +88,7 @@ class SessionImpl {
     this.debuggingProtocolFactory = debuggingProtocolFactory;
   }
 
-  async spawn(browserType: string, options?: ResolveOptions): Promise<BrowserProcess> {
+  async spawnBrowser(browserType: string, options?: ResolveOptions): Promise<BrowserProcess> {
     let browser = this.browserResolver.resolve(browserType, options);
     let tmpDir = await this.tmpDirCreator.create();
     this.disposables.push(tmpDir);
@@ -98,7 +101,7 @@ class SessionImpl {
     return this.apiClientFactory.create(this.httpClientFactory.create(host, port));
   }
 
-  async openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<DebuggingProtocol> {
+  async openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<DebuggingProtocolClient> {
     let debuggingProtocol = this.debuggingProtocolFactory.create();
     let connection = await this.webSocketOpener.open(webSocketDebuggerUrl, debuggingProtocol);
     this.disposables.push(connection);

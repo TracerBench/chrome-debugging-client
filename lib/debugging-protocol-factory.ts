@@ -1,33 +1,56 @@
 import { EventNotifier } from "./common";
 import { WebSocketDelegate } from "./web-socket-opener";
 import { EventEmitter } from "events";
+import * as Protocol from "./protocol";
 
-export interface DebuggingProtocolFactory {
+export interface DebuggingProtocolClientFactory {
   create();
 }
 
-export interface DebuggingProtocol extends EventNotifier, WebSocketDelegate {
+export interface DebuggingProtocolClient extends EventNotifier, WebSocketDelegate {
   send(command: string, params?: any): Promise<any>;
-  domains(protocol: Protocol): any;
+  domains(protocol: Protocol.Protocol): any;
 }
 
-export default class DebuggingProtocolFactoryImpl implements DebuggingProtocolFactory {
-  create(): DebuggingProtocol {
+interface CommandRequest {
+  id: number;
+  method: string;
+  params: string;
+  resolve: (res: CommandResponseMessage) => void;
+  reject: (reason: any) => void;
+}
+
+interface EventMessage {
+  method: string;
+  params: any;
+}
+
+interface SuccessResponseMessage {
+  id: number;
+  result: any;
+}
+
+interface ErrorResponseMessage {
+  id: number;
+  error: {
+    code: number;
+    message: string;
+  };
+}
+
+interface Message extends EventMessage, SuccessResponseMessage, ErrorResponseMessage {}
+
+interface CommandResponseMessage extends SuccessResponseMessage, ErrorResponseMessage {}
+
+export default class DebuggingProtocolFactoryImpl implements DebuggingProtocolClientFactory {
+  create(): DebuggingProtocolClient {
     return new DebuggingProtocolImpl();
   }
 }
 
-interface Request {
-  id: number;
-  method: string;
-  params: string;
-  resolve: (res: Response) => void;
-  reject: (reason: any) => void;
-}
-
-class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
+class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocolClient {
   seq = 0;
-  pendingRequests = new Map<number, Request>();
+  pendingRequests = new Map<number, CommandRequest>();
   socket: {
     send(data: string);
     close();
@@ -37,7 +60,7 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
     super();
   }
 
-  domains(protocol?: Protocol): any {
+  domains(protocol?: Protocol.Protocol): any {
     let all = {};
     protocol.domains.forEach(domain => {
       all[domain.domain] = new Domain(this, domain);
@@ -82,7 +105,7 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
       let id = this.seq++;
       this.socket.send(JSON.stringify({id, method, params}));
       this.pendingRequests.set(id, { id, method, params, resolve, reject });
-    }).then((res: Response) => {
+    }).then((res: CommandResponseMessage) => {
       if (res.error) {
         throw new ProtocolError(res.error);
       }
@@ -92,10 +115,10 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocol {
 }
 
 class Domain {
-  private _client: DebuggingProtocol;
+  private _client: DebuggingProtocolClient;
   private _domain: Protocol.Domain;
 
-  constructor(client: DebuggingProtocol, domain: Protocol.Domain) {
+  constructor(client: DebuggingProtocolClient, domain: Protocol.Domain) {
     this._client = client;
     this._domain = domain;
     if (domain.commands) {
@@ -129,88 +152,13 @@ class Domain {
   }
 }
 
-interface Event {
-  method: string;
-  params: any;
-}
-
-interface SuccessResponse {
-  id: number;
-  result: any;
-}
-
-interface ErrorResponse {
-  id: number;
-  error: {
-    code: number;
-    message: string;
-  };
-}
-
-interface Message extends Event, SuccessResponse, ErrorResponse {}
-
-interface Response extends SuccessResponse, ErrorResponse {}
-
 class ProtocolError extends Error {
   code: number;
-  constructor(err: { code: number, message: string}) {
+  constructor(err: {
+    code: number;
+    message: string;
+  }) {
     super(err.message);
     this.code = err.code;
   }
-}
-
-export namespace Protocol {
-  export interface Version {
-    major: string;
-    minor: string;
-  }
-
-  export interface Domain {
-    domain: string;
-    description?: string;
-    hidden?: boolean;
-    commands?: Command[];
-    events?: Event[];
-    types?: Type[];
-  }
-
-  export interface Command {
-    name: string;
-    description?: string;
-    hidden?: boolean;
-    parameters?: NamedDescriptor[];
-    returns?: NamedDescriptor[];
-  }
-
-  export interface Event {
-    name: string;
-    description?: string;
-    hidden?: boolean;
-    deprecated?: boolean;
-    parameters?: NamedDescriptor[];
-  }
-
-  export interface Type extends Descriptor {
-    id: string;
-  }
-
-  export interface NamedDescriptor extends Descriptor {
-    name: string;
-    optional?: boolean;
-  }
-
-  export interface Descriptor {
-    description?: string;
-    hidden?: boolean;
-    $ref?: string;
-    type?: string;
-    enum?: string[];
-    items?: Descriptor;
-    properties?: NamedDescriptor[];
-  }
-}
-
-export interface Protocol {
-  domains: Protocol.Domain[];
-  version: Protocol.Version;
 }

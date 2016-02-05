@@ -11,20 +11,20 @@ createSession(async (session) => {
   } else {
     browserType = "canary";
   }
-  let browser = await session.spawn(browserType, resolverOptions);
-  let client = session.createAPIClient("localhost", browser.remoteDebuggingPort);
-  let version = await client.version();
+  let browser = await session.spawnBrowser(browserType, resolverOptions);
+  let apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
+  let version = await apiClient.version();
   console.log(JSON.stringify(version, null, 2));
-  let tabs = await client.listTabs();
+  let tabs = await apiClient.listTabs();
   let tab = tabs[0];
-  await client.activateTab(tab.id);
-  let debugging = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
-  await debugging.send("HeapProfiler.enable", {});
+  await apiClient.activateTab(tab.id);
+  let debuggingClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
+  await debuggingClient.send("HeapProfiler.enable", {});
   let buffer = "";
-  debugging.on("HeapProfiler.addHeapSnapshotChunk", (evt) => {
+  debuggingClient.on("HeapProfiler.addHeapSnapshotChunk", (evt) => {
     buffer += evt.chunk;
   });
-  await debugging.send("HeapProfiler.takeHeapSnapshot", {});
+  await debuggingClient.send("HeapProfiler.takeHeapSnapshot", {});
   return JSON.parse(buffer);
 }).then((data) => {
   console.log(data.snapshot.meta);

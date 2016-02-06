@@ -1,13 +1,14 @@
 import { Disposable, eventPromise } from "./common";
 import * as WebSocket from "ws";
 
-export interface WebSocketOpener {
-  open(url: string, delegate: WebSocketDelegate): Promise<WebSocketConnection>;
+export interface IWebSocketOpener {
+  open(url: string, delegate: IWebSocketDelegate): Promise<IWebSocketConnection>;
 }
 
-export interface WebSocketConnection extends Disposable {}
+export interface IWebSocketConnection extends Disposable {
+}
 
-export interface WebSocketDelegate {
+export interface IWebSocketDelegate {
   socket: {
     send(data: string);
     close();
@@ -17,22 +18,22 @@ export interface WebSocketDelegate {
   onClose();
 }
 
-export default class WebSocketImpl implements WebSocketOpener {
-  open(url: string, delegate: WebSocketDelegate): Promise<WebSocketConnection> {
-    return new Promise<WebSocketConnection>(resolve => {
+export default class WebSocketOpener implements IWebSocketOpener {
+  open(url: string, delegate: IWebSocketDelegate): Promise<IWebSocketConnection> {
+    return new Promise<IWebSocketConnection>(resolve => {
       let ws = new WebSocket(url);
       resolve(eventPromise(ws, "open", "error").then(() => {
         delegate.socket = ws;
         ws.on("message", data => delegate.onMessage(data));
         ws.on("error", err => delegate.onError(err));
         ws.on("close", () => delegate.onClose());
-        return new WebSocketConnectionImpl(ws);
+        return new WebSocketConnection(ws);
       }));
     });
   }
 }
 
-class WebSocketConnectionImpl implements WebSocketConnection {
+class WebSocketConnection implements IWebSocketConnection {
   ws: WebSocket;
   constructor(ws: WebSocket) {
     this.ws = ws;

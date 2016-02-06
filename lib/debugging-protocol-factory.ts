@@ -1,13 +1,13 @@
 import { EventNotifier } from "./common";
-import { WebSocketDelegate } from "./web-socket-opener";
+import { IWebSocketDelegate } from "./web-socket-opener";
 import { EventEmitter } from "events";
 import * as Protocol from "./protocol";
 
-export interface DebuggingProtocolClientFactory {
+export interface IDebuggingProtocolClientFactory {
   create();
 }
 
-export interface DebuggingProtocolClient extends EventNotifier, WebSocketDelegate {
+export interface IDebuggingProtocolClient extends EventNotifier, IWebSocketDelegate {
   send(command: string, params?: any): Promise<any>;
   domains(protocol: Protocol.Protocol): any;
 }
@@ -42,13 +42,13 @@ interface Message extends EventMessage, SuccessResponseMessage, ErrorResponseMes
 
 interface CommandResponseMessage extends SuccessResponseMessage, ErrorResponseMessage {}
 
-export default class DebuggingProtocolFactoryImpl implements DebuggingProtocolClientFactory {
-  create(): DebuggingProtocolClient {
-    return new DebuggingProtocolImpl();
+export default class DebuggingProtocolFactory implements IDebuggingProtocolClientFactory {
+  create(): IDebuggingProtocolClient {
+    return new DebuggingProtocol();
   }
 }
 
-class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocolClient {
+class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient {
   seq = 0;
   pendingRequests = new Map<number, CommandRequest>();
   socket: {
@@ -115,10 +115,10 @@ class DebuggingProtocolImpl extends EventEmitter implements DebuggingProtocolCli
 }
 
 class Domain {
-  private _client: DebuggingProtocolClient;
+  private _client: IDebuggingProtocolClient;
   private _domain: Protocol.Domain;
 
-  constructor(client: DebuggingProtocolClient, domain: Protocol.Domain) {
+  constructor(client: IDebuggingProtocolClient, domain: Protocol.Domain) {
     this._client = client;
     this._domain = domain;
     if (domain.commands) {

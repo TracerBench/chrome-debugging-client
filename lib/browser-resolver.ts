@@ -1,6 +1,6 @@
 import * as os from "os";
 
-export interface BrowserResolver {
+export interface IBrowserResolver {
   resolve(browserType: string, options?: ResolveOptions): ExecutableInfo;
 }
 
@@ -29,7 +29,7 @@ const APP_NAMES = {
   }
 };
 
-export default class BrowserResolverImpl implements BrowserResolver {
+export default class BrowserResolver implements IBrowserResolver {
   get platform() {
     switch (os.platform()) {
       case "darwin": return "darwin";
@@ -92,7 +92,7 @@ export default class BrowserResolverImpl implements BrowserResolver {
 
   resolveChromeApplication(browserType: string): string {
     if (this.platform !== "darwin") {
-      // TODO other platforms
+      // TODO other platforms, can use exact or build variants
       return;
     }
     if (browserType === "canary") {

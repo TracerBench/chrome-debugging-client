@@ -5,23 +5,24 @@ import * as path from "path";
 
 const PORT_FILENAME = "DevToolsActivePort";
 
-export interface BrowserSpawner {
-  spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<BrowserProcess>;
+export interface IBrowserSpawner {
+  spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<IBrowserProcess>;
 }
 
-export interface BrowserProcess extends Disposable {
+export interface IBrowserProcess extends Disposable {
   remoteDebuggingPort: number;
-  // throws if process has exited or there was an error
+  dataDir: string;
+  /** throws if process has exited or there has been an error */
   validate();
 }
 
-export default class BrowserSpawnerImpl implements BrowserSpawner {
-  async spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<BrowserProcess> {
+export default class BrowserSpawner implements IBrowserSpawner {
+  async spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<IBrowserProcess> {
     let portFile = path.join(dataDir, PORT_FILENAME);
     // delete port file before launching
     await tryDeleteFile(portFile);
     let args = this.getArguments(dataDir, isContentShell);
-    let process: BrowserProcess = new BrowserProcessImpl(executablePath, args);
+    let process: IBrowserProcess = new BrowserProcess(executablePath, args);
     try {
       let port: number = 0;
       let tries = 0;
@@ -34,6 +35,7 @@ export default class BrowserSpawnerImpl implements BrowserSpawner {
         process.validate();
         if (port > 0) {
           process.remoteDebuggingPort = port;
+          process.dataDir = dataDir;
           break;
         }
       }
@@ -81,12 +83,13 @@ export default class BrowserSpawnerImpl implements BrowserSpawner {
   }
 }
 
-class BrowserProcessImpl implements BrowserProcess {
+class BrowserProcess implements IBrowserProcess {
   process: ChildProcess;
   pid: number;
   lastError: Error;
   hasExited: boolean = false;
   remoteDebuggingPort: number = 0;
+  dataDir: string;
 
   constructor(executablePath, args) {
     let process = spawn(executablePath, args);

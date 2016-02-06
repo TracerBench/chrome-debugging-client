@@ -4,25 +4,25 @@ import * as path from "path";
 import * as mktemp from "mktemp";
 import * as rimraf from "rimraf";
 
-export interface TmpDirCreator {
-  create(): Promise<TmpDir>;
+export interface ITmpDirCreator {
+  create(): Promise<ITmpDir>;
 }
 
-export interface TmpDir extends Disposable {
+export interface ITmpDir extends Disposable {
   path: string;
 }
 
-export default class TmpDirCreatorImpl implements TmpDirCreator {
+export default class TmpDirCreator implements ITmpDirCreator {
   async create(): Promise<Disposable> {
     let templatePath = path.join(tmpdir(), "tmpXXXXXX");
     let tmpDirPath = await new Promise<string>((resolve, reject) => {
       mktemp.createDir(templatePath, (err, path) => err ? reject(err) : resolve(path));
     });
-    return new TmpDirImpl(tmpDirPath);
+    return new TmpDir(tmpDirPath);
   }
 }
 
-class TmpDirImpl implements TmpDir {
+class TmpDir implements ITmpDir {
   path: string;
 
   constructor(path: string) {

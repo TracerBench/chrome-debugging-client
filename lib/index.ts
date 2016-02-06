@@ -4,9 +4,8 @@ export * from "./browser-spawner";
 export * from "./debugging-protocol-factory";
 export * from "./http-client-factory";
 export * from "./http-client-factory";
-export * from "./session";
 export * from "./web-socket-opener";
 export * from "./tmpdir-creator";
-
-export { default as ProtocolCodegen } from "./protocol-codegen";
+export * from "./session";
 export { default as createSession } from "./session";
+export { default as ProtocolCodegen } from "./protocol-codegen";

@@ -1,10 +1,10 @@
-import { HTTPClient } from "./http-client-factory";
+import { IHTTPClient } from "./http-client-factory";
 
-export interface APIClientFactory {
-  create(httpClient: HTTPClient): APIClient;
+export interface IAPIClientFactory {
+  create(httpClient: IHTTPClient): IAPIClient;
 }
 
-export interface APIClient {
+export interface IAPIClient {
   version(): Promise<VersionInfo>;
   listTabs(): Promise<Tab[]>;
   newTab(url?: string): Promise<Tab>;
@@ -30,16 +30,16 @@ export interface VersionInfo {
   "WebKit-Version": string;
 }
 
-export default class APIClientFactoryImpl implements APIClientFactory {
-  create(httpClient: HTTPClient): APIClient {
-    return new APIClientImpl(httpClient);
+export default class APIClientFactory implements IAPIClientFactory {
+  create(httpClient: IHTTPClient): IAPIClient {
+    return new APIClient(httpClient);
   }
 }
 
-class APIClientImpl implements APIClient {
-  httpClient: HTTPClient;
+class APIClient implements IAPIClient {
+  httpClient: IHTTPClient;
 
-  constructor(httpClient: HTTPClient) {
+  constructor(httpClient: IHTTPClient) {
     this.httpClient = httpClient;
   }
 

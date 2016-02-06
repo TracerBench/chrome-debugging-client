@@ -1,21 +1,21 @@
 import { EventNotifier, eventPromise } from "./common";
 import { get, ClientRequest, IncomingMessage } from "http";
 
-export interface HTTPClientFactory {
-  create(host: string, port: number): HTTPClient;
+export interface IHTTPClientFactory {
+  create(host: string, port: number): IHTTPClient;
 }
 
-export interface HTTPClient {
+export interface IHTTPClient {
   get(path: string): Promise<string>;
 }
 
-export default class HTTPClientFactoryImpl implements HTTPClientFactory {
-  create(host: string, port: number): HTTPClient {
-    return new HTTPClientImpl(host, port);
+export default class HTTPClientFactory implements IHTTPClientFactory {
+  create(host: string, port: number): IHTTPClient {
+    return new HTTPClient(host, port);
   }
 }
 
-class HTTPClientImpl implements HTTPClient {
+class HTTPClient implements IHTTPClient {
   host: string;
   port: number;
 

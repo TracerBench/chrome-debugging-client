@@ -1,7 +1,7 @@
 import {
   default as BrowserResolver,
   IBrowserResolver,
-  IResolveOptions
+  ResolveOptions
 } from "./browser-resolver";
 import {
   default as BrowserSpawner,
@@ -37,7 +37,7 @@ import { Disposable } from "./common";
  * The session is a factory for the various debugging tools/clients that disposes them at the end.
  */
 export interface ISession extends Disposable {
-  spawnBrowser(browserType: string, options?: IResolveOptions): Promise<IBrowserProcess>;
+  spawnBrowser(browserType: string, options?: ResolveOptions): Promise<IBrowserProcess>;
   createAPIClient(host, port): IAPIClient;
   openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient>;
 }
@@ -88,7 +88,7 @@ class Session {
     this.debuggingProtocolFactory = debuggingProtocolFactory;
   }
 
-  async spawnBrowser(browserType: string, options?: IResolveOptions): Promise<IBrowserProcess> {
+  async spawnBrowser(browserType: string, options?: ResolveOptions): Promise<IBrowserProcess> {
     let browser = this.browserResolver.resolve(browserType, options);
     let tmpDir = await this.tmpDirCreator.create();
     this.disposables.push(tmpDir);

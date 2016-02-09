@@ -30,7 +30,7 @@ import {
   default as DebuggingProtocolClientFactory,
   IDebuggingProtocolClientFactory,
   IDebuggingProtocolClient
-} from "./debugging-protocol-factory";
+} from "./debugging-protocol-client-factory";
 import { Disposable } from "./common";
 
 /**

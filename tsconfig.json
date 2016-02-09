@@ -1,18 +1,21 @@
 {
-	"compilerOptions": {
-		"declaration": true,
-		"module": "commonjs",
-		"target": "es6",
-		"outDir": "dist",
-		"sourceMap": true,
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "dist",
+    "sourceMap": true,
     "noLib": true,
     "moduleResolution": "node"
-	},
-	"exclude": [
-		"node_modules",
-    "dist"
-	],
-  "include": [
-    "node_modules/typescript/lib/lib.es6.d.ts"
+  },
+  "files": [
+    "node_modules/typescript/lib/lib.core.es6.d.ts",
+    "typings/lib.es6.d.ts",
+    "typings/node/node.d.ts",
+    "typings/rimraf/rimraf.d.ts",
+    "typings/mktemp/mktemp.d.ts",
+    "typings/ws/ws.d.ts",
+    "typings/tape/tape.d.ts",
+    "test.ts"
   ]
 }

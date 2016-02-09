@@ -5,10 +5,10 @@
 			"name": "Test",
 			"type": "node",
 			"request": "launch",
-			"program": "test.ts",
+			"program": "${workspaceRoot}/test.ts",
 			"stopOnEntry": false,
 			"args": [],
-			"cwd": ".",
+			"cwd": "${workspaceRoot}",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy"
@@ -20,13 +20,7 @@
       "preLaunchTask": "npm",
 			"externalConsole": false,
 			"sourceMaps": true,
-			"outDir": "dist"
-		},
-		{
-			"name": "Attach",
-			"type": "node",
-			"request": "attach",
-			"port": 5858
+			"outDir": "${workspaceRoot}/dist"
 		}
 	]
 }

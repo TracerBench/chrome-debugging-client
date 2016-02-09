@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Chrome debugging client",
   "keywords": [
     "chrome",
@@ -10,8 +10,10 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "tsc",
+    "prepublish": "npm run rebuild",
+    "rebuild": "rm -rf dist && tsc",
     "compile": "tsc --watch",
+    "lint": "tslint test.ts index.ts test/**/*.ts lib/**/*.ts",
     "test": "tsc && node dist/test.js | faucet"
   },
   "author": "Kris Selden",

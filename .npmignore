@@ -1,7 +1,6 @@
 /node_modules/
 /.gitignore
 /.npmignore
-/dist/test.js
-/test.ts
-/test.html
+/dist/test*
+/test*
 /*.tgz

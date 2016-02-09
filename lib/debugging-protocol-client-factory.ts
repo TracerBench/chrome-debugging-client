@@ -1,15 +1,14 @@
 import { EventNotifier } from "./common";
 import { IWebSocketDelegate } from "./web-socket-opener";
 import { EventEmitter } from "events";
-import * as Protocol from "./protocol";
 
 export interface IDebuggingProtocolClientFactory {
   create();
 }
 
 export interface IDebuggingProtocolClient extends EventNotifier, IWebSocketDelegate {
+  send<T>(command: string, params?: any): Promise<T>;
   send(command: string, params?: any): Promise<any>;
-  domains(protocol: Protocol.Protocol): any;
 }
 
 interface CommandRequest {
@@ -60,14 +59,6 @@ class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient
     super();
   }
 
-  domains(protocol?: Protocol.Protocol): any {
-    let all = {};
-    protocol.domains.forEach(domain => {
-      all[domain.domain] = new Domain(this, domain);
-    });
-    return all;
-  }
-
   onMessage(data: string) {
     try {
       let msg: Message = JSON.parse(data);
@@ -111,44 +102,6 @@ class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient
       }
       return res.result;
     });
-  }
-}
-
-class Domain {
-  private _client: IDebuggingProtocolClient;
-  private _domain: Protocol.Domain;
-
-  constructor(client: IDebuggingProtocolClient, domain: Protocol.Domain) {
-    this._client = client;
-    this._domain = domain;
-    if (domain.commands) {
-      domain.commands.forEach(command => {
-        let prefixed = `${domain.domain}.${command.name}`;
-        this[command.name] = (params) => {
-          return this._client.send(prefixed, params);
-        };
-      });
-    }
-    if (domain.events) {
-      domain.events.forEach(event => {
-        let prefixed = `${domain.domain}.${event.name}`;
-        let listener;
-        Object.defineProperty(this, event.name, {
-          get: () => {
-            return listener;
-          },
-          set: (v) => {
-            if (listener) {
-              this._client.removeListener(prefixed, listener);
-            }
-            listener = v;
-            if (v) {
-              this._client.on(prefixed, v);
-            }
-          }
-        });
-      });
-    }
   }
 }
 

@@ -1,4 +1,4 @@
-export { IAPIClientFactory, IAPIClient } from "./api-client-factory";
+export { IAPIClientFactory, IAPIClient, Tab, VersionInfo } from "./api-client-factory";
 export { IBrowserResolver, ResolveOptions, ExecutableInfo } from "./browser-resolver";
 export { IBrowserSpawner, IBrowserProcess } from "./browser-spawner";
 export { IDebuggingProtocolClientFactory, IDebuggingProtocolClient } from "./debugging-protocol-client-factory";

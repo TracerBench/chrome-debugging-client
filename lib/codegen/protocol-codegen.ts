@@ -2,33 +2,203 @@ import * as fs from "fs";
 import * as os from "os";
 import * as Protocol from "./protocol";
 
+export interface ProtocolCodegenOptions {
+  clientModuleName?: string;
+  indent?: string;
+  typescript?: boolean;
+}
+
 /**
  * Generate Typescript interface to use with the DebuggingProtocol#domains(protocol) method.
  */
 export default class ProtocolCodegen {
-  clientModule: string = "chrome-debugging-client";
-  code: string;
-  indentStack: string[];
-  indent = "  ";
+  indent: string;
+  typescript: boolean;
+  clientModuleName: string;
+
+  indentStack: string[] = [""];
+  code: string = undefined;
+
+  constructor(options: ProtocolCodegenOptions) {
+    let opts = options || {};
+    this.clientModuleName = opts.clientModuleName || "chrome-debugging-client";
+    this.indent = opts.indent || "  ";
+    this.typescript = !!opts.typescript;
+  }
+
   get currentIndent(): string {
     return this.indentStack[this.indentStack.length - 1];
   }
 
   generate(protocol: Protocol.Protocol): string {
     this.code = "";
-    this.indentStack = [""];
-    this.append(`import { IDebuggingProtocolClient } from "${this.clientModule}";`);
-    protocol.domains.forEach(domain => {
-      this.generateDomain(domain);
+    this.indentStack.length = 1;
+
+    this.appendProtocolVersionComment(protocol.version);
+    this.appendClientImport();
+    each(protocol.domains, domain => {
+      let domainName = domain.domain;
+      let events = domain.events;
+      let commands = domain.commands;
+      let types = domain.types;
+
+      this.appendComment(domain);
+      this.appendDomainClass(domainName, () => {
+        each(events, event => {
+          this.appendEventMember(event, domainName);
+        });
+        this.appendClientMember();
+        this.appendDomainConstructor();
+        each(commands, command => {
+          this.appendComment(command);
+          this.appendCommandMethod(command, domainName);
+        });
+        each(events, event => {
+          this.appendComment(event);
+          this.appendEventAccessors(event, domainName);
+        });
+      });
+
+      this.generateDomainTypeNamespace(domainName, () => {
+        each(types, type => {
+          this.appendComment(type);
+          this.appendType(type);
+        });
+        each(events, event => {
+          this.appendEventParametersType(event);
+          this.appendEventHandlerType(event);
+        });
+        each(commands, command => {
+          this.appendCommandTypes(command);
+        });
+      });
     });
-    return this.code;
+    let code = this.code;
+    this.code = undefined;
+    return code;
   }
 
-  pushIndent() {
+  appendProtocolVersionComment(version: Protocol.Version) {
+    this.append("/**");
+    this.append(` * Debugging Protocol ${version.major}.${version.minor} Domains`);
+    this.append(` * Generated on ${new Date()}`);
+    this.append(" */");
+  }
+
+  appendClientImport() {
+    if (this.typescript) {
+      this.append(`import { IDebuggingProtocolClient } from "${this.clientModuleName}";`);
+    } else {
+      this.append("\"use strict\";");
+    }
+  }
+
+  appendDomainClass(domainName: string, cb: () => void) {
+    let moduleExport = this.typescript ? "export" : `module.exports.${domainName} =`;
+    this.append(`${moduleExport} class ${domainName} {`);
+    this.block(cb);
+    this.append("}");
+  }
+
+  generateDomainTypeNamespace(domainName: string, cb: () => void) {
+    if (!this.typescript) return;
+    this.append(`export namespace ${domainName} {`);
+    this.block(cb);
+    this.append("}");
+  }
+
+  appendEventMember(event: Protocol.Event, domainName: string) {
+    if (!this.typescript) {
+      return;
+    }
+    let name = event.name;
+    this.append(`private _${name}: ${domainName}.${name}_Handler = undefined;`);
+  }
+
+  appendClientMember() {
+    if (!this.typescript) {
+      return;
+    }
+    this.append("private _client: IDebuggingProtocolClient = undefined;");
+  }
+
+  appendDomainConstructor() {
+    let type = this.typescript ? ": IDebuggingProtocolClient" : "";
+    this.append(`constructor(client${type}) {`);
+    this.block(() => {
+      this.append("this._client = client;");
+    });
+    this.append("}");
+  }
+
+  appendCommandMethod(command: Protocol.Command, domainName: string) {
+    let name = command.name;
+    let fullname = `${domainName}.${name}`;
+    let paramsType = this.typescript ? `: ${fullname}_Parameters` : "";
+    let params = command.parameters ? `params${paramsType}` : "";
+    let paramsArg = command.parameters ? ", params" : "";
+    let returnType = this.typescript ? command.returns ? `<${fullname}_Return>` : "<void>" : "";
+    let returns = this.typescript ? `: Promise${returnType}` : "";
+
+    this.append(`${name}(${params})${returns} {`);
+    this.block(() => {
+      this.append(`return this._client.send${returnType}("${fullname}"${paramsArg});`);
+    });
+    this.append("}");
+  }
+
+  appendEventAccessors(event: Protocol.Event, domainName: string) {
+    let name = event.name;
+    let fullname = `${domainName}.${name}`;
+    let handlerType = this.typescript ? `: ${fullname}_Handler` : "";
+
+    this.append(`get ${name}()${handlerType} {`);
+    this.block(() => {
+      this.append(`return this._${name};`);
+    });
+    this.append("}");
+    this.append(`set ${name}(handler${handlerType}) {`);
+    this.block(() => {
+      this.append(`if (this._${name}) {`);
+      this.block(() => {
+        this.append(`this._client.removeListener("${fullname}", this._${name});`);
+      });
+      this.append("}");
+      this.append(`this._${name} = handler;`);
+      this.append("if (handler) {");
+      this.block(() => {
+        this.append(`this._client.on("${fullname}", handler);`);
+      });
+      this.append(`}`);
+    });
+    this.append("}");
+  }
+
+  appendType(type: Protocol.Type) {
+    let properties = type.properties;
+    if (type.type === "object" && properties && properties.length) {
+      this.append(`export interface ${type.id} {`);
+      this.block(() => {
+        each(properties, prop => this.generateProperty(prop));
+      });
+      this.append("}");
+    } else {
+      this.append(`export type ${type.id} = ${this.typeString(type)};`);
+    }
+  }
+
+  appendEventParametersType(event: Protocol.Event) {
+    this.generateObjectTypeAlias(`${event.name}_Parameters`, event.parameters);
+  }
+
+  appendEventHandlerType(event: Protocol.Event) {
+    let params = event.parameters ? `params: ${event.name}_Parameters` : "";
+    this.append(`export type ${event.name}_Handler = (${params}) => void;`);
+  }
+
+  block(cb: () => void) {
     this.indentStack.push(this.currentIndent + this.indent);
-  }
-
-  popIndent() {
+    cb();
     this.indentStack.pop();
   }
 
@@ -36,162 +206,48 @@ export default class ProtocolCodegen {
     this.code += this.currentIndent + line + "\n";
   }
 
-  generateDomain(domain: Protocol.Domain) {
-    this.generateComment(domain);
-    this.append(`export class ${domain.domain} {`);
-    this.pushIndent();
-    this.append("_client: IDebuggingProtocolClient;");
-    if (domain.events) {
-      domain.events.forEach(event => this.generateEventProperty(event, domain.domain));
-    }
-    this.append("constructor(client: IDebuggingProtocolClient) {");
-    this.pushIndent();
-    this.append("this._client = client;");
-    this.popIndent();
-    this.append("}");
-    if (domain.commands) {
-      domain.commands.forEach(command => this.generateMethod(command, domain.domain));
-    }
-    if (domain.events) {
-      domain.events.forEach(event => this.generateEvent(event, domain.domain));
-    }
-    this.popIndent();
-    this.append("}");
-    this.append(`export namespace ${domain.domain} {`);
-    this.pushIndent();
-    if (domain.types) {
-      domain.types.forEach(type => this.generateType(type));
-    }
-    if (domain.events) {
-      domain.events.forEach(event => this.generateEventTypes(event));
-    }
-    if (domain.commands) {
-      domain.commands.forEach(command => this.generateCommandTypes(command));
-    }
-    this.popIndent();
-    this.append("}");
+  generateProperty(desc: Protocol.NamedDescriptor) {
+    this.appendComment(desc);
+    this.append(this.namedTypeString(desc));
   }
 
-  generateType(type: Protocol.Type) {
-    this.generateComment(type);
-    if (type.type === "object" && type.properties) {
-      this.append(`export interface ${type.id} {`);
-      this.pushIndent();
-      this.generateProperties(type.properties);
-      this.popIndent();
-      this.append("}");
-    } else {
-      this.append(`export type ${type.id} = ${this.typeString(type)};`);
-    }
-  }
-
-  generateProperties(props: Protocol.NamedDescriptor[], domain?: string) {
-    props.forEach(prop => this.generateProperty(prop, domain));
-  }
-
-  generateProperty(property: Protocol.NamedDescriptor, domain?: string) {
-    this.generateComment(property);
-    this.append(`${this.namedTypeString(property, domain)};`);
-  }
-
-  generateComment(obj: { description?: string }) {
+  appendComment(obj: { description?: string }) {
     if (!obj.description) {
       return;
     }
     this.append(`/** ${obj.description} */`);
   }
 
-  generateMethod(command: Protocol.Command, domain: string) {
-    this.generateComment(command);
-    let params = command.parameters ? `params: ${domain}.${command.name}_Parameters` : "";
-    let args = command.parameters ? ", params" : "";
-    let returns = command.returns ? `${domain}.${command.name}_Return` : "void";
-    this.append(`${command.name}(${params}): Promise<${returns}> {`);
-    this.pushIndent();
-    this.append(`return this._client.send<${returns}>("${domain}.${command.name}"${args});`);
-    this.popIndent();
-    this.append("}");
+  appendCommandTypes(command: Protocol.Command) {
+    let name = command.name;
+    this.generateObjectTypeAlias(`${name}_Parameters`, command.parameters);
+    this.generateObjectTypeAlias(`${name}_Return`, command.returns);
   }
 
-  generateEvent(event: Protocol.Event, domain: string) {
-    this.generateComment(event);
-    this.append(`get ${event.name}(): ${domain}.${event.name}_Handler {`);
-    this.pushIndent();
-    this.append(`return this._${event.name};`);
-    this.popIndent();
-    this.append("}");
-    this.append(`set ${event.name}(handler: ${domain}.${event.name}_Handler) {`);
-    this.pushIndent();
-    this.append(`if (this._${event.name}) {`);
-    this.pushIndent();
-    this.append(`this._client.removeListener("${domain}.${event.name}", this._${event.name});`);
-    this.popIndent();
-    this.append(`}`);
-    this.append(`this._${event.name} = handler;`);
-    this.append(`if (handler) {`);
-    this.pushIndent();
-    this.append(`this._client.on("${domain}.${event.name}", handler);`);
-    this.popIndent();
-    this.append(`}`);
-    this.popIndent();
-    this.append("}");
-  }
-
-  generateEventProperty(event: Protocol.Event, domain: string) {
-    this.append(`_${event.name}: ${domain}.${event.name}_Handler;`);
-  }
-
-  generateEventTypes(event: Protocol.Event) {
-    if (event.parameters) {
-      this.append(`export type ${event.name}_Parameters = {`);
-      this.pushIndent();
-      this.generateProperties(event.parameters);
-      this.popIndent();
-      this.append("}");
-      this.append(`export type ${event.name}_Handler = (params: ${event.name}_Parameters) => void;`);
+  generateObjectTypeAlias(name: string, props: Protocol.NamedDescriptor[]) {
+    if (!props) {
+      return;
+    }
+    if (props.length) {
+      this.append(`export type ${name} = {`);
+      this.block(() => {
+        props.forEach(prop => this.generateProperty(prop));
+      });
+      this.append("};");
     } else {
-      this.append(`export type ${event.name}_Handler = () => void;`);
+      this.append(`export type ${name} = any;`);
     }
   }
 
-  generateCommandTypes(command: Protocol.Command) {
-    if (command.parameters) {
-      this.append(`export type ${command.name}_Parameters = {`);
-      this.pushIndent();
-      this.generateProperties(command.parameters);
-      this.popIndent();
-      this.append("}");
-    }
-    if (command.returns) {
-      this.append(`export type ${command.name}_Return = {`);
-      this.pushIndent();
-      this.generateProperties(command.returns);
-      this.popIndent();
-      this.append("}");
-    }
-  }
-
-  qualifiedTypeId(domain, id) {
-    if (id.indexOf(".") === -1) {
-      return `${domain}.${id}`;
-    }
-    return id;
-  }
-
-  namedTypeString(desc: Protocol.NamedDescriptor, domain?: string): string {
-    let s = desc.name;
-    if (desc.optional) {
-      s += "?";
-    }
-    s += ": ";
-    s += this.typeString(desc);
-    return s;
+  namedTypeString(desc: Protocol.NamedDescriptor): string {
+    return `${desc.name}${desc.optional ? "?" : ""}: ${this.typeString(desc)};`;
   }
 
   typeString(desc: Protocol.Descriptor): string {
     if (desc.$ref) {
       return desc.$ref;
     }
+    let properties = desc.properties;
     switch (desc.type) {
       case "integer":
         return "number";
@@ -207,12 +263,21 @@ export default class ProtocolCodegen {
       case "array":
         return this.typeString(desc.items) + "[]";
       case "object":
-        if (desc.properties) {
-          return "{ " + desc.properties.map(p => this.namedTypeString(p)).join("; ") + " }";
+        if (properties && properties.length) {
+          return "{ " + properties.map(p => this.namedTypeString(p)).join(" ") + " }";
         }
         return "any";
       default:
         throw new Error("unexpected type" + JSON.stringify(desc));
     }
+  }
+}
+
+function each<T>(arr: T[], cb: (arg: T) => void) {
+  if (!arr) {
+    return;
+  }
+  for (let i = 0; i < arr.length; i++) {
+    cb(arr[i]);
   }
 }

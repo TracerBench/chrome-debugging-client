@@ -23,27 +23,38 @@ tape("test REST API", async (t) => {
   }).then(() => t.end(), err => err ? t.error(err) : t.fail());
 });
 
-tape("test debugging protocol", async (t) => {
+[{
+  HeapProfiler: HeapProfiler,
+  name: "typescript"
+}, {
+  HeapProfiler: require("./untyped-domains").HeapProfiler,
+  name: "js"
+}].forEach((context: {
+  name: string,
+  HeapProfiler: typeof HeapProfiler
+}) => {
+  tape("test debugging protocol " + context.name, async (t) => {
     createSession(async (session) => {
-    let browser = await session.spawnBrowser("exact", {
-      executablePath: process.env.CHROME_BIN
-    });
-    let apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
-    let tab = await apiClient.newTab("about:blank");
-    let debuggingClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
-    let heapProfiler = new HeapProfiler(debuggingClient);
-    let buffer = "";
-    await heapProfiler.enable();
-    heapProfiler.addHeapSnapshotChunk = (params) => {
-      buffer += params.chunk;
-    };
-    heapProfiler.reportHeapSnapshotProgress = (params) => {
-      t.comment(params.done / params.total + "");
-    };
-    await heapProfiler.takeHeapSnapshot({reportProgress: false});
-    await heapProfiler.disable();
-    t.assert(buffer.length > 0, "received chunks");
-    let data = JSON.parse(buffer);
-    t.assert(data.snapshot.meta, "has snapshot");
-  }).then(() => t.end(), err => err ? t.error(err) : t.fail());
-});
+      let browser = await session.spawnBrowser("exact", {
+          executablePath: process.env.CHROME_BIN
+      });
+      let apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
+      let tab = await apiClient.newTab("about:blank");
+      let debuggingClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
+      let heapProfiler = new context.HeapProfiler(debuggingClient);
+      let buffer = "";
+      await heapProfiler.enable();
+      heapProfiler.addHeapSnapshotChunk = (params) => {
+          buffer += params.chunk;
+      };
+      heapProfiler.reportHeapSnapshotProgress = (params) => {
+          t.comment(params.done / params.total + "");
+      };
+      await heapProfiler.takeHeapSnapshot({ reportProgress: false });
+      await heapProfiler.disable();
+      t.assert(buffer.length > 0, "received chunks");
+      let data = JSON.parse(buffer);
+      t.assert(data.snapshot.meta, "has snapshot");
+    }).then(() => t.end(), err => err ? t.error(err) : t.fail());
+  });
+})

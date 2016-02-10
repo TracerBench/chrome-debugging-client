@@ -108,7 +108,10 @@ class Session {
     return debuggingProtocol;
   }
 
-  dispose() {
-    return Promise.all(this.disposables.map(disposable => disposable.dispose()));
+  async dispose() {
+    let disposable: Disposable;
+    while (disposable = this.disposables.pop()) {
+      await disposable.dispose();
+    }
   }
 }

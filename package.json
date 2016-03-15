@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Chrome debugging client",
   "keywords": [
     "chrome",
@@ -16,8 +16,8 @@
     "lint": "tslint test.ts index.ts test/**/*.ts lib/**/*.ts",
     "test": "tsc && node dist/test.js | faucet"
   },
-  "author": "Kris Selden",
-  "license": "MIT",
+  "author": "Kris Selden <kris.selden@gmail.com>",
+  "license": "Apache-2.0",
   "dependencies": {
     "mktemp": "^0.4.0",
     "rimraf": "^2.5.1",

@@ -59,6 +59,7 @@ export default class BrowserSpawner implements IBrowserSpawner {
       "--no-proxy-server",
       "--disable-component-extensions-with-background-pages",
       "--disable-default-apps",
+      "--ignore-certificate-errors",
       //  first available ephemeral port
       "--remote-debugging-port=0"
     ];

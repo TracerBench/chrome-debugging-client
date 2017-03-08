@@ -1,14 +1,15 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.2.4",
-  "description": "Chrome debugging client",
+  "version": "0.2.5",
+  "description": "An async/await friendly Chrome debugging client with TypeScript support",
   "keywords": [
     "chrome",
     "debugging",
-    "protocol"
+    "protocol",
+    "typescript"
   ],
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run rebuild",
     "rebuild": "rm -rf dist && tsc",

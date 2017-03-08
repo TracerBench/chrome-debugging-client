@@ -8,6 +8,7 @@
     "moduleResolution": "node"
   },
   "files": [
+    "lib/index.ts",
     "test.ts"
   ]
 }

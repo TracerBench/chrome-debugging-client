@@ -4,7 +4,7 @@ export interface IBrowserResolver {
   resolve(browserType: string, options?: ResolveOptions): ExecutableInfo;
 }
 
-export interface ResolveOptions {
+export type ResolveOptions = {
   executablePath?: string;
   chromiumSrcDir?: string;
 }

@@ -8,8 +8,6 @@
     "moduleResolution": "node"
   },
   "files": [
-    "../typings/ws/ws.d.ts",
-    "../typings/tape/tape.d.ts",
     "domains.ts",
     "index.ts"
   ]

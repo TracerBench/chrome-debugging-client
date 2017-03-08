@@ -5,7 +5,9 @@ import * as tape from "tape";
 tape("test REST API", async (t) => {
   createSession(async (session) => {
     let browser = await session.spawnBrowser("exact", {
-      executablePath: process.env.CHROME_BIN
+      executablePath: process.env.CHROME_BIN,
+      windowSize: { width: 320, height: 640 },
+      additionalArguments: ['--js-flags="--future"']
     });
     let apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
     let version = await apiClient.version();

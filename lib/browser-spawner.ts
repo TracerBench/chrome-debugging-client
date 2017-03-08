@@ -5,8 +5,16 @@ import * as path from "path";
 
 const PORT_FILENAME = "DevToolsActivePort";
 
+export type SpawnOptions = {
+  windowSize?: {
+    width: number,
+    height: number
+  },
+  additionalArguments?: string[];
+}
+
 export interface IBrowserSpawner {
-  spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<IBrowserProcess>;
+  spawn(executablePath: string, dataDir: string, isContentShell: boolean, options?: SpawnOptions): Promise<IBrowserProcess>;
 }
 
 export interface IBrowserProcess extends Disposable {
@@ -17,11 +25,11 @@ export interface IBrowserProcess extends Disposable {
 }
 
 export default class BrowserSpawner implements IBrowserSpawner {
-  async spawn(executablePath: string, dataDir: string, isContentShell: boolean): Promise<IBrowserProcess> {
+  async spawn(executablePath: string, dataDir: string, isContentShell: boolean, options?: SpawnOptions): Promise<IBrowserProcess> {
     let portFile = path.join(dataDir, PORT_FILENAME);
     // delete port file before launching
     await tryDeleteFile(portFile);
-    let args = this.getArguments(dataDir, isContentShell);
+    let args = this.getArguments(dataDir, isContentShell, options);
     let process: IBrowserProcess = new BrowserProcess(executablePath, args);
     try {
       let port: number = 0;
@@ -46,39 +54,62 @@ export default class BrowserSpawner implements IBrowserSpawner {
     }
   }
 
-  getArguments(dataDir: string, isContentShell: boolean): string[] {
+  getArguments(dataDir: string, isContentShell: boolean, options?: SpawnOptions): string[] {
+    let windowSize = options && options.windowSize || {
+      width: 414,
+      height: 736
+    };
+    let additionalArguments = options && options.additionalArguments || [];
     let args = [
-      "--enable-net-benchmarking",
-      "--metrics-recording-only",
-      "--no-default-browser-check",
-      "--no-first-run",
-      "--enable-gpu-benchmarking",
-      "--disable-background-networking",
-      "--disable-cache",
-      "--v8-cache-options=none",
-      "--no-proxy-server",
-      "--disable-component-extensions-with-background-pages",
-      "--disable-default-apps",
+      // base switches
+      "--disable-breakpad",
+      "--noerrdialogs",
+      // content switches
+      "--allow-insecure-localhost",
+      "--disable-hang-monitor",
+      "--disable-notifications",
+      "--disable-web-security",
+      "--disable-v8-idle-tasks",
+      "--disable-xss-auditor",
       "--ignore-certificate-errors",
+      "--no-sandbox",
+      "--reduce-security-for-testing",
+      "--safebrowsing-disable-auto-update",
+      "--v8-cache-options=none",
+      "--process-per-tab",
+      "--use-mock-keychain",
+      "--password-store=basic",
       //  first available ephemeral port
       "--remote-debugging-port=0"
-    ];
+    ].concat(additionalArguments);
     if (isContentShell) {
       return args.concat([
-        "--data-path=" + dataDir,
-        "--no-sandbox",
-        "--no-experiments",
-        "--content-shell-host-window-size=414x736",
+        `--data-path=${dataDir}`,
+        `--content-shell-host-window-size=${windowSize.width}x${windowSize.height}`,
         "about:blank"
       ]);
     }
     return args.concat([
-      "--user-data-dir=" + dataDir,
-      "--no-sandbox",
-      "--no-experiments",
+      "--disable-add-to-shelf",
+      "--disable-background-networking",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-domain-reliability",
       "--disable-extensions",
-      "--noerrdialogs",
-      "--window-size=414,736",
+      "--disable-features=NetworkPrediction",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-sync",
+      "--metrics-recording-only",
+      "--no-default-browser-check",
+      "--no-experiments",
+      "--no-first-run",
+      "--no-ping",
+      "--no-proxy-server",
+      `--user-data-dir=${dataDir}`,
+      `--window-size=${windowSize.width},${windowSize.height}`,
       "about:blank"
     ]);
   }

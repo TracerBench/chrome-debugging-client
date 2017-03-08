@@ -257,7 +257,7 @@ export default class ProtocolCodegen {
         return desc.type;
       case "string":
         if (desc.enum) {
-          return desc.enum.map(JSON.stringify).join(" | ");
+          return desc.enum.map(str => JSON.stringify(str)).join(" | ");
         }
         return "string";
       case "array":

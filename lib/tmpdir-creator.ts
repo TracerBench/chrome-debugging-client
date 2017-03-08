@@ -1,8 +1,11 @@
 import { Disposable } from "./common";
 import { tmpdir } from "os";
 import * as path from "path";
-import * as mktemp from "mktemp";
 import * as rimraf from "rimraf";
+
+const mktemp: {
+  createDir(template: string, callback: (err: Error, filename: string) => void);
+} = require("mktemp");
 
 export interface ITmpDirCreator {
   create(): Promise<ITmpDir>;

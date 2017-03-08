@@ -1,5 +1,6 @@
 chrome-debugging-client
 =======================
+[![Build Status](https://travis-ci.org/krisselden/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/krisselden/chrome-debugging-client)
 
 Example:
 
@@ -7,7 +8,10 @@ Example:
 import { createSession } from "chrome-debugging-client";
 
 createSession(async (session) => {
-  let process = await session.spawn("canary");
+  let process = await session.spawn("canary", {
+    windowSize: { width: 640, height: 320 },
+    additionalArguments: ["--js-flags='--future'"]
+  });
   let client = session.createAPIClient("localhost", process.remoteDebuggingPort);
   let version = await client.version();
   console.log(JSON.stringify(version, null, 2));

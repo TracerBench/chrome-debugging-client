@@ -9,6 +9,12 @@
     "typescript"
   ],
   "main": "dist/index.js",
+  "files": [
+    "dist/index.d.ts",
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/lib"
+  ],
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run rebuild",

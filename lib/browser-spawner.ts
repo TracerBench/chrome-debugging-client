@@ -102,6 +102,7 @@ export default class BrowserSpawner implements IBrowserSpawner {
       "--disable-popup-blocking",
       "--disable-prompt-on-repost",
       "--disable-sync",
+      "--disable-translate", // auto translate
       "--metrics-recording-only",
       "--no-default-browser-check",
       "--no-experiments",

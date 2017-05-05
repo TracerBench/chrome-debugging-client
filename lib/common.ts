@@ -1,22 +1,22 @@
-export interface Disposable {
+export interface IDisposable {
   /* should not reject */
   dispose(): Promise<any>;
 }
 
-export interface EventNotifier {
-  on(event: string, listener: Function): any;
-  removeListener(event: string, listener: Function): any;
+export interface IEventNotifier {
+  on(event: string, listener: (evt?: any) => void): any;
+  removeListener(event: string, listener: (evt?: any) => void): any;
   removeAllListeners(event?: string): any;
 }
 
-export function eventPromise<T>(emitter: EventNotifier, resolveEvent: string, rejectEvent: string): Promise<T> {
+export function eventPromise<T>(emitter: IEventNotifier, resolveEvent: string, rejectEvent: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    let resolveHandler = evt => {
+    const resolveHandler = (evt: T) => {
       resolve(evt);
       emitter.removeListener(resolveEvent, resolveHandler);
       emitter.removeListener(rejectEvent, rejectHandler);
     };
-    let rejectHandler = evt => {
+    const rejectHandler = (evt: any) => {
       reject(evt);
       emitter.removeListener(resolveEvent, resolveHandler);
       emitter.removeListener(rejectEvent, rejectHandler);
@@ -27,5 +27,5 @@ export function eventPromise<T>(emitter: EventNotifier, resolveEvent: string, re
 }
 
 export function delay(ms: number): Promise<any> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

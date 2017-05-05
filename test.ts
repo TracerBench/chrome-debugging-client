@@ -1,33 +1,34 @@
-import { ProtocolCodegen } from "./index";
-import * as ts from "typescript";
 import * as fs from "fs";
+import * as ts from "typescript";
+import { ProtocolCodegen } from "./index";
 
-let protocol = JSON.parse(fs.readFileSync("test/protocol.json", "utf8"));
+const PROTOCOL = JSON.parse(fs.readFileSync("test/protocol.json", "utf8"));
 
 function testProtocolGenTypescript(protocol: any) {
-  let codegen = new ProtocolCodegen({
+  const codegen = new ProtocolCodegen({
     clientModuleName: "../lib/debugging-protocol-client-factory",
-    typescript: true
+    typescript: true,
   });
-  let code = codegen.generate(protocol);
+  const code = codegen.generate(protocol);
   fs.writeFileSync("test/domains.ts", code);
 
-  let configObject = JSON.parse(fs.readFileSync("test/tsconfig.json", "utf8"));
-  let config = ts.parseJsonConfigFileContent(configObject, ts.sys, fs.realpathSync("test"));
-  let program = ts.createProgram(config.fileNames, config.options);
+  const configObject = JSON.parse(fs.readFileSync("test/tsconfig.json", "utf8"));
+  const config = ts.parseJsonConfigFileContent(configObject, ts.sys, fs.realpathSync("test"));
+  const program = ts.createProgram(config.fileNames, config.options);
   program.emit();
 }
 
 function testProtocolGenJS(protocol: any) {
-  let codegen = new ProtocolCodegen({
+  const codegen = new ProtocolCodegen({
     clientModuleName: "../lib/debugging-protocol-client-factory",
-    typescript: false
+    typescript: false,
   });
-  let code = codegen.generate(protocol);
+  const code = codegen.generate(protocol);
   fs.writeFileSync("dist/test/untyped-domains.js", code);
 }
 
-testProtocolGenTypescript(protocol);
-testProtocolGenJS(protocol);
+testProtocolGenTypescript(PROTOCOL);
+testProtocolGenJS(PROTOCOL);
 
+/* tslint:disable:no-var-requires */
 require("./test/index");

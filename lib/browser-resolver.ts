@@ -1,15 +1,15 @@
 import * as os from "os";
 
 export interface IBrowserResolver {
-  resolve(browserType: string, options?: ResolveOptions): ExecutableInfo;
+  resolve(browserType: string, options?: IResolveOptions): IExecutableInfo;
 }
 
-export type ResolveOptions = {
+export interface IResolveOptions {
   executablePath?: string;
   chromiumSrcDir?: string;
 }
 
-export interface ExecutableInfo {
+export interface IExecutableInfo {
   executablePath: string;
   isContentShell: boolean;
 }
@@ -17,16 +17,16 @@ export interface ExecutableInfo {
 const APP_NAMES = {
   darwin: {
     chromium: "Chromium.app/Contents/MacOS/Chromium",
-    content_shell: "Content Shell.app/Contents/MacOS/Content Shell"
-  },
-  win32: {
-    chromium: "chrome.exe",
-    content_shell: "content_shell.exe"
+    content_shell: "Content Shell.app/Contents/MacOS/Content Shell",
   },
   linux: {
     chromium: "chrome",
-    content_shell: "content_shell"
-  }
+    content_shell: "content_shell",
+  },
+  win32: {
+    chromium: "chrome.exe",
+    content_shell: "content_shell.exe",
+  },
 };
 
 export default class BrowserResolver implements IBrowserResolver {
@@ -40,18 +40,18 @@ export default class BrowserResolver implements IBrowserResolver {
   }
 
   get chromiumAppName(): string {
-    return APP_NAMES[this.platform]["chromium"];
+    return APP_NAMES[this.platform].chromium;
   }
 
   get contentShellAppName(): string {
-    return APP_NAMES[this.platform]["content_shell"];
+    return APP_NAMES[this.platform].content_shell;
   }
 
-  resolve(browserType: string, options?: ResolveOptions): ExecutableInfo {
+  public resolve(browserType: string, options?: IResolveOptions): IExecutableInfo {
     if (!options) {
       options = {};
     }
-    let executablePath: string;
+    let executablePath: string | undefined;
     switch (browserType) {
       case "exact":
         executablePath = options.executablePath;
@@ -71,13 +71,13 @@ export default class BrowserResolver implements IBrowserResolver {
       throw new Error(`failed to resolve browser for type ${browserType}`);
     }
     return {
-      executablePath: executablePath,
-      isContentShell: executablePath.endsWith(this.contentShellAppName)
+      executablePath,
+      isContentShell: executablePath.endsWith(this.contentShellAppName),
     };
   }
 
-  resolveChromiumBuild(browserType: string, options: ResolveOptions): string {
-    let chromiumSrcDir = options.chromiumSrcDir || `${os.homedir()}/chromium/src`;
+  private resolveChromiumBuild(browserType: string, options: IResolveOptions): string | undefined {
+    const chromiumSrcDir = options.chromiumSrcDir || `${os.homedir()}/chromium/src`;
     switch (browserType) {
       case "release":
         return `${chromiumSrcDir}/out/Release/${this.chromiumAppName}`;
@@ -87,10 +87,12 @@ export default class BrowserResolver implements IBrowserResolver {
         return `${chromiumSrcDir}/out/Release/${this.contentShellAppName}`;
       case "content-shell-debug":
         return `${chromiumSrcDir}/out/Debug/${this.contentShellAppName}`;
+      default:
+        return;
     }
   }
 
-  resolveChromeApplication(browserType: string): string {
+  private resolveChromeApplication(browserType: string): string | undefined {
     if (this.platform !== "darwin") {
       // TODO other platforms, can use exact or build variants
       return;

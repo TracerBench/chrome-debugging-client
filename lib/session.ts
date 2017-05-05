@@ -1,57 +1,56 @@
 import {
+  default as APIClientFactory,
+  IAPIClient,
+  IAPIClientFactory,
+} from "./api-client-factory";
+import {
   default as BrowserResolver,
   IBrowserResolver,
-  ResolveOptions
+  IResolveOptions,
 } from "./browser-resolver";
 import {
   default as BrowserSpawner,
+  IBrowserProcess,
   IBrowserSpawner,
-  SpawnOptions,
-  IBrowserProcess
+  ISpawnOptions,
 } from "./browser-spawner";
+import { IDisposable } from "./common";
 import {
-  default as TmpDirCreator,
-  ITmpDirCreator
-} from "./tmpdir-creator";
+  default as DebuggingProtocolClientFactory,
+  IDebuggingProtocolClient,
+  IDebuggingProtocolClientFactory,
+} from "./debugging-protocol-client-factory";
 import {
   default as HTTPClientFactory,
   IHTTPClientFactory,
-  IHTTPClient
 } from "./http-client-factory";
 import {
-  default as APIClientFactory,
-  IAPIClientFactory,
-  IAPIClient
-} from "./api-client-factory";
+  default as TmpDirCreator,
+  ITmpDirCreator,
+} from "./tmpdir-creator";
 import {
   default as WebSocketOpener,
-  IWebSocketOpener
+  IWebSocketOpener,
 } from "./web-socket-opener";
-import {
-  default as DebuggingProtocolClientFactory,
-  IDebuggingProtocolClientFactory,
-  IDebuggingProtocolClient
-} from "./debugging-protocol-client-factory";
-import { Disposable } from "./common";
 
 /**
  * The session is a factory for the various debugging tools/clients that disposes them at the end.
  */
-export interface ISession extends Disposable {
-  spawnBrowser(browserType: string, options?: ResolveOptions & SpawnOptions): Promise<IBrowserProcess>;
-  createAPIClient(host, port): IAPIClient;
+export interface ISession extends IDisposable {
+  spawnBrowser(browserType: string, options?: IResolveOptions & ISpawnOptions): Promise<IBrowserProcess>;
+  createAPIClient(host: string, port: number): IAPIClient;
   openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient>;
 }
 
 export default async function createSession<T>(cb: (session: ISession) => T | PromiseLike<T>): Promise<T> {
-  let session = new Session(
+  const session = new Session(
     new BrowserResolver(),
     new TmpDirCreator(),
     new BrowserSpawner(),
     new HTTPClientFactory(),
     new APIClientFactory(),
     new WebSocketOpener(),
-    new DebuggingProtocolClientFactory()
+    new DebuggingProtocolClientFactory(),
   );
   try {
     return await cb(session);
@@ -61,15 +60,15 @@ export default async function createSession<T>(cb: (session: ISession) => T | Pr
 }
 
 class Session {
-  disposables: Disposable[] = [];
+  private disposables: IDisposable[] = [];
 
-  browserResolver: IBrowserResolver;
-  tmpDirCreator: ITmpDirCreator;
-  browserSpawner: IBrowserSpawner;
-  httpClientFactory: IHTTPClientFactory;
-  apiClientFactory: IAPIClientFactory;
-  webSocketOpener: IWebSocketOpener;
-  debuggingProtocolFactory: IDebuggingProtocolClientFactory;
+  private browserResolver: IBrowserResolver;
+  private tmpDirCreator: ITmpDirCreator;
+  private browserSpawner: IBrowserSpawner;
+  private httpClientFactory: IHTTPClientFactory;
+  private apiClientFactory: IAPIClientFactory;
+  private webSocketOpener: IWebSocketOpener;
+  private debuggingProtocolFactory: IDebuggingProtocolClientFactory;
 
   constructor(
     browserResolver: IBrowserResolver,
@@ -78,7 +77,7 @@ class Session {
     httpClientFactory: IHTTPClientFactory,
     apiClientFactory: IAPIClientFactory,
     webSocketOpener: IWebSocketOpener,
-    debuggingProtocolFactory: IDebuggingProtocolClientFactory
+    debuggingProtocolFactory: IDebuggingProtocolClientFactory,
   ) {
     this.browserResolver = browserResolver;
     this.tmpDirCreator = tmpDirCreator;
@@ -89,30 +88,37 @@ class Session {
     this.debuggingProtocolFactory = debuggingProtocolFactory;
   }
 
-  async spawnBrowser(browserType: string, options?: ResolveOptions & SpawnOptions): Promise<IBrowserProcess> {
-    let browser = this.browserResolver.resolve(browserType, options);
-    let tmpDir = await this.tmpDirCreator.create();
+  public async spawnBrowser(browserType: string, options?: IResolveOptions & ISpawnOptions): Promise<IBrowserProcess> {
+    const browser = this.browserResolver.resolve(browserType, options);
+    const tmpDir = await this.tmpDirCreator.create();
     this.disposables.push(tmpDir);
-    let process = await this.browserSpawner.spawn(browser.executablePath, tmpDir.path, browser.isContentShell, options);
+    const process = await this.browserSpawner.spawn(
+      browser.executablePath, tmpDir.path, browser.isContentShell, options);
     this.disposables.push(process);
     return process;
   }
 
-  createAPIClient(host: string, port: number): IAPIClient {
+  public createAPIClient(host: string, port: number): IAPIClient {
     return this.apiClientFactory.create(this.httpClientFactory.create(host, port));
   }
 
-  async openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient> {
-    let debuggingProtocol = this.debuggingProtocolFactory.create();
-    let connection = await this.webSocketOpener.open(webSocketDebuggerUrl, debuggingProtocol);
+  public async openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient> {
+    const debuggingProtocol = this.debuggingProtocolFactory.create();
+    const connection = await this.webSocketOpener.open(webSocketDebuggerUrl, debuggingProtocol);
     this.disposables.push(connection);
     return debuggingProtocol;
   }
 
-  async dispose() {
-    let disposable: Disposable;
-    while (disposable = this.disposables.pop()) {
-      await disposable.dispose();
+  public async dispose() {
+    const { disposables } = this;
+    for (let i = disposables.length - 1; i >= 0; i--) {
+      try {
+        await disposables[i].dispose();
+      } catch (e) {
+        /* tslint:disable:no-console */
+        console.error(e);
+        /* tslint:enable:no-console */
+      }
     }
   }
 }

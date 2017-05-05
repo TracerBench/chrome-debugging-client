@@ -1,56 +1,56 @@
 /**
  * Describes the protocol.json
  */
-export interface Protocol {
-  domains: Domain[];
-  version: Version;
+export interface IProtocol {
+  domains: IDomain[];
+  version: IVersion;
 }
 
-export interface Version {
+export interface IVersion {
   major: string;
   minor: string;
 }
 
-export interface Domain {
+export interface IDomain {
   domain: string;
   description?: string;
   hidden?: boolean;
-  commands?: Command[];
-  events?: Event[];
-  types?: Type[];
+  commands?: ICommand[];
+  events?: IEvent[];
+  types?: IType[];
 }
 
-export interface Command {
+export interface ICommand {
   name: string;
   description?: string;
   hidden?: boolean;
-  parameters?: NamedDescriptor[];
-  returns?: NamedDescriptor[];
+  parameters?: INamedDescriptor[];
+  returns?: INamedDescriptor[];
 }
 
-export interface Event {
+export interface IEvent {
   name: string;
   description?: string;
   hidden?: boolean;
   deprecated?: boolean;
-  parameters?: NamedDescriptor[];
+  parameters?: INamedDescriptor[];
 }
 
-export interface Type extends Descriptor {
+export interface IType extends IDescriptor {
   id: string;
 }
 
-export interface NamedDescriptor extends Descriptor {
+export interface INamedDescriptor extends IDescriptor {
   name: string;
   optional?: boolean;
 }
 
-export interface Descriptor {
+export interface IDescriptor {
   description?: string;
   hidden?: boolean;
   $ref?: string;
   type?: string;
   enum?: string[];
-  items?: Descriptor;
-  properties?: NamedDescriptor[];
+  items?: IDescriptor;
+  properties?: INamedDescriptor[];
 }

@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "An async/await friendly Chrome debugging client with TypeScript support",
   "keywords": [
     "chrome",
@@ -37,8 +37,8 @@
   "devDependencies": {
     "faucet": "0.0.1",
     "tape": "^4.4.0",
-    "tslint": "^3.3.0",
-    "typescript": "2"
+    "tslint": "^5.2.0",
+    "typescript": "^2.3.2"
   },
   "engine": "node >= 4.0.0"
 }

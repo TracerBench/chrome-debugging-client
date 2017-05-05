@@ -1,36 +1,38 @@
-import { EventNotifier, Disposable, delay } from "./common";
 import { ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { delay, IDisposable } from "./common";
 
 const PORT_FILENAME = "DevToolsActivePort";
 
-export type SpawnOptions = {
+export interface ISpawnOptions {
   windowSize?: {
-    width: number,
-    height: number
-  },
+    width: number;
+    height: number;
+  };
   additionalArguments?: string[];
 }
 
 export interface IBrowserSpawner {
-  spawn(executablePath: string, dataDir: string, isContentShell: boolean, options?: SpawnOptions): Promise<IBrowserProcess>;
+  spawn(executablePath: string, dataDir: string,
+        isContentShell: boolean, options?: ISpawnOptions): Promise<IBrowserProcess>;
 }
 
-export interface IBrowserProcess extends Disposable {
+export interface IBrowserProcess extends IDisposable {
   remoteDebuggingPort: number;
   dataDir: string;
   /** throws if process has exited or there has been an error */
-  validate();
+  validate(): void;
 }
 
 export default class BrowserSpawner implements IBrowserSpawner {
-  async spawn(executablePath: string, dataDir: string, isContentShell: boolean, options?: SpawnOptions): Promise<IBrowserProcess> {
-    let portFile = path.join(dataDir, PORT_FILENAME);
+  public async spawn(executablePath: string, dataDir: string,
+                     isContentShell: boolean, options?: ISpawnOptions): Promise<IBrowserProcess> {
+    const portFile = path.join(dataDir, PORT_FILENAME);
     // delete port file before launching
     await tryDeleteFile(portFile);
-    let args = this.getArguments(dataDir, isContentShell, options);
-    let process: IBrowserProcess = new BrowserProcess(executablePath, args);
+    const args = this.getArguments(dataDir, isContentShell, options);
+    const process: IBrowserProcess = new BrowserProcess(executablePath, args);
     try {
       let port: number = 0;
       let tries = 0;
@@ -54,13 +56,13 @@ export default class BrowserSpawner implements IBrowserSpawner {
     }
   }
 
-  getArguments(dataDir: string, isContentShell: boolean, options?: SpawnOptions): string[] {
-    let windowSize = options && options.windowSize || {
+  public getArguments(dataDir: string, isContentShell: boolean, options?: ISpawnOptions): string[] {
+    const windowSize = options && options.windowSize || {
+      height: 736,
       width: 414,
-      height: 736
     };
-    let additionalArguments = options && options.additionalArguments || [];
-    let args = [
+    const additionalArguments = options && options.additionalArguments || [];
+    const args = [
       // base switches
       "--disable-breakpad",
       "--noerrdialogs",
@@ -80,13 +82,13 @@ export default class BrowserSpawner implements IBrowserSpawner {
       "--use-mock-keychain",
       "--password-store=basic",
       //  first available ephemeral port
-      "--remote-debugging-port=0"
+      "--remote-debugging-port=0",
     ].concat(additionalArguments);
     if (isContentShell) {
       return args.concat([
         `--data-path=${dataDir}`,
         `--content-shell-host-window-size=${windowSize.width}x${windowSize.height}`,
-        "about:blank"
+        "about:blank",
       ]);
     }
     return args.concat([
@@ -111,29 +113,31 @@ export default class BrowserSpawner implements IBrowserSpawner {
       "--no-proxy-server",
       `--user-data-dir=${dataDir}`,
       `--window-size=${windowSize.width},${windowSize.height}`,
-      "about:blank"
+      "about:blank",
     ]);
   }
 }
 
+/* tslint:disable:max-classes-per-file */
 class BrowserProcess implements IBrowserProcess {
-  process: ChildProcess;
-  pid: number;
-  lastError: Error;
-  hasExited: boolean = false;
-  remoteDebuggingPort: number = 0;
-  dataDir: string;
+  public remoteDebuggingPort: number = 0;
+  public dataDir: string;
 
-  constructor(executablePath, args) {
-    let process = spawn(executablePath, args);
-    process.on("error", err => this.lastError = err);
+  private process: ChildProcess;
+  private pid: number;
+  private lastError: Error;
+  private hasExited: boolean = false;
+
+  constructor(executablePath: string, args: string[]) {
+    const process = spawn(executablePath, args);
+    process.on("error", (err) => this.lastError = err);
     process.on("exit", () => this.hasExited = true);
     this.process = process;
     this.pid = process.pid;
   }
 
-  dispose(): Promise<void> {
-    return new Promise<void>(resolve => {
+  public dispose(): Promise<void> {
+    return new Promise<void>((resolve) => {
       if (this.hasExited) {
         resolve();
       } else {
@@ -145,10 +149,14 @@ class BrowserProcess implements IBrowserProcess {
       }
     }).then(() => {
       this.process.removeAllListeners();
-    }).catch((err) => console.error(err));
+    }).catch((err) => {
+      /* tslint:disable:no-console */
+      console.error(err);
+      /* tslint:enable:no-console */
+    });
   }
 
-  validate() {
+  public validate() {
     if (this.hasExited) {
       throw new Error("process exited");
     }
@@ -159,16 +167,16 @@ class BrowserProcess implements IBrowserProcess {
 }
 
 function tryDeleteFile(filename: string): Promise<void> {
-  return new Promise<void>(resolve => fs.unlink(filename, err => resolve()));
+  return new Promise<void>((resolve) => fs.unlink(filename, () => resolve()));
 }
 
 function tryReadPort(filename: string): Promise<number> {
-  return new Promise<number>(resolve => {
+  return new Promise<number>((resolve) => {
     fs.readFile(filename, "utf8", (err, data) => {
       if (err) {
         resolve(0);
       }
-      let port = parseInt(data, 10);
+      const port = parseInt(data, 10);
       // handles NaN if write was created but port not written
       port > 0 ? resolve(port) : resolve(0);
     });

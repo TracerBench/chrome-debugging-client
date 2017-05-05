@@ -5,14 +5,14 @@ export interface IAPIClientFactory {
 }
 
 export interface IAPIClient {
-  version(): Promise<VersionInfo>;
-  listTabs(): Promise<Tab[]>;
-  newTab(url?: string): Promise<Tab>;
+  version(): Promise<IVersionInfo>;
+  listTabs(): Promise<ITab[]>;
+  newTab(url?: string): Promise<ITab>;
   activateTab(tabId: string): Promise<void>;
   closeTab(tabId: string): Promise<void>;
 }
 
-export interface Tab {
+export interface ITab {
   id: string;
   webSocketDebuggerUrl?: string;
   description?: string;
@@ -23,7 +23,7 @@ export interface Tab {
   url?: string;
 }
 
-export interface VersionInfo {
+export interface IVersionInfo {
   "Browser": string;
   "Protocol-Version": string;
   "User-Agent": string;
@@ -31,46 +31,48 @@ export interface VersionInfo {
 }
 
 export default class APIClientFactory implements IAPIClientFactory {
-  create(httpClient: IHTTPClient): IAPIClient {
+  public create(httpClient: IHTTPClient): IAPIClient {
     return new APIClient(httpClient);
   }
 }
 
+/* tslint:disable:max-classes-per-file */
+
 class APIClient implements IAPIClient {
-  httpClient: IHTTPClient;
+  private httpClient: IHTTPClient;
 
   constructor(httpClient: IHTTPClient) {
     this.httpClient = httpClient;
   }
 
-  async version(): Promise<VersionInfo> {
-    let body = await this.httpClient.get("/json/version");
-    return <VersionInfo>JSON.parse(body);
+  public async version(): Promise<IVersionInfo> {
+    const body = await this.httpClient.get("/json/version");
+    return JSON.parse(body) as IVersionInfo;
   }
 
-  async listTabs(): Promise<Tab[]> {
-    let body = await this.httpClient.get("/json/list");
-    return <Tab[]>JSON.parse(body);
+  public async listTabs(): Promise<ITab[]> {
+    const body = await this.httpClient.get("/json/list");
+    return JSON.parse(body) as ITab[];
   }
 
-  async newTab(url?: string): Promise<Tab> {
+  public async newTab(url?: string): Promise<ITab> {
     let path = "/json/new";
     if (url) {
       path += "?" + encodeURIComponent(url);
     }
-    let body = await this.httpClient.get(path);
-    return <Tab>JSON.parse(body);
+    const body = await this.httpClient.get(path);
+    return JSON.parse(body) as ITab;
   }
 
-  async activateTab(tabId: string): Promise<void> {
-    let path = "/json/activate/" + tabId;
-    let body = await this.httpClient.get(path);
+  public async activateTab(tabId: string): Promise<void> {
+    const path = "/json/activate/" + tabId;
+    await this.httpClient.get(path);
     return;
   }
 
-  async closeTab(tabId: string): Promise<void> {
-    let path = "/json/close/" + tabId;
-    let body = await this.httpClient.get(path);
+  public async closeTab(tabId: string): Promise<void> {
+    const path = "/json/close/" + tabId;
+    await this.httpClient.get(path);
     return;
   }
 }

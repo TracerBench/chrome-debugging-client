@@ -1,4 +1,4 @@
-import { IAPIClient, IHTTPClient, ITab, IVersionInfo } from "./types";
+import { IAPIClient, IHTTPClient, ITabResponse, IVersionResponse } from "./types";
 
 export default function createAPIClient(httpClient: IHTTPClient): IAPIClient {
   return new APIClient(httpClient);
@@ -11,23 +11,23 @@ class APIClient implements IAPIClient {
     this.httpClient = httpClient;
   }
 
-  public async version(): Promise<IVersionInfo> {
+  public async version(): Promise<IVersionResponse> {
     const body = await this.httpClient.get("/json/version");
-    return JSON.parse(body) as IVersionInfo;
+    return JSON.parse(body) as IVersionResponse;
   }
 
-  public async listTabs(): Promise<ITab[]> {
+  public async listTabs(): Promise<ITabResponse[]> {
     const body = await this.httpClient.get("/json/list");
-    return JSON.parse(body) as ITab[];
+    return JSON.parse(body) as ITabResponse[];
   }
 
-  public async newTab(url?: string): Promise<ITab> {
+  public async newTab(url?: string): Promise<ITabResponse> {
     let path = "/json/new";
     if (url) {
       path += "?" + encodeURIComponent(url);
     }
     const body = await this.httpClient.get(path);
-    return JSON.parse(body) as ITab;
+    return JSON.parse(body) as ITabResponse;
   }
 
   public async activateTab(tabId: string): Promise<void> {

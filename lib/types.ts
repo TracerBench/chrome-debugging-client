@@ -8,14 +8,14 @@ export interface ISession extends IDisposable {
 }
 
 export interface IAPIClient {
-  version(): Promise<IVersionInfo>;
-  listTabs(): Promise<ITab[]>;
-  newTab(url?: string): Promise<ITab>;
+  version(): Promise<IVersionResponse>;
+  listTabs(): Promise<ITabResponse[]>;
+  newTab(url?: string): Promise<ITabResponse>;
   activateTab(tabId: string): Promise<void>;
   closeTab(tabId: string): Promise<void>;
 }
 
-export interface ITab {
+export interface ITabResponse {
   id: string;
   webSocketDebuggerUrl?: string;
   description?: string;
@@ -24,6 +24,13 @@ export interface ITab {
   title?: string;
   type?: string;
   url?: string;
+}
+
+export interface IVersionResponse {
+  "Browser": string;
+  "Protocol-Version": string;
+  "User-Agent": string;
+  "WebKit-Version": string;
 }
 
 export interface IDebuggingProtocolClient extends IEventNotifier, IWebSocketDelegate {
@@ -39,13 +46,6 @@ export interface IEventNotifier {
   on(event: string, listener: (evt?: any) => void): any;
   removeListener(event: string, listener: (evt?: any) => void): any;
   removeAllListeners(event?: string): any;
-}
-
-export interface IVersionInfo {
-  "Browser": string;
-  "Protocol-Version": string;
-  "User-Agent": string;
-  "WebKit-Version": string;
 }
 
 export interface IHTTPClientFactory {

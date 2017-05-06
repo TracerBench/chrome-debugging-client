@@ -16,6 +16,8 @@ export default class ProtocolCodegen {
   private code: string | undefined = undefined;
   private indentStack: string[] = [""];
 
+  private refs = new Map<string, Map<string, boolean>>();
+
   constructor(options: IProtocolCodegenOptions) {
     const opts = options || {};
     this.clientModuleName = opts.clientModuleName || "chrome-debugging-client";
@@ -33,9 +35,16 @@ export default class ProtocolCodegen {
 
     this.appendProtocolVersionComment(protocol.version);
     this.appendClientImport();
+
+    const domains = new Set<string>();
+
+    each(protocol.domains, (domain) => {
+      this.gatherRefs(domain);
+      domains.add(domain.domain);
+    });
+
     each(protocol.domains, (domain) => {
       const { domain: domainName, events, commands, types } = domain;
-
       this.appendComment(domain);
       this.appendDomainClass(domainName, () => {
         each(events, (event) => {
@@ -54,10 +63,15 @@ export default class ProtocolCodegen {
       });
 
       this.generateDomainTypeNamespace(domainName, () => {
+        const refs = this.getRefs(domainName);
         each(types, (type) => {
+          refs.set(type.id, true);
           this.appendComment(type);
           this.appendType(type);
         });
+
+        this.generatorMissingRefs(domainName, refs);
+
         each(events, (event) => {
           this.appendEventParametersType(event);
           this.appendEventHandlerType(event);
@@ -67,14 +81,97 @@ export default class ProtocolCodegen {
         });
       });
     });
+
+    this.refs.forEach((refs, domainName) => {
+      if (!domains.has(domainName)) {
+        this.generateDomainTypeNamespace(domainName, () => {
+          this.generatorMissingRefs(domainName, refs);
+        });
+      }
+    });
+
     const code = this.code;
     this.code = undefined;
+    this.refs.clear();
     return code;
   }
 
-  protected appendProtocolVersionComment(version: Protocol.IVersion) {
+  protected generatorMissingRefs(domainName: string, refs: Map<string, boolean>) {
+    refs.forEach((value, key) => {
+      if (!value) {
+        /* tslint:disable:no-console */
+        console.warn(`missing $ref ${domainName}.${key}`);
+        /* tslint:enable:no-console */
+        this.generateObjectTypeAlias(key, undefined);
+      }
+    });
+  }
+
+  protected getRefs(domainName: string) {
+    let refs = this.refs.get(domainName);
+    if (!refs) {
+      refs = new Map<string, boolean>();
+      this.refs.set(domainName, refs);
+    }
+    return refs;
+  }
+
+  protected gatherRefs(domain: Protocol.IDomain) {
+    const refs = this.getRefs(domain.domain);
+
+    each(domain.types, (type) => {
+      this.gatherRefsFromDesc(type, refs);
+    });
+
+    each(domain.commands, (command) => {
+      if (command.parameters) {
+        this.gatherRefsFromDescs(command.parameters, refs);
+      }
+      if (command.returns) {
+        this.gatherRefsFromDescs(command.returns, refs);
+      }
+    });
+
+    each(domain.events, (event) => {
+      if (event.parameters) {
+        this.gatherRefsFromDescs(event.parameters, refs);
+      }
+    });
+
+    this.refs.set(domain.domain, refs);
+  }
+
+  protected gatherRefsFromDescs(descs: Protocol.IDescriptor[], refs: Map<string, boolean>) {
+    for (const desc of descs) {
+      this.gatherRefsFromDesc(desc, refs);
+    }
+  }
+
+  protected gatherRefsFromDesc(desc: Protocol.IDescriptor, refs: Map<string, boolean>) {
+    const ref = desc.$ref;
+    if (ref) {
+      const period = ref.indexOf(".");
+      if (period !== -1) {
+        this.getRefs(ref.substring(0, period)).set(ref.substring(period + 1), false);
+      } else {
+        refs.set(ref, false);
+      }
+    }
+    if (desc.items) {
+      this.gatherRefsFromDesc(desc.items, refs);
+    }
+    if (desc.properties) {
+      this.gatherRefsFromDescs(desc.properties, refs);
+    }
+  }
+
+  protected appendProtocolVersionComment(version?: Protocol.IVersion) {
+    let versionString = "";
+    if (version) {
+      versionString = `${version.major}.${version.minor} `;
+    }
     this.append("/**");
-    this.append(` * Debugging Protocol ${version.major}.${version.minor} Domains`);
+    this.append(` * Debugging Protocol ${versionString}Domains`);
     this.append(` * Generated on ${new Date()}`);
     this.append(" */");
     this.append("/* tslint:disable */");
@@ -237,10 +334,7 @@ export default class ProtocolCodegen {
   }
 
   protected generateObjectTypeAlias(name: string, props: Protocol.INamedDescriptor[] | undefined) {
-    if (!props) {
-      return;
-    }
-    if (props.length) {
+    if (props && props.length) {
       this.append(`export type ${name} = {`);
       this.block(() => {
         props.forEach((prop) => this.generateProperty(prop));

@@ -3,7 +3,7 @@
  */
 export interface IProtocol {
   domains: IDomain[];
-  version: IVersion;
+  version?: IVersion;
 }
 
 export interface IVersion {

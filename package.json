@@ -18,6 +18,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run rebuild",
+    "protocol-gen": "tsc -p scripts/tsconfig.json && node dist/scripts/generate-protocol.js",
     "rebuild": "rm -rf dist && tsc",
     "compile": "tsc --watch",
     "lint": "tslint test.ts index.ts test/**/*.ts lib/**/*.ts",

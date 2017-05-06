@@ -13,8 +13,15 @@
     "dist/index.d.ts",
     "dist/index.js",
     "dist/index.js.map",
-    "dist/lib"
+    "dist/lib",
+    "dist/protocol",
+    "dist/codegen"
   ],
+  "directories": {
+    "dist": "dist",
+    "protocol": "dist/protocol",
+    "codegen": "dist/codegen"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run rebuild",
@@ -25,6 +32,10 @@
     "test": "tsc && node dist/test/index.js | faucet"
   },
   "author": "Kris Selden <kris.selden@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krisselden/chrome-tracing.git"
+  },
   "license": "Apache-2.0",
   "dependencies": {
     "@types/node": "^7.0.5",

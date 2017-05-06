@@ -2,29 +2,57 @@ chrome-debugging-client
 =======================
 [![Build Status](https://travis-ci.org/krisselden/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/krisselden/chrome-debugging-client)
 
+An async/await friendly Chrome debugging client with TypeScript support,
+designed with automation in mind.
+
+Features:
+
+* Promise API for async/await (most debugger commands are meant to be sequential).
+* Launches Chrome with a new temp user data folder so Chrome launches an isolated instance.
+  (regardless if you already have Chrome open).
+* Opens an ephemeral remote debugging port so you don't need to configure a port.
+* A TypeScript codegen for API autocomplete and tooltips with documentation for
+  the debugger protocol https://github.com/ChromeDevTools/debugger-protocol-viewer
+
 Example:
 
 ```js
 import { createSession } from "chrome-debugging-client";
+// import protocol domains "1-2", "tot", or "v8"
+import { HeapProfiler } from "chrome-debugging-client/dist/protocol/tot";
 
 createSession(async (session) => {
-  let process = await session.spawn("canary", {
-    windowSize: { width: 640, height: 320 },
-    additionalArguments: ["--js-flags='--future'"]
+  // spawns a chrome instance with a tmp user data
+  // and the debugger open to an ephemeral port
+  const process = await session.spawn("canary", {
+    windowSize: { width: 640, height: 320 }
   });
-  let client = session.createAPIClient("localhost", process.remoteDebuggingPort);
-  let version = await client.version();
-  console.log(JSON.stringify(version, null, 2));
-  let tabs = await client.listTabs();
-  let tab = tabs[0];
+
+  // open the REST API for tabs
+  const client = session.createAPIClient("localhost", process.remoteDebuggingPort);
+
+  const tabs = await client.listTabs();
+  const tab = tabs[0];
   await client.activateTab(tab.id);
-  let debugging = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
-  await debugging.send("HeapProfiler.enable", {});
+
+  // open the debugger protocol
+  // https://github.com/ChromeDevTools/debugger-protocol-viewer
+  const debuggerClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
+
+  // create the HeapProfiler domain with the debugger protocol client
+  const heapProfiler = new HeapProfiler(debuggerClient);
+  await heapProfiler.enable();
+
+  // The domains are optional, this can also be
+  // await debuggerClient.send("HeapProfiler.enable", {})
+
   let buffer = "";
-  debugging.on("HeapProfiler.addHeapSnapshotChunk", (evt) => {
+  heapProfiler.addHeapSnapshotChunk = (evt) => {
     buffer += evt.chunk;
   });
-  await debugging.send("HeapProfiler.takeHeapSnapshot", {});
+  await heapProfiler.takeHeapSnapshot({ reportProgress: false });
+  await heapProfiler.disable();
+
   return JSON.parse(buffer);
 }).then((data) => {
   console.log(data.snapshot.meta);

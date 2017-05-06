@@ -1,4 +1,5 @@
 /dist/
 /node_modules/
-/test/domains.ts
 yarn.lock
+/*.tgz
+/package/

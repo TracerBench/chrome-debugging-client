@@ -20,6 +20,6 @@
     "protocol/1-2.ts",
     "protocol/tot.ts",
     "protocol/v8.ts",
-    "test.ts"
+    "test/index.ts"
   ]
 }

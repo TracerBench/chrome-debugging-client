@@ -3,7 +3,6 @@ import * as Protocol from "./protocol";
 export interface IProtocolCodegenOptions {
   clientModuleName?: string;
   indent?: string;
-  typescript?: boolean;
 }
 
 /**
@@ -11,7 +10,6 @@ export interface IProtocolCodegenOptions {
  */
 export default class ProtocolCodegen {
   private indent: string;
-  private typescript: boolean;
   private clientModuleName: string;
   private code: string | undefined = undefined;
   private indentStack: string[] = [""];
@@ -22,7 +20,6 @@ export default class ProtocolCodegen {
     const opts = options || {};
     this.clientModuleName = opts.clientModuleName || "chrome-debugging-client";
     this.indent = opts.indent || "  ";
-    this.typescript = !!opts.typescript;
   }
 
   get currentIndent(): string {
@@ -178,47 +175,32 @@ export default class ProtocolCodegen {
   }
 
   protected appendClientImport() {
-    if (this.typescript) {
-      this.append(`import { IDebuggingProtocolClient } from "${this.clientModuleName}";`);
-    } else {
-      this.append("\"use strict\";");
-    }
+    this.append(`import { IDebuggingProtocolClient } from "${this.clientModuleName}";`);
   }
 
   protected appendDomainClass(domainName: string, cb: () => void) {
-    const moduleExport = this.typescript ? "export" : `module.exports.${domainName} =`;
-    this.append(`${moduleExport} class ${domainName} {`);
+    this.append(`export class ${domainName} {`);
     this.block(cb);
     this.append("}");
   }
 
   protected generateDomainTypeNamespace(domainName: string, cb: () => void) {
-    if (!this.typescript) {
-      return;
-    }
     this.append(`export namespace ${domainName} {`);
     this.block(cb);
     this.append("}");
   }
 
   protected appendEventMember(event: Protocol.IEvent, domainName: string) {
-    if (!this.typescript) {
-      return;
-    }
     const name = event.name;
     this.append(`private _${name}: ${this.handlerTypeName(name, domainName)} | null = null;`);
   }
 
   protected appendClientMember() {
-    if (!this.typescript) {
-      return;
-    }
     this.append("private _client: IDebuggingProtocolClient;");
   }
 
   protected appendDomainConstructor() {
-    const type = this.typescript ? ": IDebuggingProtocolClient" : "";
-    this.append(`constructor(client${type}) {`);
+    this.append(`constructor(client: IDebuggingProtocolClient) {`);
     this.block(() => {
       this.append("this._client = client;");
     });
@@ -227,42 +209,35 @@ export default class ProtocolCodegen {
 
   protected appendCommandMethod(command: Protocol.ICommand, domainName: string) {
     const name = command.name;
-    const fullname = `${domainName}.${name}`;
-    const paramsType = this.typescript ? `: ${this.parametersTypeName(name, domainName)}` : "";
-    const params = command.parameters ? `params${paramsType}` : "";
+    const params = command.parameters ? `params: ${this.parametersTypeName(name, domainName)}` : "";
     const paramsArg = command.parameters ? ", params" : "";
-    const returnType = this.typescript ? command.returns ? `<${this.returnTypeName(name, domainName)}>` : "<void>" : "";
-    const returns = this.typescript ? `: Promise${returnType}` : "";
-    const access = this.typescript ? "public " : "";
+    const returnType = command.returns ? this.returnTypeName(name, domainName) : "void";
 
-    this.append(`${access}${name}(${params})${returns} {`);
+    this.append(`public ${name}(${params}): Promise<${returnType}> {`);
     this.block(() => {
-      this.append(`return this._client.send${returnType}("${fullname}"${paramsArg});`);
+      this.append(`return this._client.send<${returnType}>("${domainName}.${name}"${paramsArg});`);
     });
     this.append("}");
   }
 
   protected appendEventAccessors(event: Protocol.IEvent, domainName: string) {
     const name = event.name;
-    const fullname = `${domainName}.${name}`;
-    const handlerType = this.typescript ? `: ${this.handlerTypeName(name, domainName)} | null` : "";
-
-    this.append(`get ${name}()${handlerType} {`);
+    this.append(`get ${name}(): ${this.handlerTypeName(name, domainName)} | null {`);
     this.block(() => {
       this.append(`return this._${name};`);
     });
     this.append("}");
-    this.append(`set ${name}(handler${handlerType}) {`);
+    this.append(`set ${name}(handler: ${this.handlerTypeName(name, domainName)} | null) {`);
     this.block(() => {
       this.append(`if (this._${name}) {`);
       this.block(() => {
-        this.append(`this._client.removeListener("${fullname}", this._${name});`);
+        this.append(`this._client.removeListener("${domainName}.${name}", this._${name});`);
       });
       this.append("}");
       this.append(`this._${name} = handler;`);
       this.append("if (handler) {");
       this.block(() => {
-        this.append(`this._client.on("${fullname}", handler);`);
+        this.append(`this._client.on("${domainName}.${name}", handler);`);
       });
       this.append(`}`);
     });

@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sat May 06 2017 13:53:29 GMT-0700 (PDT)
+ * Generated on Sat May 06 2017 14:09:02 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";

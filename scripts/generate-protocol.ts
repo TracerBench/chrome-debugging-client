@@ -32,7 +32,6 @@ function generate(host: string, path: string, file: string) {
       const protocol = JSON.parse(Buffer.concat(chunks).toString("utf8"));
       const codegen = new ProtocolCodegen({
         clientModuleName: "../lib/types",
-        typescript: true,
       });
       console.log(`generating ${file}`);
       const code = codegen.generate(protocol);

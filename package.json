@@ -21,8 +21,8 @@
     "protocol-gen": "tsc -p scripts/tsconfig.json && node dist/scripts/generate-protocol.js",
     "rebuild": "rm -rf dist && tsc",
     "compile": "tsc --watch",
-    "lint": "tslint test.ts index.ts test/**/*.ts lib/**/*.ts",
-    "test": "tsc && node dist/test.js | faucet"
+    "lint": "tslint -p tsconfig.json",
+    "test": "tsc && node dist/test/index.js | faucet"
   },
   "author": "Kris Selden <kris.selden@gmail.com>",
   "license": "Apache-2.0",

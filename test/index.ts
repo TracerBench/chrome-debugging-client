@@ -1,6 +1,6 @@
 import * as tape from "tape";
 import { createSession } from "../index";
-import { HeapProfiler } from "./domains";
+import { HeapProfiler } from "../protocol/tot";
 
 tape("test REST API", async (t) => {
   createSession(async (session) => {
@@ -25,39 +25,28 @@ tape("test REST API", async (t) => {
   }).then(() => t.end(), (err) => err ? t.error(err) : t.fail());
 });
 
-[{
-  HeapProfiler,
-  name: "typescript",
-}, {
-  HeapProfiler: require("./untyped-domains").HeapProfiler,
-  name: "js",
-}].forEach((context: {
-  HeapProfiler: typeof HeapProfiler
-  name: string,
-}) => {
-  tape("test debugging protocol " + context.name, async (t) => {
-    createSession(async (session) => {
-      const browser = await session.spawnBrowser("exact", {
-        executablePath: process.env.CHROME_BIN,
-      });
-      const apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
-      const tab = await apiClient.newTab("about:blank");
-      t.assert(tab.webSocketDebuggerUrl, "has web socket url");
-      const debuggingClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl!);
-      const heapProfiler = new context.HeapProfiler(debuggingClient);
-      let buffer = "";
-      await heapProfiler.enable();
-      heapProfiler.addHeapSnapshotChunk = (params) => {
-          buffer += params.chunk;
-      };
-      heapProfiler.reportHeapSnapshotProgress = (params) => {
-          t.comment(params.done / params.total + "");
-      };
-      await heapProfiler.takeHeapSnapshot({ reportProgress: false });
-      await heapProfiler.disable();
-      t.assert(buffer.length > 0, "received chunks");
-      const data = JSON.parse(buffer);
-      t.assert(data.snapshot.meta, "has snapshot");
-    }).then(() => t.end(), (err) => err ? t.error(err) : t.fail());
-  });
+tape("test debugging protocol domains", async (t) => {
+  createSession(async (session) => {
+    const browser = await session.spawnBrowser("exact", {
+      executablePath: process.env.CHROME_BIN,
+    });
+    const apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);
+    const tab = await apiClient.newTab("about:blank");
+    t.assert(tab.webSocketDebuggerUrl, "has web socket url");
+    const debuggingClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl!);
+    const heapProfiler = new HeapProfiler(debuggingClient);
+    let buffer = "";
+    await heapProfiler.enable();
+    heapProfiler.addHeapSnapshotChunk = (params) => {
+        buffer += params.chunk;
+    };
+    heapProfiler.reportHeapSnapshotProgress = (params) => {
+        t.comment(params.done / params.total + "");
+    };
+    await heapProfiler.takeHeapSnapshot({ reportProgress: false });
+    await heapProfiler.disable();
+    t.assert(buffer.length > 0, "received chunks");
+    const data = JSON.parse(buffer);
+    t.assert(data.snapshot.meta, "has snapshot");
+  }).then(() => t.end(), (err) => err ? t.error(err) : t.fail());
 });

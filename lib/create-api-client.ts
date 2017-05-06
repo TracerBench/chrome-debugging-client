@@ -1,42 +1,8 @@
-import { IHTTPClient } from "./http-client-factory";
+import { IAPIClient, IHTTPClient, ITab, IVersionInfo } from "./types";
 
-export interface IAPIClientFactory {
-  create(httpClient: IHTTPClient): IAPIClient;
+export default function createAPIClient(httpClient: IHTTPClient): IAPIClient {
+  return new APIClient(httpClient);
 }
-
-export interface IAPIClient {
-  version(): Promise<IVersionInfo>;
-  listTabs(): Promise<ITab[]>;
-  newTab(url?: string): Promise<ITab>;
-  activateTab(tabId: string): Promise<void>;
-  closeTab(tabId: string): Promise<void>;
-}
-
-export interface ITab {
-  id: string;
-  webSocketDebuggerUrl?: string;
-  description?: string;
-  devtoolsFrontendUrl?: string;
-  faviconUrl?: string;
-  title?: string;
-  type?: string;
-  url?: string;
-}
-
-export interface IVersionInfo {
-  "Browser": string;
-  "Protocol-Version": string;
-  "User-Agent": string;
-  "WebKit-Version": string;
-}
-
-export default class APIClientFactory implements IAPIClientFactory {
-  public create(httpClient: IHTTPClient): IAPIClient {
-    return new APIClient(httpClient);
-  }
-}
-
-/* tslint:disable:max-classes-per-file */
 
 class APIClient implements IAPIClient {
   private httpClient: IHTTPClient;

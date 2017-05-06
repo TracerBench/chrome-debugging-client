@@ -1,21 +1,10 @@
 import { ClientRequest, get, IncomingMessage } from "http";
-import { eventPromise } from "./common";
+import { eventPromise } from "./event-promise";
+import { IHTTPClient } from "./types";
 
-export interface IHTTPClientFactory {
-  create(host: string, port: number): IHTTPClient;
+export default function createHTTPClient(host: string, port: number): IHTTPClient {
+  return new HTTPClient(host, port);
 }
-
-export interface IHTTPClient {
-  get(path: string): Promise<string>;
-}
-
-export default class HTTPClientFactory implements IHTTPClientFactory {
-  public create(host: string, port: number): IHTTPClient {
-    return new HTTPClient(host, port);
-  }
-}
-
-/* tslint:disable:max-classes-per-file */
 
 class HTTPClient implements IHTTPClient {
   private host: string;
@@ -53,6 +42,7 @@ async function readResponseBody(response: IncomingMessage): Promise<string> {
   return body;
 }
 
+/* tslint:disable:max-classes-per-file */
 class ResponseError extends Error {
   public statusCode: number;
   constructor(message: string, statusCode: number) {

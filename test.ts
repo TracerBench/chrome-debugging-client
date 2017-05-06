@@ -6,7 +6,7 @@ const PROTOCOL = JSON.parse(fs.readFileSync("test/protocol.json", "utf8"));
 
 function testProtocolGenTypescript(protocol: any) {
   const codegen = new ProtocolCodegen({
-    clientModuleName: "../lib/debugging-protocol-client-factory",
+    clientModuleName: "../lib/types",
     typescript: true,
   });
   const code = codegen.generate(protocol);
@@ -20,7 +20,6 @@ function testProtocolGenTypescript(protocol: any) {
 
 function testProtocolGenJS(protocol: any) {
   const codegen = new ProtocolCodegen({
-    clientModuleName: "../lib/debugging-protocol-client-factory",
     typescript: false,
   });
   const code = codegen.generate(protocol);

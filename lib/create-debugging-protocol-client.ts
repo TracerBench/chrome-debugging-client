@@ -1,15 +1,5 @@
 import { EventEmitter } from "events";
-import { IEventNotifier } from "./common";
-import { IWebSocketConnection, IWebSocketDelegate } from "./web-socket-opener";
-
-export interface IDebuggingProtocolClientFactory {
-  create(): IDebuggingProtocolClient;
-}
-
-export interface IDebuggingProtocolClient extends IEventNotifier, IWebSocketDelegate {
-  send<T>(command: string, params?: any): Promise<T>;
-  send(command: string, params?: any): Promise<any>;
-}
+import { IDebuggingProtocolClient, IWebSocketConnection } from "./types";
 
 interface ICommandRequest {
   id: number;
@@ -41,10 +31,8 @@ interface IMessage extends IEventMessage, ISuccessResponseMessage, IErrorRespons
 
 interface ICommandResponseMessage extends ISuccessResponseMessage, IErrorResponseMessage {}
 
-export default class DebuggingProtocolFactory implements IDebuggingProtocolClientFactory {
-  public create(): IDebuggingProtocolClient {
-    return new DebuggingProtocol();
-  }
+export default function createDebuggingProtocolClient(): IDebuggingProtocolClient {
+  return new DebuggingProtocol();
 }
 
 /* tslint:disable:max-classes-per-file */

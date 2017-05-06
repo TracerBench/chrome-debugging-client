@@ -1,9 +1,9 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sat May 06 2017 01:35:10 GMT-0700 (PDT)
+ * Generated on Sat May 06 2017 13:53:29 GMT-0700 (PDT)
  */
 /* tslint:disable */
-import { IDebuggingProtocolClient } from "../types";
+import { IDebuggingProtocolClient } from "../lib/types";
 export class Inspector {
   private _detached: Inspector.DetachedHandler | null = null;
   private _targetCrashed: Inspector.TargetCrashedHandler | null = null;

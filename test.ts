@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as ts from "typescript";
-import { ProtocolCodegen } from "./index";
+import { ProtocolCodegen } from "./codegen/index";
 
 const PROTOCOL = JSON.parse(fs.readFileSync("test/protocol.json", "utf8"));
 

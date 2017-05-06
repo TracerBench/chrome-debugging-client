@@ -1,9 +1,9 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Sat May 06 2017 01:35:10 GMT-0700 (PDT)
+ * Generated on Sat May 06 2017 13:53:29 GMT-0700 (PDT)
  */
 /* tslint:disable */
-import { IDebuggingProtocolClient } from "../types";
+import { IDebuggingProtocolClient } from "../lib/types";
 /** Actions and events related to the inspected page belong to the page domain. */
 export class Page {
   private _domContentEventFired: Page.DomContentEventFiredHandler | null = null;

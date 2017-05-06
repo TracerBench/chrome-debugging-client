@@ -15,7 +15,11 @@
     "moduleResolution": "node"
   },
   "files": [
+    "codegen/index.ts",
     "lib/index.ts",
+    "protocol/1-2.ts",
+    "protocol/tot.ts",
+    "protocol/v8.ts",
     "test.ts"
   ]
 }

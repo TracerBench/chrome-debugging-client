@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sun May 07 2017 15:08:15 GMT-0700 (PDT)
+ * Generated on Sun May 07 2017 15:48:22 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -12,18 +12,18 @@ export class Inspector {
     this._client = client;
   }
   /** Enables inspector domain notifications. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Inspector.enable");
   }
   /** Disables inspector domain notifications. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Inspector.disable");
   }
   /** Fired when remote debugging connection is about to be terminated. Contains detach reason. */
-  get detached(): Inspector.DetachedHandler | null {
+  get detached() {
     return this._detached;
   }
-  set detached(handler: Inspector.DetachedHandler | null) {
+  set detached(handler) {
     if (this._detached) {
       this._client.removeListener("Inspector.detached", this._detached);
     }
@@ -33,10 +33,10 @@ export class Inspector {
     }
   }
   /** Fired when debugging target has crashed */
-  get targetCrashed(): Inspector.TargetCrashedHandler | null {
+  get targetCrashed() {
     return this._targetCrashed;
   }
-  set targetCrashed(handler: Inspector.TargetCrashedHandler | null) {
+  set targetCrashed(handler) {
     if (this._targetCrashed) {
       this._client.removeListener("Inspector.targetCrashed", this._targetCrashed);
     }
@@ -59,15 +59,15 @@ export class Memory {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public getDOMCounters(): Promise<Memory.GetDOMCountersReturn> {
+  public getDOMCounters() {
     return this._client.send<Memory.GetDOMCountersReturn>("Memory.getDOMCounters");
   }
   /** Enable/disable suppressing memory pressure notifications in all processes. */
-  public setPressureNotificationsSuppressed(params: Memory.SetPressureNotificationsSuppressedParameters): Promise<void> {
+  public setPressureNotificationsSuppressed(params: Memory.SetPressureNotificationsSuppressedParameters) {
     return this._client.send<void>("Memory.setPressureNotificationsSuppressed", params);
   }
   /** Simulate a memory pressure notification in all processes. */
-  public simulatePressureNotification(params: Memory.SimulatePressureNotificationParameters): Promise<void> {
+  public simulatePressureNotification(params: Memory.SimulatePressureNotificationParameters) {
     return this._client.send<void>("Memory.simulatePressureNotification", params);
   }
 }
@@ -112,141 +112,141 @@ export class Page {
     this._client = client;
   }
   /** Enables page domain notifications. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Page.enable");
   }
   /** Disables page domain notifications. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Page.disable");
   }
-  public addScriptToEvaluateOnLoad(params: Page.AddScriptToEvaluateOnLoadParameters): Promise<Page.AddScriptToEvaluateOnLoadReturn> {
+  public addScriptToEvaluateOnLoad(params: Page.AddScriptToEvaluateOnLoadParameters) {
     return this._client.send<Page.AddScriptToEvaluateOnLoadReturn>("Page.addScriptToEvaluateOnLoad", params);
   }
-  public removeScriptToEvaluateOnLoad(params: Page.RemoveScriptToEvaluateOnLoadParameters): Promise<void> {
+  public removeScriptToEvaluateOnLoad(params: Page.RemoveScriptToEvaluateOnLoadParameters) {
     return this._client.send<void>("Page.removeScriptToEvaluateOnLoad", params);
   }
   /** Controls whether browser will open a new inspector window for connected pages. */
-  public setAutoAttachToCreatedPages(params: Page.SetAutoAttachToCreatedPagesParameters): Promise<void> {
+  public setAutoAttachToCreatedPages(params: Page.SetAutoAttachToCreatedPagesParameters) {
     return this._client.send<void>("Page.setAutoAttachToCreatedPages", params);
   }
   /** Reloads given page optionally ignoring the cache. */
-  public reload(params: Page.ReloadParameters): Promise<void> {
+  public reload(params: Page.ReloadParameters) {
     return this._client.send<void>("Page.reload", params);
   }
   /** Navigates current page to the given URL. */
-  public navigate(params: Page.NavigateParameters): Promise<Page.NavigateReturn> {
+  public navigate(params: Page.NavigateParameters) {
     return this._client.send<Page.NavigateReturn>("Page.navigate", params);
   }
   /** Force the page stop all navigations and pending resource fetches. */
-  public stopLoading(): Promise<void> {
+  public stopLoading() {
     return this._client.send<void>("Page.stopLoading");
   }
   /** Returns navigation history for the current page. */
-  public getNavigationHistory(): Promise<Page.GetNavigationHistoryReturn> {
+  public getNavigationHistory() {
     return this._client.send<Page.GetNavigationHistoryReturn>("Page.getNavigationHistory");
   }
   /** Navigates current page to the given history entry. */
-  public navigateToHistoryEntry(params: Page.NavigateToHistoryEntryParameters): Promise<void> {
+  public navigateToHistoryEntry(params: Page.NavigateToHistoryEntryParameters) {
     return this._client.send<void>("Page.navigateToHistoryEntry", params);
   }
   /** Returns all browser cookies. Depending on the backend support, will return detailed cookie information in the <code>cookies</code> field. */
-  public getCookies(): Promise<Page.GetCookiesReturn> {
+  public getCookies() {
     return this._client.send<Page.GetCookiesReturn>("Page.getCookies");
   }
   /** Deletes browser cookie with given name, domain and path. */
-  public deleteCookie(params: Page.DeleteCookieParameters): Promise<void> {
+  public deleteCookie(params: Page.DeleteCookieParameters) {
     return this._client.send<void>("Page.deleteCookie", params);
   }
   /** Returns present frame / resource tree structure. */
-  public getResourceTree(): Promise<Page.GetResourceTreeReturn> {
+  public getResourceTree() {
     return this._client.send<Page.GetResourceTreeReturn>("Page.getResourceTree");
   }
   /** Returns content of the given resource. */
-  public getResourceContent(params: Page.GetResourceContentParameters): Promise<Page.GetResourceContentReturn> {
+  public getResourceContent(params: Page.GetResourceContentParameters) {
     return this._client.send<Page.GetResourceContentReturn>("Page.getResourceContent", params);
   }
   /** Searches for given string in resource content. */
-  public searchInResource(params: Page.SearchInResourceParameters): Promise<Page.SearchInResourceReturn> {
+  public searchInResource(params: Page.SearchInResourceParameters) {
     return this._client.send<Page.SearchInResourceReturn>("Page.searchInResource", params);
   }
   /** Sets given markup as the document's HTML. */
-  public setDocumentContent(params: Page.SetDocumentContentParameters): Promise<void> {
+  public setDocumentContent(params: Page.SetDocumentContentParameters) {
     return this._client.send<void>("Page.setDocumentContent", params);
   }
   /** Overrides the values of device screen dimensions (window.screen.width, window.screen.height, window.innerWidth, window.innerHeight, and "device-width"/"device-height"-related CSS media query results). */
-  public setDeviceMetricsOverride(params: Page.SetDeviceMetricsOverrideParameters): Promise<void> {
+  public setDeviceMetricsOverride(params: Page.SetDeviceMetricsOverrideParameters) {
     return this._client.send<void>("Page.setDeviceMetricsOverride", params);
   }
   /** Clears the overriden device metrics. */
-  public clearDeviceMetricsOverride(): Promise<void> {
+  public clearDeviceMetricsOverride() {
     return this._client.send<void>("Page.clearDeviceMetricsOverride");
   }
   /** Overrides the Geolocation Position or Error. Omitting any of the parameters emulates position unavailable. */
-  public setGeolocationOverride(params: Page.SetGeolocationOverrideParameters): Promise<void> {
+  public setGeolocationOverride(params: Page.SetGeolocationOverrideParameters) {
     return this._client.send<void>("Page.setGeolocationOverride", params);
   }
   /** Clears the overriden Geolocation Position and Error. */
-  public clearGeolocationOverride(): Promise<void> {
+  public clearGeolocationOverride() {
     return this._client.send<void>("Page.clearGeolocationOverride");
   }
   /** Overrides the Device Orientation. */
-  public setDeviceOrientationOverride(params: Page.SetDeviceOrientationOverrideParameters): Promise<void> {
+  public setDeviceOrientationOverride(params: Page.SetDeviceOrientationOverrideParameters) {
     return this._client.send<void>("Page.setDeviceOrientationOverride", params);
   }
   /** Clears the overridden Device Orientation. */
-  public clearDeviceOrientationOverride(): Promise<void> {
+  public clearDeviceOrientationOverride() {
     return this._client.send<void>("Page.clearDeviceOrientationOverride");
   }
   /** Toggles mouse event-based touch event emulation. */
-  public setTouchEmulationEnabled(params: Page.SetTouchEmulationEnabledParameters): Promise<void> {
+  public setTouchEmulationEnabled(params: Page.SetTouchEmulationEnabledParameters) {
     return this._client.send<void>("Page.setTouchEmulationEnabled", params);
   }
   /** Capture page screenshot. */
-  public captureScreenshot(params: Page.CaptureScreenshotParameters): Promise<Page.CaptureScreenshotReturn> {
+  public captureScreenshot(params: Page.CaptureScreenshotParameters) {
     return this._client.send<Page.CaptureScreenshotReturn>("Page.captureScreenshot", params);
   }
   /** Print page as pdf. */
-  public printToPDF(): Promise<Page.PrintToPDFReturn> {
+  public printToPDF() {
     return this._client.send<Page.PrintToPDFReturn>("Page.printToPDF");
   }
   /** Starts sending each frame using the <code>screencastFrame</code> event. */
-  public startScreencast(params: Page.StartScreencastParameters): Promise<void> {
+  public startScreencast(params: Page.StartScreencastParameters) {
     return this._client.send<void>("Page.startScreencast", params);
   }
   /** Stops sending each frame in the <code>screencastFrame</code>. */
-  public stopScreencast(): Promise<void> {
+  public stopScreencast() {
     return this._client.send<void>("Page.stopScreencast");
   }
   /** Acknowledges that a screencast frame has been received by the frontend. */
-  public screencastFrameAck(params: Page.ScreencastFrameAckParameters): Promise<void> {
+  public screencastFrameAck(params: Page.ScreencastFrameAckParameters) {
     return this._client.send<void>("Page.screencastFrameAck", params);
   }
   /** Accepts or dismisses a JavaScript initiated dialog (alert, confirm, prompt, or onbeforeunload). */
-  public handleJavaScriptDialog(params: Page.HandleJavaScriptDialogParameters): Promise<void> {
+  public handleJavaScriptDialog(params: Page.HandleJavaScriptDialogParameters) {
     return this._client.send<void>("Page.handleJavaScriptDialog", params);
   }
-  public getAppManifest(): Promise<Page.GetAppManifestReturn> {
+  public getAppManifest() {
     return this._client.send<Page.GetAppManifestReturn>("Page.getAppManifest");
   }
-  public requestAppBanner(): Promise<void> {
+  public requestAppBanner() {
     return this._client.send<void>("Page.requestAppBanner");
   }
   /** Toggles navigation throttling which allows programatic control over navigation and redirect response. */
-  public setControlNavigations(params: Page.SetControlNavigationsParameters): Promise<void> {
+  public setControlNavigations(params: Page.SetControlNavigationsParameters) {
     return this._client.send<void>("Page.setControlNavigations", params);
   }
   /** Should be sent in response to a navigationRequested or a redirectRequested event, telling the browser how to handle the navigation. */
-  public processNavigation(params: Page.ProcessNavigationParameters): Promise<void> {
+  public processNavigation(params: Page.ProcessNavigationParameters) {
     return this._client.send<void>("Page.processNavigation", params);
   }
   /** Returns metrics relating to the layouting of the page, such as viewport bounds/scale. */
-  public getLayoutMetrics(): Promise<Page.GetLayoutMetricsReturn> {
+  public getLayoutMetrics() {
     return this._client.send<Page.GetLayoutMetricsReturn>("Page.getLayoutMetrics");
   }
-  get domContentEventFired(): Page.DomContentEventFiredHandler | null {
+  get domContentEventFired() {
     return this._domContentEventFired;
   }
-  set domContentEventFired(handler: Page.DomContentEventFiredHandler | null) {
+  set domContentEventFired(handler) {
     if (this._domContentEventFired) {
       this._client.removeListener("Page.domContentEventFired", this._domContentEventFired);
     }
@@ -255,10 +255,10 @@ export class Page {
       this._client.on("Page.domContentEventFired", handler);
     }
   }
-  get loadEventFired(): Page.LoadEventFiredHandler | null {
+  get loadEventFired() {
     return this._loadEventFired;
   }
-  set loadEventFired(handler: Page.LoadEventFiredHandler | null) {
+  set loadEventFired(handler) {
     if (this._loadEventFired) {
       this._client.removeListener("Page.loadEventFired", this._loadEventFired);
     }
@@ -268,10 +268,10 @@ export class Page {
     }
   }
   /** Fired when frame has been attached to its parent. */
-  get frameAttached(): Page.FrameAttachedHandler | null {
+  get frameAttached() {
     return this._frameAttached;
   }
-  set frameAttached(handler: Page.FrameAttachedHandler | null) {
+  set frameAttached(handler) {
     if (this._frameAttached) {
       this._client.removeListener("Page.frameAttached", this._frameAttached);
     }
@@ -281,10 +281,10 @@ export class Page {
     }
   }
   /** Fired once navigation of the frame has completed. Frame is now associated with the new loader. */
-  get frameNavigated(): Page.FrameNavigatedHandler | null {
+  get frameNavigated() {
     return this._frameNavigated;
   }
-  set frameNavigated(handler: Page.FrameNavigatedHandler | null) {
+  set frameNavigated(handler) {
     if (this._frameNavigated) {
       this._client.removeListener("Page.frameNavigated", this._frameNavigated);
     }
@@ -294,10 +294,10 @@ export class Page {
     }
   }
   /** Fired when frame has been detached from its parent. */
-  get frameDetached(): Page.FrameDetachedHandler | null {
+  get frameDetached() {
     return this._frameDetached;
   }
-  set frameDetached(handler: Page.FrameDetachedHandler | null) {
+  set frameDetached(handler) {
     if (this._frameDetached) {
       this._client.removeListener("Page.frameDetached", this._frameDetached);
     }
@@ -307,10 +307,10 @@ export class Page {
     }
   }
   /** Fired when frame has started loading. */
-  get frameStartedLoading(): Page.FrameStartedLoadingHandler | null {
+  get frameStartedLoading() {
     return this._frameStartedLoading;
   }
-  set frameStartedLoading(handler: Page.FrameStartedLoadingHandler | null) {
+  set frameStartedLoading(handler) {
     if (this._frameStartedLoading) {
       this._client.removeListener("Page.frameStartedLoading", this._frameStartedLoading);
     }
@@ -320,10 +320,10 @@ export class Page {
     }
   }
   /** Fired when frame has stopped loading. */
-  get frameStoppedLoading(): Page.FrameStoppedLoadingHandler | null {
+  get frameStoppedLoading() {
     return this._frameStoppedLoading;
   }
-  set frameStoppedLoading(handler: Page.FrameStoppedLoadingHandler | null) {
+  set frameStoppedLoading(handler) {
     if (this._frameStoppedLoading) {
       this._client.removeListener("Page.frameStoppedLoading", this._frameStoppedLoading);
     }
@@ -333,10 +333,10 @@ export class Page {
     }
   }
   /** Fired when frame schedules a potential navigation. */
-  get frameScheduledNavigation(): Page.FrameScheduledNavigationHandler | null {
+  get frameScheduledNavigation() {
     return this._frameScheduledNavigation;
   }
-  set frameScheduledNavigation(handler: Page.FrameScheduledNavigationHandler | null) {
+  set frameScheduledNavigation(handler) {
     if (this._frameScheduledNavigation) {
       this._client.removeListener("Page.frameScheduledNavigation", this._frameScheduledNavigation);
     }
@@ -346,10 +346,10 @@ export class Page {
     }
   }
   /** Fired when frame no longer has a scheduled navigation. */
-  get frameClearedScheduledNavigation(): Page.FrameClearedScheduledNavigationHandler | null {
+  get frameClearedScheduledNavigation() {
     return this._frameClearedScheduledNavigation;
   }
-  set frameClearedScheduledNavigation(handler: Page.FrameClearedScheduledNavigationHandler | null) {
+  set frameClearedScheduledNavigation(handler) {
     if (this._frameClearedScheduledNavigation) {
       this._client.removeListener("Page.frameClearedScheduledNavigation", this._frameClearedScheduledNavigation);
     }
@@ -358,10 +358,10 @@ export class Page {
       this._client.on("Page.frameClearedScheduledNavigation", handler);
     }
   }
-  get frameResized(): Page.FrameResizedHandler | null {
+  get frameResized() {
     return this._frameResized;
   }
-  set frameResized(handler: Page.FrameResizedHandler | null) {
+  set frameResized(handler) {
     if (this._frameResized) {
       this._client.removeListener("Page.frameResized", this._frameResized);
     }
@@ -371,10 +371,10 @@ export class Page {
     }
   }
   /** Fired when a JavaScript initiated dialog (alert, confirm, prompt, or onbeforeunload) is about to open. */
-  get javascriptDialogOpening(): Page.JavascriptDialogOpeningHandler | null {
+  get javascriptDialogOpening() {
     return this._javascriptDialogOpening;
   }
-  set javascriptDialogOpening(handler: Page.JavascriptDialogOpeningHandler | null) {
+  set javascriptDialogOpening(handler) {
     if (this._javascriptDialogOpening) {
       this._client.removeListener("Page.javascriptDialogOpening", this._javascriptDialogOpening);
     }
@@ -384,10 +384,10 @@ export class Page {
     }
   }
   /** Fired when a JavaScript initiated dialog (alert, confirm, prompt, or onbeforeunload) has been closed. */
-  get javascriptDialogClosed(): Page.JavascriptDialogClosedHandler | null {
+  get javascriptDialogClosed() {
     return this._javascriptDialogClosed;
   }
-  set javascriptDialogClosed(handler: Page.JavascriptDialogClosedHandler | null) {
+  set javascriptDialogClosed(handler) {
     if (this._javascriptDialogClosed) {
       this._client.removeListener("Page.javascriptDialogClosed", this._javascriptDialogClosed);
     }
@@ -397,10 +397,10 @@ export class Page {
     }
   }
   /** Compressed image data requested by the <code>startScreencast</code>. */
-  get screencastFrame(): Page.ScreencastFrameHandler | null {
+  get screencastFrame() {
     return this._screencastFrame;
   }
-  set screencastFrame(handler: Page.ScreencastFrameHandler | null) {
+  set screencastFrame(handler) {
     if (this._screencastFrame) {
       this._client.removeListener("Page.screencastFrame", this._screencastFrame);
     }
@@ -410,10 +410,10 @@ export class Page {
     }
   }
   /** Fired when the page with currently enabled screencast was shown or hidden </code>. */
-  get screencastVisibilityChanged(): Page.ScreencastVisibilityChangedHandler | null {
+  get screencastVisibilityChanged() {
     return this._screencastVisibilityChanged;
   }
-  set screencastVisibilityChanged(handler: Page.ScreencastVisibilityChangedHandler | null) {
+  set screencastVisibilityChanged(handler) {
     if (this._screencastVisibilityChanged) {
       this._client.removeListener("Page.screencastVisibilityChanged", this._screencastVisibilityChanged);
     }
@@ -423,10 +423,10 @@ export class Page {
     }
   }
   /** Fired when interstitial page was shown */
-  get interstitialShown(): Page.InterstitialShownHandler | null {
+  get interstitialShown() {
     return this._interstitialShown;
   }
-  set interstitialShown(handler: Page.InterstitialShownHandler | null) {
+  set interstitialShown(handler) {
     if (this._interstitialShown) {
       this._client.removeListener("Page.interstitialShown", this._interstitialShown);
     }
@@ -436,10 +436,10 @@ export class Page {
     }
   }
   /** Fired when interstitial page was hidden */
-  get interstitialHidden(): Page.InterstitialHiddenHandler | null {
+  get interstitialHidden() {
     return this._interstitialHidden;
   }
-  set interstitialHidden(handler: Page.InterstitialHiddenHandler | null) {
+  set interstitialHidden(handler) {
     if (this._interstitialHidden) {
       this._client.removeListener("Page.interstitialHidden", this._interstitialHidden);
     }
@@ -449,10 +449,10 @@ export class Page {
     }
   }
   /** Fired when a navigation is started if navigation throttles are enabled.  The navigation will be deferred until processNavigation is called. */
-  get navigationRequested(): Page.NavigationRequestedHandler | null {
+  get navigationRequested() {
     return this._navigationRequested;
   }
-  set navigationRequested(handler: Page.NavigationRequestedHandler | null) {
+  set navigationRequested(handler) {
     if (this._navigationRequested) {
       this._client.removeListener("Page.navigationRequested", this._navigationRequested);
     }
@@ -877,72 +877,72 @@ export class Overlay {
     this._client = client;
   }
   /** Enables domain notifications. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Overlay.enable");
   }
   /** Disables domain notifications. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Overlay.disable");
   }
   /** Requests that backend shows paint rectangles */
-  public setShowPaintRects(params: Overlay.SetShowPaintRectsParameters): Promise<void> {
+  public setShowPaintRects(params: Overlay.SetShowPaintRectsParameters) {
     return this._client.send<void>("Overlay.setShowPaintRects", params);
   }
   /** Requests that backend shows debug borders on layers */
-  public setShowDebugBorders(params: Overlay.SetShowDebugBordersParameters): Promise<void> {
+  public setShowDebugBorders(params: Overlay.SetShowDebugBordersParameters) {
     return this._client.send<void>("Overlay.setShowDebugBorders", params);
   }
   /** Requests that backend shows the FPS counter */
-  public setShowFPSCounter(params: Overlay.SetShowFPSCounterParameters): Promise<void> {
+  public setShowFPSCounter(params: Overlay.SetShowFPSCounterParameters) {
     return this._client.send<void>("Overlay.setShowFPSCounter", params);
   }
   /** Requests that backend shows scroll bottleneck rects */
-  public setShowScrollBottleneckRects(params: Overlay.SetShowScrollBottleneckRectsParameters): Promise<void> {
+  public setShowScrollBottleneckRects(params: Overlay.SetShowScrollBottleneckRectsParameters) {
     return this._client.send<void>("Overlay.setShowScrollBottleneckRects", params);
   }
   /** Paints viewport size upon main frame resize. */
-  public setShowViewportSizeOnResize(params: Overlay.SetShowViewportSizeOnResizeParameters): Promise<void> {
+  public setShowViewportSizeOnResize(params: Overlay.SetShowViewportSizeOnResizeParameters) {
     return this._client.send<void>("Overlay.setShowViewportSizeOnResize", params);
   }
-  public setPausedInDebuggerMessage(params: Overlay.SetPausedInDebuggerMessageParameters): Promise<void> {
+  public setPausedInDebuggerMessage(params: Overlay.SetPausedInDebuggerMessageParameters) {
     return this._client.send<void>("Overlay.setPausedInDebuggerMessage", params);
   }
-  public setSuspended(params: Overlay.SetSuspendedParameters): Promise<void> {
+  public setSuspended(params: Overlay.SetSuspendedParameters) {
     return this._client.send<void>("Overlay.setSuspended", params);
   }
   /** Enters the 'inspect' mode. In this mode, elements that user is hovering over are highlighted. Backend then generates 'inspectNodeRequested' event upon element selection. */
-  public setInspectMode(params: Overlay.SetInspectModeParameters): Promise<void> {
+  public setInspectMode(params: Overlay.SetInspectModeParameters) {
     return this._client.send<void>("Overlay.setInspectMode", params);
   }
   /** Highlights given rectangle. Coordinates are absolute with respect to the main frame viewport. */
-  public highlightRect(params: Overlay.HighlightRectParameters): Promise<void> {
+  public highlightRect(params: Overlay.HighlightRectParameters) {
     return this._client.send<void>("Overlay.highlightRect", params);
   }
   /** Highlights given quad. Coordinates are absolute with respect to the main frame viewport. */
-  public highlightQuad(params: Overlay.HighlightQuadParameters): Promise<void> {
+  public highlightQuad(params: Overlay.HighlightQuadParameters) {
     return this._client.send<void>("Overlay.highlightQuad", params);
   }
   /** Highlights DOM node with given id or with the given JavaScript object wrapper. Either nodeId or objectId must be specified. */
-  public highlightNode(params: Overlay.HighlightNodeParameters): Promise<void> {
+  public highlightNode(params: Overlay.HighlightNodeParameters) {
     return this._client.send<void>("Overlay.highlightNode", params);
   }
   /** Highlights owner element of the frame with given id. */
-  public highlightFrame(params: Overlay.HighlightFrameParameters): Promise<void> {
+  public highlightFrame(params: Overlay.HighlightFrameParameters) {
     return this._client.send<void>("Overlay.highlightFrame", params);
   }
   /** Hides any highlight. */
-  public hideHighlight(): Promise<void> {
+  public hideHighlight() {
     return this._client.send<void>("Overlay.hideHighlight");
   }
   /** For testing. */
-  public getHighlightObjectForTest(params: Overlay.GetHighlightObjectForTestParameters): Promise<Overlay.GetHighlightObjectForTestReturn> {
+  public getHighlightObjectForTest(params: Overlay.GetHighlightObjectForTestParameters) {
     return this._client.send<Overlay.GetHighlightObjectForTestReturn>("Overlay.getHighlightObjectForTest", params);
   }
   /** Fired when the node should be highlighted. This happens after call to <code>setInspectMode</code>. */
-  get nodeHighlightRequested(): Overlay.NodeHighlightRequestedHandler | null {
+  get nodeHighlightRequested() {
     return this._nodeHighlightRequested;
   }
-  set nodeHighlightRequested(handler: Overlay.NodeHighlightRequestedHandler | null) {
+  set nodeHighlightRequested(handler) {
     if (this._nodeHighlightRequested) {
       this._client.removeListener("Overlay.nodeHighlightRequested", this._nodeHighlightRequested);
     }
@@ -952,10 +952,10 @@ export class Overlay {
     }
   }
   /** Fired when the node should be inspected. This happens after call to <code>setInspectMode</code> or when user manually inspects an element. */
-  get inspectNodeRequested(): Overlay.InspectNodeRequestedHandler | null {
+  get inspectNodeRequested() {
     return this._inspectNodeRequested;
   }
-  set inspectNodeRequested(handler: Overlay.InspectNodeRequestedHandler | null) {
+  set inspectNodeRequested(handler) {
     if (this._inspectNodeRequested) {
       this._client.removeListener("Overlay.inspectNodeRequested", this._inspectNodeRequested);
     }
@@ -1093,74 +1093,74 @@ export class Emulation {
     this._client = client;
   }
   /** Overrides the values of device screen dimensions (window.screen.width, window.screen.height, window.innerWidth, window.innerHeight, and "device-width"/"device-height"-related CSS media query results). */
-  public setDeviceMetricsOverride(params: Emulation.SetDeviceMetricsOverrideParameters): Promise<void> {
+  public setDeviceMetricsOverride(params: Emulation.SetDeviceMetricsOverrideParameters) {
     return this._client.send<void>("Emulation.setDeviceMetricsOverride", params);
   }
   /** Clears the overriden device metrics. */
-  public clearDeviceMetricsOverride(): Promise<void> {
+  public clearDeviceMetricsOverride() {
     return this._client.send<void>("Emulation.clearDeviceMetricsOverride");
   }
   /** Overrides the visible area of the page. The change is hidden from the page, i.e. the observable scroll position and page scale does not change. In effect, the command moves the specified area of the page into the top-left corner of the frame. */
-  public forceViewport(params: Emulation.ForceViewportParameters): Promise<void> {
+  public forceViewport(params: Emulation.ForceViewportParameters) {
     return this._client.send<void>("Emulation.forceViewport", params);
   }
   /** Resets the visible area of the page to the original viewport, undoing any effects of the <code>forceViewport</code> command. */
-  public resetViewport(): Promise<void> {
+  public resetViewport() {
     return this._client.send<void>("Emulation.resetViewport");
   }
   /** Requests that page scale factor is reset to initial values. */
-  public resetPageScaleFactor(): Promise<void> {
+  public resetPageScaleFactor() {
     return this._client.send<void>("Emulation.resetPageScaleFactor");
   }
   /** Sets a specified page scale factor. */
-  public setPageScaleFactor(params: Emulation.SetPageScaleFactorParameters): Promise<void> {
+  public setPageScaleFactor(params: Emulation.SetPageScaleFactorParameters) {
     return this._client.send<void>("Emulation.setPageScaleFactor", params);
   }
   /** Resizes the frame/viewport of the page. Note that this does not affect the frame's container (e.g. browser window). Can be used to produce screenshots of the specified size. Not supported on Android. */
-  public setVisibleSize(params: Emulation.SetVisibleSizeParameters): Promise<void> {
+  public setVisibleSize(params: Emulation.SetVisibleSizeParameters) {
     return this._client.send<void>("Emulation.setVisibleSize", params);
   }
   /** Switches script execution in the page. */
-  public setScriptExecutionDisabled(params: Emulation.SetScriptExecutionDisabledParameters): Promise<void> {
+  public setScriptExecutionDisabled(params: Emulation.SetScriptExecutionDisabledParameters) {
     return this._client.send<void>("Emulation.setScriptExecutionDisabled", params);
   }
   /** Overrides the Geolocation Position or Error. Omitting any of the parameters emulates position unavailable. */
-  public setGeolocationOverride(params: Emulation.SetGeolocationOverrideParameters): Promise<void> {
+  public setGeolocationOverride(params: Emulation.SetGeolocationOverrideParameters) {
     return this._client.send<void>("Emulation.setGeolocationOverride", params);
   }
   /** Clears the overriden Geolocation Position and Error. */
-  public clearGeolocationOverride(): Promise<void> {
+  public clearGeolocationOverride() {
     return this._client.send<void>("Emulation.clearGeolocationOverride");
   }
   /** Toggles mouse event-based touch event emulation. */
-  public setTouchEmulationEnabled(params: Emulation.SetTouchEmulationEnabledParameters): Promise<void> {
+  public setTouchEmulationEnabled(params: Emulation.SetTouchEmulationEnabledParameters) {
     return this._client.send<void>("Emulation.setTouchEmulationEnabled", params);
   }
   /** Emulates the given media for CSS media queries. */
-  public setEmulatedMedia(params: Emulation.SetEmulatedMediaParameters): Promise<void> {
+  public setEmulatedMedia(params: Emulation.SetEmulatedMediaParameters) {
     return this._client.send<void>("Emulation.setEmulatedMedia", params);
   }
   /** Enables CPU throttling to emulate slow CPUs. */
-  public setCPUThrottlingRate(params: Emulation.SetCPUThrottlingRateParameters): Promise<void> {
+  public setCPUThrottlingRate(params: Emulation.SetCPUThrottlingRateParameters) {
     return this._client.send<void>("Emulation.setCPUThrottlingRate", params);
   }
   /** Tells whether emulation is supported. */
-  public canEmulate(): Promise<Emulation.CanEmulateReturn> {
+  public canEmulate() {
     return this._client.send<Emulation.CanEmulateReturn>("Emulation.canEmulate");
   }
   /** Turns on virtual time for all frames (replacing real-time with a synthetic time source) and sets the current virtual time policy.  Note this supersedes any previous time budget. */
-  public setVirtualTimePolicy(params: Emulation.SetVirtualTimePolicyParameters): Promise<void> {
+  public setVirtualTimePolicy(params: Emulation.SetVirtualTimePolicyParameters) {
     return this._client.send<void>("Emulation.setVirtualTimePolicy", params);
   }
   /** Sets or clears an override of the default background color of the frame. This override is used if the content does not specify one. */
-  public setDefaultBackgroundColorOverride(params: Emulation.SetDefaultBackgroundColorOverrideParameters): Promise<void> {
+  public setDefaultBackgroundColorOverride(params: Emulation.SetDefaultBackgroundColorOverrideParameters) {
     return this._client.send<void>("Emulation.setDefaultBackgroundColorOverride", params);
   }
   /** Notification sent after the virual time budget for the current VirtualTimePolicy has run out. */
-  get virtualTimeBudgetExpired(): Emulation.VirtualTimeBudgetExpiredHandler | null {
+  get virtualTimeBudgetExpired() {
     return this._virtualTimeBudgetExpired;
   }
-  set virtualTimeBudgetExpired(handler: Emulation.VirtualTimeBudgetExpiredHandler | null) {
+  set virtualTimeBudgetExpired(handler) {
     if (this._virtualTimeBudgetExpired) {
       this._client.removeListener("Emulation.virtualTimeBudgetExpired", this._virtualTimeBudgetExpired);
     }
@@ -1276,30 +1276,30 @@ export class Security {
     this._client = client;
   }
   /** Enables tracking security state changes. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Security.enable");
   }
   /** Disables tracking security state changes. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Security.disable");
   }
   /** Displays native dialog with the certificate details. */
-  public showCertificateViewer(): Promise<void> {
+  public showCertificateViewer() {
     return this._client.send<void>("Security.showCertificateViewer");
   }
   /** Handles a certificate error that fired a certificateError event. */
-  public handleCertificateError(params: Security.HandleCertificateErrorParameters): Promise<void> {
+  public handleCertificateError(params: Security.HandleCertificateErrorParameters) {
     return this._client.send<void>("Security.handleCertificateError", params);
   }
   /** Enable/disable overriding certificate errors. If enabled, all certificate error events need to be handled by the DevTools client and should be answered with handleCertificateError commands. */
-  public setOverrideCertificateErrors(params: Security.SetOverrideCertificateErrorsParameters): Promise<void> {
+  public setOverrideCertificateErrors(params: Security.SetOverrideCertificateErrorsParameters) {
     return this._client.send<void>("Security.setOverrideCertificateErrors", params);
   }
   /** The security state of the page changed. */
-  get securityStateChanged(): Security.SecurityStateChangedHandler | null {
+  get securityStateChanged() {
     return this._securityStateChanged;
   }
-  set securityStateChanged(handler: Security.SecurityStateChangedHandler | null) {
+  set securityStateChanged(handler) {
     if (this._securityStateChanged) {
       this._client.removeListener("Security.securityStateChanged", this._securityStateChanged);
     }
@@ -1309,10 +1309,10 @@ export class Security {
     }
   }
   /** There is a certificate error. If overriding certificate errors is enabled, then it should be handled with the handleCertificateError command. Note: this event does not fire if the certificate error has been allowed internally. */
-  get certificateError(): Security.CertificateErrorHandler | null {
+  get certificateError() {
     return this._certificateError;
   }
-  set certificateError(handler: Security.CertificateErrorHandler | null) {
+  set certificateError(handler) {
     if (this._certificateError) {
       this._client.removeListener("Security.certificateError", this._certificateError);
     }
@@ -1412,94 +1412,94 @@ export class Network {
     this._client = client;
   }
   /** Enables network tracking, network events will now be delivered to the client. */
-  public enable(params: Network.EnableParameters): Promise<void> {
+  public enable(params: Network.EnableParameters) {
     return this._client.send<void>("Network.enable", params);
   }
   /** Disables network tracking, prevents network events from being sent to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Network.disable");
   }
   /** Allows overriding user agent with the given string. */
-  public setUserAgentOverride(params: Network.SetUserAgentOverrideParameters): Promise<void> {
+  public setUserAgentOverride(params: Network.SetUserAgentOverrideParameters) {
     return this._client.send<void>("Network.setUserAgentOverride", params);
   }
   /** Specifies whether to always send extra HTTP headers with the requests from this page. */
-  public setExtraHTTPHeaders(params: Network.SetExtraHTTPHeadersParameters): Promise<void> {
+  public setExtraHTTPHeaders(params: Network.SetExtraHTTPHeadersParameters) {
     return this._client.send<void>("Network.setExtraHTTPHeaders", params);
   }
   /** Returns content served for the given request. */
-  public getResponseBody(params: Network.GetResponseBodyParameters): Promise<Network.GetResponseBodyReturn> {
+  public getResponseBody(params: Network.GetResponseBodyParameters) {
     return this._client.send<Network.GetResponseBodyReturn>("Network.getResponseBody", params);
   }
   /** Blocks URLs from loading. */
-  public setBlockedURLs(params: Network.SetBlockedURLsParameters): Promise<void> {
+  public setBlockedURLs(params: Network.SetBlockedURLsParameters) {
     return this._client.send<void>("Network.setBlockedURLs", params);
   }
   /** This method sends a new XMLHttpRequest which is identical to the original one. The following parameters should be identical: method, url, async, request body, extra headers, withCredentials attribute, user, password. */
-  public replayXHR(params: Network.ReplayXHRParameters): Promise<void> {
+  public replayXHR(params: Network.ReplayXHRParameters) {
     return this._client.send<void>("Network.replayXHR", params);
   }
   /** Tells whether clearing browser cache is supported. */
-  public canClearBrowserCache(): Promise<Network.CanClearBrowserCacheReturn> {
+  public canClearBrowserCache() {
     return this._client.send<Network.CanClearBrowserCacheReturn>("Network.canClearBrowserCache");
   }
   /** Clears browser cache. */
-  public clearBrowserCache(): Promise<void> {
+  public clearBrowserCache() {
     return this._client.send<void>("Network.clearBrowserCache");
   }
   /** Tells whether clearing browser cookies is supported. */
-  public canClearBrowserCookies(): Promise<Network.CanClearBrowserCookiesReturn> {
+  public canClearBrowserCookies() {
     return this._client.send<Network.CanClearBrowserCookiesReturn>("Network.canClearBrowserCookies");
   }
   /** Clears browser cookies. */
-  public clearBrowserCookies(): Promise<void> {
+  public clearBrowserCookies() {
     return this._client.send<void>("Network.clearBrowserCookies");
   }
   /** Returns all browser cookies for the current URL. Depending on the backend support, will return detailed cookie information in the <code>cookies</code> field. */
-  public getCookies(params: Network.GetCookiesParameters): Promise<Network.GetCookiesReturn> {
+  public getCookies(params: Network.GetCookiesParameters) {
     return this._client.send<Network.GetCookiesReturn>("Network.getCookies", params);
   }
   /** Returns all browser cookies. Depending on the backend support, will return detailed cookie information in the <code>cookies</code> field. */
-  public getAllCookies(): Promise<Network.GetAllCookiesReturn> {
+  public getAllCookies() {
     return this._client.send<Network.GetAllCookiesReturn>("Network.getAllCookies");
   }
   /** Deletes browser cookie with given name, domain and path. */
-  public deleteCookie(params: Network.DeleteCookieParameters): Promise<void> {
+  public deleteCookie(params: Network.DeleteCookieParameters) {
     return this._client.send<void>("Network.deleteCookie", params);
   }
   /** Sets a cookie with the given cookie data; may overwrite equivalent cookies if they exist. */
-  public setCookie(params: Network.SetCookieParameters): Promise<Network.SetCookieReturn> {
+  public setCookie(params: Network.SetCookieParameters) {
     return this._client.send<Network.SetCookieReturn>("Network.setCookie", params);
   }
   /** Tells whether emulation of network conditions is supported. */
-  public canEmulateNetworkConditions(): Promise<Network.CanEmulateNetworkConditionsReturn> {
+  public canEmulateNetworkConditions() {
     return this._client.send<Network.CanEmulateNetworkConditionsReturn>("Network.canEmulateNetworkConditions");
   }
   /** Activates emulation of network conditions. */
-  public emulateNetworkConditions(params: Network.EmulateNetworkConditionsParameters): Promise<void> {
+  public emulateNetworkConditions(params: Network.EmulateNetworkConditionsParameters) {
     return this._client.send<void>("Network.emulateNetworkConditions", params);
   }
   /** Toggles ignoring cache for each request. If <code>true</code>, cache will not be used. */
-  public setCacheDisabled(params: Network.SetCacheDisabledParameters): Promise<void> {
+  public setCacheDisabled(params: Network.SetCacheDisabledParameters) {
     return this._client.send<void>("Network.setCacheDisabled", params);
   }
   /** Toggles ignoring of service worker for each request. */
-  public setBypassServiceWorker(params: Network.SetBypassServiceWorkerParameters): Promise<void> {
+  public setBypassServiceWorker(params: Network.SetBypassServiceWorkerParameters) {
     return this._client.send<void>("Network.setBypassServiceWorker", params);
   }
   /** For testing. */
-  public setDataSizeLimitsForTest(params: Network.SetDataSizeLimitsForTestParameters): Promise<void> {
+  public setDataSizeLimitsForTest(params: Network.SetDataSizeLimitsForTestParameters) {
     return this._client.send<void>("Network.setDataSizeLimitsForTest", params);
   }
   /** Returns the DER-encoded certificate. */
-  public getCertificate(params: Network.GetCertificateParameters): Promise<Network.GetCertificateReturn> {
+  public getCertificate(params: Network.GetCertificateParameters) {
     return this._client.send<Network.GetCertificateReturn>("Network.getCertificate", params);
   }
   /** Fired when resource loading priority is changed */
-  get resourceChangedPriority(): Network.ResourceChangedPriorityHandler | null {
+  get resourceChangedPriority() {
     return this._resourceChangedPriority;
   }
-  set resourceChangedPriority(handler: Network.ResourceChangedPriorityHandler | null) {
+  set resourceChangedPriority(handler) {
     if (this._resourceChangedPriority) {
       this._client.removeListener("Network.resourceChangedPriority", this._resourceChangedPriority);
     }
@@ -1509,10 +1509,10 @@ export class Network {
     }
   }
   /** Fired when page is about to send HTTP request. */
-  get requestWillBeSent(): Network.RequestWillBeSentHandler | null {
+  get requestWillBeSent() {
     return this._requestWillBeSent;
   }
-  set requestWillBeSent(handler: Network.RequestWillBeSentHandler | null) {
+  set requestWillBeSent(handler) {
     if (this._requestWillBeSent) {
       this._client.removeListener("Network.requestWillBeSent", this._requestWillBeSent);
     }
@@ -1522,10 +1522,10 @@ export class Network {
     }
   }
   /** Fired if request ended up loading from cache. */
-  get requestServedFromCache(): Network.RequestServedFromCacheHandler | null {
+  get requestServedFromCache() {
     return this._requestServedFromCache;
   }
-  set requestServedFromCache(handler: Network.RequestServedFromCacheHandler | null) {
+  set requestServedFromCache(handler) {
     if (this._requestServedFromCache) {
       this._client.removeListener("Network.requestServedFromCache", this._requestServedFromCache);
     }
@@ -1535,10 +1535,10 @@ export class Network {
     }
   }
   /** Fired when HTTP response is available. */
-  get responseReceived(): Network.ResponseReceivedHandler | null {
+  get responseReceived() {
     return this._responseReceived;
   }
-  set responseReceived(handler: Network.ResponseReceivedHandler | null) {
+  set responseReceived(handler) {
     if (this._responseReceived) {
       this._client.removeListener("Network.responseReceived", this._responseReceived);
     }
@@ -1548,10 +1548,10 @@ export class Network {
     }
   }
   /** Fired when data chunk was received over the network. */
-  get dataReceived(): Network.DataReceivedHandler | null {
+  get dataReceived() {
     return this._dataReceived;
   }
-  set dataReceived(handler: Network.DataReceivedHandler | null) {
+  set dataReceived(handler) {
     if (this._dataReceived) {
       this._client.removeListener("Network.dataReceived", this._dataReceived);
     }
@@ -1561,10 +1561,10 @@ export class Network {
     }
   }
   /** Fired when HTTP request has finished loading. */
-  get loadingFinished(): Network.LoadingFinishedHandler | null {
+  get loadingFinished() {
     return this._loadingFinished;
   }
-  set loadingFinished(handler: Network.LoadingFinishedHandler | null) {
+  set loadingFinished(handler) {
     if (this._loadingFinished) {
       this._client.removeListener("Network.loadingFinished", this._loadingFinished);
     }
@@ -1574,10 +1574,10 @@ export class Network {
     }
   }
   /** Fired when HTTP request has failed to load. */
-  get loadingFailed(): Network.LoadingFailedHandler | null {
+  get loadingFailed() {
     return this._loadingFailed;
   }
-  set loadingFailed(handler: Network.LoadingFailedHandler | null) {
+  set loadingFailed(handler) {
     if (this._loadingFailed) {
       this._client.removeListener("Network.loadingFailed", this._loadingFailed);
     }
@@ -1587,10 +1587,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket is about to initiate handshake. */
-  get webSocketWillSendHandshakeRequest(): Network.WebSocketWillSendHandshakeRequestHandler | null {
+  get webSocketWillSendHandshakeRequest() {
     return this._webSocketWillSendHandshakeRequest;
   }
-  set webSocketWillSendHandshakeRequest(handler: Network.WebSocketWillSendHandshakeRequestHandler | null) {
+  set webSocketWillSendHandshakeRequest(handler) {
     if (this._webSocketWillSendHandshakeRequest) {
       this._client.removeListener("Network.webSocketWillSendHandshakeRequest", this._webSocketWillSendHandshakeRequest);
     }
@@ -1600,10 +1600,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket handshake response becomes available. */
-  get webSocketHandshakeResponseReceived(): Network.WebSocketHandshakeResponseReceivedHandler | null {
+  get webSocketHandshakeResponseReceived() {
     return this._webSocketHandshakeResponseReceived;
   }
-  set webSocketHandshakeResponseReceived(handler: Network.WebSocketHandshakeResponseReceivedHandler | null) {
+  set webSocketHandshakeResponseReceived(handler) {
     if (this._webSocketHandshakeResponseReceived) {
       this._client.removeListener("Network.webSocketHandshakeResponseReceived", this._webSocketHandshakeResponseReceived);
     }
@@ -1613,10 +1613,10 @@ export class Network {
     }
   }
   /** Fired upon WebSocket creation. */
-  get webSocketCreated(): Network.WebSocketCreatedHandler | null {
+  get webSocketCreated() {
     return this._webSocketCreated;
   }
-  set webSocketCreated(handler: Network.WebSocketCreatedHandler | null) {
+  set webSocketCreated(handler) {
     if (this._webSocketCreated) {
       this._client.removeListener("Network.webSocketCreated", this._webSocketCreated);
     }
@@ -1626,10 +1626,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket is closed. */
-  get webSocketClosed(): Network.WebSocketClosedHandler | null {
+  get webSocketClosed() {
     return this._webSocketClosed;
   }
-  set webSocketClosed(handler: Network.WebSocketClosedHandler | null) {
+  set webSocketClosed(handler) {
     if (this._webSocketClosed) {
       this._client.removeListener("Network.webSocketClosed", this._webSocketClosed);
     }
@@ -1639,10 +1639,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket frame is received. */
-  get webSocketFrameReceived(): Network.WebSocketFrameReceivedHandler | null {
+  get webSocketFrameReceived() {
     return this._webSocketFrameReceived;
   }
-  set webSocketFrameReceived(handler: Network.WebSocketFrameReceivedHandler | null) {
+  set webSocketFrameReceived(handler) {
     if (this._webSocketFrameReceived) {
       this._client.removeListener("Network.webSocketFrameReceived", this._webSocketFrameReceived);
     }
@@ -1652,10 +1652,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket frame error occurs. */
-  get webSocketFrameError(): Network.WebSocketFrameErrorHandler | null {
+  get webSocketFrameError() {
     return this._webSocketFrameError;
   }
-  set webSocketFrameError(handler: Network.WebSocketFrameErrorHandler | null) {
+  set webSocketFrameError(handler) {
     if (this._webSocketFrameError) {
       this._client.removeListener("Network.webSocketFrameError", this._webSocketFrameError);
     }
@@ -1665,10 +1665,10 @@ export class Network {
     }
   }
   /** Fired when WebSocket frame is sent. */
-  get webSocketFrameSent(): Network.WebSocketFrameSentHandler | null {
+  get webSocketFrameSent() {
     return this._webSocketFrameSent;
   }
-  set webSocketFrameSent(handler: Network.WebSocketFrameSentHandler | null) {
+  set webSocketFrameSent(handler) {
     if (this._webSocketFrameSent) {
       this._client.removeListener("Network.webSocketFrameSent", this._webSocketFrameSent);
     }
@@ -1678,10 +1678,10 @@ export class Network {
     }
   }
   /** Fired when EventSource message is received. */
-  get eventSourceMessageReceived(): Network.EventSourceMessageReceivedHandler | null {
+  get eventSourceMessageReceived() {
     return this._eventSourceMessageReceived;
   }
-  set eventSourceMessageReceived(handler: Network.EventSourceMessageReceivedHandler | null) {
+  set eventSourceMessageReceived(handler) {
     if (this._eventSourceMessageReceived) {
       this._client.removeListener("Network.eventSourceMessageReceived", this._eventSourceMessageReceived);
     }
@@ -2213,23 +2213,23 @@ export class Database {
     this._client = client;
   }
   /** Enables database tracking, database events will now be delivered to the client. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Database.enable");
   }
   /** Disables database tracking, prevents database events from being sent to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Database.disable");
   }
-  public getDatabaseTableNames(params: Database.GetDatabaseTableNamesParameters): Promise<Database.GetDatabaseTableNamesReturn> {
+  public getDatabaseTableNames(params: Database.GetDatabaseTableNamesParameters) {
     return this._client.send<Database.GetDatabaseTableNamesReturn>("Database.getDatabaseTableNames", params);
   }
-  public executeSQL(params: Database.ExecuteSQLParameters): Promise<Database.ExecuteSQLReturn> {
+  public executeSQL(params: Database.ExecuteSQLParameters) {
     return this._client.send<Database.ExecuteSQLReturn>("Database.executeSQL", params);
   }
-  get addDatabase(): Database.AddDatabaseHandler | null {
+  get addDatabase() {
     return this._addDatabase;
   }
-  set addDatabase(handler: Database.AddDatabaseHandler | null) {
+  set addDatabase(handler) {
     if (this._addDatabase) {
       this._client.removeListener("Database.addDatabase", this._addDatabase);
     }
@@ -2286,31 +2286,31 @@ export class IndexedDB {
     this._client = client;
   }
   /** Enables events from backend. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("IndexedDB.enable");
   }
   /** Disables events from backend. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("IndexedDB.disable");
   }
   /** Requests database names for given security origin. */
-  public requestDatabaseNames(params: IndexedDB.RequestDatabaseNamesParameters): Promise<IndexedDB.RequestDatabaseNamesReturn> {
+  public requestDatabaseNames(params: IndexedDB.RequestDatabaseNamesParameters) {
     return this._client.send<IndexedDB.RequestDatabaseNamesReturn>("IndexedDB.requestDatabaseNames", params);
   }
   /** Requests database with given name in given frame. */
-  public requestDatabase(params: IndexedDB.RequestDatabaseParameters): Promise<IndexedDB.RequestDatabaseReturn> {
+  public requestDatabase(params: IndexedDB.RequestDatabaseParameters) {
     return this._client.send<IndexedDB.RequestDatabaseReturn>("IndexedDB.requestDatabase", params);
   }
   /** Requests data from object store or index. */
-  public requestData(params: IndexedDB.RequestDataParameters): Promise<IndexedDB.RequestDataReturn> {
+  public requestData(params: IndexedDB.RequestDataParameters) {
     return this._client.send<IndexedDB.RequestDataReturn>("IndexedDB.requestData", params);
   }
   /** Clears all entries from an object store. */
-  public clearObjectStore(params: IndexedDB.ClearObjectStoreParameters): Promise<IndexedDB.ClearObjectStoreReturn> {
+  public clearObjectStore(params: IndexedDB.ClearObjectStoreParameters) {
     return this._client.send<IndexedDB.ClearObjectStoreReturn>("IndexedDB.clearObjectStore", params);
   }
   /** Deletes a database. */
-  public deleteDatabase(params: IndexedDB.DeleteDatabaseParameters): Promise<IndexedDB.DeleteDatabaseReturn> {
+  public deleteDatabase(params: IndexedDB.DeleteDatabaseParameters) {
     return this._client.send<IndexedDB.DeleteDatabaseReturn>("IndexedDB.deleteDatabase", params);
   }
 }
@@ -2451,19 +2451,19 @@ export class CacheStorage {
     this._client = client;
   }
   /** Requests cache names. */
-  public requestCacheNames(params: CacheStorage.RequestCacheNamesParameters): Promise<CacheStorage.RequestCacheNamesReturn> {
+  public requestCacheNames(params: CacheStorage.RequestCacheNamesParameters) {
     return this._client.send<CacheStorage.RequestCacheNamesReturn>("CacheStorage.requestCacheNames", params);
   }
   /** Requests data from cache. */
-  public requestEntries(params: CacheStorage.RequestEntriesParameters): Promise<CacheStorage.RequestEntriesReturn> {
+  public requestEntries(params: CacheStorage.RequestEntriesParameters) {
     return this._client.send<CacheStorage.RequestEntriesReturn>("CacheStorage.requestEntries", params);
   }
   /** Deletes a cache. */
-  public deleteCache(params: CacheStorage.DeleteCacheParameters): Promise<void> {
+  public deleteCache(params: CacheStorage.DeleteCacheParameters) {
     return this._client.send<void>("CacheStorage.deleteCache", params);
   }
   /** Deletes a cache entry. */
-  public deleteEntry(params: CacheStorage.DeleteEntryParameters): Promise<void> {
+  public deleteEntry(params: CacheStorage.DeleteEntryParameters) {
     return this._client.send<void>("CacheStorage.deleteEntry", params);
   }
 }
@@ -2530,29 +2530,29 @@ export class DOMStorage {
     this._client = client;
   }
   /** Enables storage tracking, storage events will now be delivered to the client. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("DOMStorage.enable");
   }
   /** Disables storage tracking, prevents storage events from being sent to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("DOMStorage.disable");
   }
-  public clear(params: DOMStorage.ClearParameters): Promise<void> {
+  public clear(params: DOMStorage.ClearParameters) {
     return this._client.send<void>("DOMStorage.clear", params);
   }
-  public getDOMStorageItems(params: DOMStorage.GetDOMStorageItemsParameters): Promise<DOMStorage.GetDOMStorageItemsReturn> {
+  public getDOMStorageItems(params: DOMStorage.GetDOMStorageItemsParameters) {
     return this._client.send<DOMStorage.GetDOMStorageItemsReturn>("DOMStorage.getDOMStorageItems", params);
   }
-  public setDOMStorageItem(params: DOMStorage.SetDOMStorageItemParameters): Promise<void> {
+  public setDOMStorageItem(params: DOMStorage.SetDOMStorageItemParameters) {
     return this._client.send<void>("DOMStorage.setDOMStorageItem", params);
   }
-  public removeDOMStorageItem(params: DOMStorage.RemoveDOMStorageItemParameters): Promise<void> {
+  public removeDOMStorageItem(params: DOMStorage.RemoveDOMStorageItemParameters) {
     return this._client.send<void>("DOMStorage.removeDOMStorageItem", params);
   }
-  get domStorageItemsCleared(): DOMStorage.DomStorageItemsClearedHandler | null {
+  get domStorageItemsCleared() {
     return this._domStorageItemsCleared;
   }
-  set domStorageItemsCleared(handler: DOMStorage.DomStorageItemsClearedHandler | null) {
+  set domStorageItemsCleared(handler) {
     if (this._domStorageItemsCleared) {
       this._client.removeListener("DOMStorage.domStorageItemsCleared", this._domStorageItemsCleared);
     }
@@ -2561,10 +2561,10 @@ export class DOMStorage {
       this._client.on("DOMStorage.domStorageItemsCleared", handler);
     }
   }
-  get domStorageItemRemoved(): DOMStorage.DomStorageItemRemovedHandler | null {
+  get domStorageItemRemoved() {
     return this._domStorageItemRemoved;
   }
-  set domStorageItemRemoved(handler: DOMStorage.DomStorageItemRemovedHandler | null) {
+  set domStorageItemRemoved(handler) {
     if (this._domStorageItemRemoved) {
       this._client.removeListener("DOMStorage.domStorageItemRemoved", this._domStorageItemRemoved);
     }
@@ -2573,10 +2573,10 @@ export class DOMStorage {
       this._client.on("DOMStorage.domStorageItemRemoved", handler);
     }
   }
-  get domStorageItemAdded(): DOMStorage.DomStorageItemAddedHandler | null {
+  get domStorageItemAdded() {
     return this._domStorageItemAdded;
   }
-  set domStorageItemAdded(handler: DOMStorage.DomStorageItemAddedHandler | null) {
+  set domStorageItemAdded(handler) {
     if (this._domStorageItemAdded) {
       this._client.removeListener("DOMStorage.domStorageItemAdded", this._domStorageItemAdded);
     }
@@ -2585,10 +2585,10 @@ export class DOMStorage {
       this._client.on("DOMStorage.domStorageItemAdded", handler);
     }
   }
-  get domStorageItemUpdated(): DOMStorage.DomStorageItemUpdatedHandler | null {
+  get domStorageItemUpdated() {
     return this._domStorageItemUpdated;
   }
-  set domStorageItemUpdated(handler: DOMStorage.DomStorageItemUpdatedHandler | null) {
+  set domStorageItemUpdated(handler) {
     if (this._domStorageItemUpdated) {
       this._client.removeListener("DOMStorage.domStorageItemUpdated", this._domStorageItemUpdated);
     }
@@ -2657,25 +2657,25 @@ export class ApplicationCache {
     this._client = client;
   }
   /** Returns array of frame identifiers with manifest urls for each frame containing a document associated with some application cache. */
-  public getFramesWithManifests(): Promise<ApplicationCache.GetFramesWithManifestsReturn> {
+  public getFramesWithManifests() {
     return this._client.send<ApplicationCache.GetFramesWithManifestsReturn>("ApplicationCache.getFramesWithManifests");
   }
   /** Enables application cache domain notifications. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("ApplicationCache.enable");
   }
   /** Returns manifest URL for document in the given frame. */
-  public getManifestForFrame(params: ApplicationCache.GetManifestForFrameParameters): Promise<ApplicationCache.GetManifestForFrameReturn> {
+  public getManifestForFrame(params: ApplicationCache.GetManifestForFrameParameters) {
     return this._client.send<ApplicationCache.GetManifestForFrameReturn>("ApplicationCache.getManifestForFrame", params);
   }
   /** Returns relevant application cache data for the document in given frame. */
-  public getApplicationCacheForFrame(params: ApplicationCache.GetApplicationCacheForFrameParameters): Promise<ApplicationCache.GetApplicationCacheForFrameReturn> {
+  public getApplicationCacheForFrame(params: ApplicationCache.GetApplicationCacheForFrameParameters) {
     return this._client.send<ApplicationCache.GetApplicationCacheForFrameReturn>("ApplicationCache.getApplicationCacheForFrame", params);
   }
-  get applicationCacheStatusUpdated(): ApplicationCache.ApplicationCacheStatusUpdatedHandler | null {
+  get applicationCacheStatusUpdated() {
     return this._applicationCacheStatusUpdated;
   }
-  set applicationCacheStatusUpdated(handler: ApplicationCache.ApplicationCacheStatusUpdatedHandler | null) {
+  set applicationCacheStatusUpdated(handler) {
     if (this._applicationCacheStatusUpdated) {
       this._client.removeListener("ApplicationCache.applicationCacheStatusUpdated", this._applicationCacheStatusUpdated);
     }
@@ -2684,10 +2684,10 @@ export class ApplicationCache {
       this._client.on("ApplicationCache.applicationCacheStatusUpdated", handler);
     }
   }
-  get networkStateUpdated(): ApplicationCache.NetworkStateUpdatedHandler | null {
+  get networkStateUpdated() {
     return this._networkStateUpdated;
   }
-  set networkStateUpdated(handler: ApplicationCache.NetworkStateUpdatedHandler | null) {
+  set networkStateUpdated(handler) {
     if (this._networkStateUpdated) {
       this._client.removeListener("ApplicationCache.networkStateUpdated", this._networkStateUpdated);
     }
@@ -2784,162 +2784,162 @@ export class DOM {
     this._client = client;
   }
   /** Enables DOM agent for the given page. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("DOM.enable");
   }
   /** Disables DOM agent for the given page. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("DOM.disable");
   }
   /** Returns the root DOM node (and optionally the subtree) to the caller. */
-  public getDocument(params: DOM.GetDocumentParameters): Promise<DOM.GetDocumentReturn> {
+  public getDocument(params: DOM.GetDocumentParameters) {
     return this._client.send<DOM.GetDocumentReturn>("DOM.getDocument", params);
   }
   /** Returns the root DOM node (and optionally the subtree) to the caller. */
-  public getFlattenedDocument(params: DOM.GetFlattenedDocumentParameters): Promise<DOM.GetFlattenedDocumentReturn> {
+  public getFlattenedDocument(params: DOM.GetFlattenedDocumentParameters) {
     return this._client.send<DOM.GetFlattenedDocumentReturn>("DOM.getFlattenedDocument", params);
   }
   /** Collects class names for the node with given id and all of it's child nodes. */
-  public collectClassNamesFromSubtree(params: DOM.CollectClassNamesFromSubtreeParameters): Promise<DOM.CollectClassNamesFromSubtreeReturn> {
+  public collectClassNamesFromSubtree(params: DOM.CollectClassNamesFromSubtreeParameters) {
     return this._client.send<DOM.CollectClassNamesFromSubtreeReturn>("DOM.collectClassNamesFromSubtree", params);
   }
   /** Requests that children of the node with given id are returned to the caller in form of <code>setChildNodes</code> events where not only immediate children are retrieved, but all children down to the specified depth. */
-  public requestChildNodes(params: DOM.RequestChildNodesParameters): Promise<void> {
+  public requestChildNodes(params: DOM.RequestChildNodesParameters) {
     return this._client.send<void>("DOM.requestChildNodes", params);
   }
   /** Executes <code>querySelector</code> on a given node. */
-  public querySelector(params: DOM.QuerySelectorParameters): Promise<DOM.QuerySelectorReturn> {
+  public querySelector(params: DOM.QuerySelectorParameters) {
     return this._client.send<DOM.QuerySelectorReturn>("DOM.querySelector", params);
   }
   /** Executes <code>querySelectorAll</code> on a given node. */
-  public querySelectorAll(params: DOM.QuerySelectorAllParameters): Promise<DOM.QuerySelectorAllReturn> {
+  public querySelectorAll(params: DOM.QuerySelectorAllParameters) {
     return this._client.send<DOM.QuerySelectorAllReturn>("DOM.querySelectorAll", params);
   }
   /** Sets node name for a node with given id. */
-  public setNodeName(params: DOM.SetNodeNameParameters): Promise<DOM.SetNodeNameReturn> {
+  public setNodeName(params: DOM.SetNodeNameParameters) {
     return this._client.send<DOM.SetNodeNameReturn>("DOM.setNodeName", params);
   }
   /** Sets node value for a node with given id. */
-  public setNodeValue(params: DOM.SetNodeValueParameters): Promise<void> {
+  public setNodeValue(params: DOM.SetNodeValueParameters) {
     return this._client.send<void>("DOM.setNodeValue", params);
   }
   /** Removes node with given id. */
-  public removeNode(params: DOM.RemoveNodeParameters): Promise<void> {
+  public removeNode(params: DOM.RemoveNodeParameters) {
     return this._client.send<void>("DOM.removeNode", params);
   }
   /** Sets attribute for an element with given id. */
-  public setAttributeValue(params: DOM.SetAttributeValueParameters): Promise<void> {
+  public setAttributeValue(params: DOM.SetAttributeValueParameters) {
     return this._client.send<void>("DOM.setAttributeValue", params);
   }
   /** Sets attributes on element with given id. This method is useful when user edits some existing attribute value and types in several attribute name/value pairs. */
-  public setAttributesAsText(params: DOM.SetAttributesAsTextParameters): Promise<void> {
+  public setAttributesAsText(params: DOM.SetAttributesAsTextParameters) {
     return this._client.send<void>("DOM.setAttributesAsText", params);
   }
   /** Removes attribute with given name from an element with given id. */
-  public removeAttribute(params: DOM.RemoveAttributeParameters): Promise<void> {
+  public removeAttribute(params: DOM.RemoveAttributeParameters) {
     return this._client.send<void>("DOM.removeAttribute", params);
   }
   /** Returns node's HTML markup. */
-  public getOuterHTML(params: DOM.GetOuterHTMLParameters): Promise<DOM.GetOuterHTMLReturn> {
+  public getOuterHTML(params: DOM.GetOuterHTMLParameters) {
     return this._client.send<DOM.GetOuterHTMLReturn>("DOM.getOuterHTML", params);
   }
   /** Sets node HTML markup, returns new node id. */
-  public setOuterHTML(params: DOM.SetOuterHTMLParameters): Promise<void> {
+  public setOuterHTML(params: DOM.SetOuterHTMLParameters) {
     return this._client.send<void>("DOM.setOuterHTML", params);
   }
   /** Searches for a given string in the DOM tree. Use <code>getSearchResults</code> to access search results or <code>cancelSearch</code> to end this search session. */
-  public performSearch(params: DOM.PerformSearchParameters): Promise<DOM.PerformSearchReturn> {
+  public performSearch(params: DOM.PerformSearchParameters) {
     return this._client.send<DOM.PerformSearchReturn>("DOM.performSearch", params);
   }
   /** Returns search results from given <code>fromIndex</code> to given <code>toIndex</code> from the sarch with the given identifier. */
-  public getSearchResults(params: DOM.GetSearchResultsParameters): Promise<DOM.GetSearchResultsReturn> {
+  public getSearchResults(params: DOM.GetSearchResultsParameters) {
     return this._client.send<DOM.GetSearchResultsReturn>("DOM.getSearchResults", params);
   }
   /** Discards search results from the session with the given id. <code>getSearchResults</code> should no longer be called for that search. */
-  public discardSearchResults(params: DOM.DiscardSearchResultsParameters): Promise<void> {
+  public discardSearchResults(params: DOM.DiscardSearchResultsParameters) {
     return this._client.send<void>("DOM.discardSearchResults", params);
   }
   /** Requests that the node is sent to the caller given the JavaScript node object reference. All nodes that form the path from the node to the root are also sent to the client as a series of <code>setChildNodes</code> notifications. */
-  public requestNode(params: DOM.RequestNodeParameters): Promise<DOM.RequestNodeReturn> {
+  public requestNode(params: DOM.RequestNodeParameters) {
     return this._client.send<DOM.RequestNodeReturn>("DOM.requestNode", params);
   }
   /** Highlights given rectangle. */
-  public highlightRect(): Promise<void> {
+  public highlightRect() {
     return this._client.send<void>("DOM.highlightRect");
   }
   /** Highlights DOM node. */
-  public highlightNode(): Promise<void> {
+  public highlightNode() {
     return this._client.send<void>("DOM.highlightNode");
   }
   /** Hides any highlight. */
-  public hideHighlight(): Promise<void> {
+  public hideHighlight() {
     return this._client.send<void>("DOM.hideHighlight");
   }
   /** Requests that the node is sent to the caller given its path. // FIXME, use XPath */
-  public pushNodeByPathToFrontend(params: DOM.PushNodeByPathToFrontendParameters): Promise<DOM.PushNodeByPathToFrontendReturn> {
+  public pushNodeByPathToFrontend(params: DOM.PushNodeByPathToFrontendParameters) {
     return this._client.send<DOM.PushNodeByPathToFrontendReturn>("DOM.pushNodeByPathToFrontend", params);
   }
   /** Requests that a batch of nodes is sent to the caller given their backend node ids. */
-  public pushNodesByBackendIdsToFrontend(params: DOM.PushNodesByBackendIdsToFrontendParameters): Promise<DOM.PushNodesByBackendIdsToFrontendReturn> {
+  public pushNodesByBackendIdsToFrontend(params: DOM.PushNodesByBackendIdsToFrontendParameters) {
     return this._client.send<DOM.PushNodesByBackendIdsToFrontendReturn>("DOM.pushNodesByBackendIdsToFrontend", params);
   }
   /** Enables console to refer to the node with given id via $x (see Command Line API for more details $x functions). */
-  public setInspectedNode(params: DOM.SetInspectedNodeParameters): Promise<void> {
+  public setInspectedNode(params: DOM.SetInspectedNodeParameters) {
     return this._client.send<void>("DOM.setInspectedNode", params);
   }
   /** Resolves JavaScript node object for given node id. */
-  public resolveNode(params: DOM.ResolveNodeParameters): Promise<DOM.ResolveNodeReturn> {
+  public resolveNode(params: DOM.ResolveNodeParameters) {
     return this._client.send<DOM.ResolveNodeReturn>("DOM.resolveNode", params);
   }
   /** Returns attributes for the specified node. */
-  public getAttributes(params: DOM.GetAttributesParameters): Promise<DOM.GetAttributesReturn> {
+  public getAttributes(params: DOM.GetAttributesParameters) {
     return this._client.send<DOM.GetAttributesReturn>("DOM.getAttributes", params);
   }
   /** Creates a deep copy of the specified node and places it into the target container before the given anchor. */
-  public copyTo(params: DOM.CopyToParameters): Promise<DOM.CopyToReturn> {
+  public copyTo(params: DOM.CopyToParameters) {
     return this._client.send<DOM.CopyToReturn>("DOM.copyTo", params);
   }
   /** Moves node into the new container, places it before the given anchor. */
-  public moveTo(params: DOM.MoveToParameters): Promise<DOM.MoveToReturn> {
+  public moveTo(params: DOM.MoveToParameters) {
     return this._client.send<DOM.MoveToReturn>("DOM.moveTo", params);
   }
   /** Undoes the last performed action. */
-  public undo(): Promise<void> {
+  public undo() {
     return this._client.send<void>("DOM.undo");
   }
   /** Re-does the last undone action. */
-  public redo(): Promise<void> {
+  public redo() {
     return this._client.send<void>("DOM.redo");
   }
   /** Marks last undoable state. */
-  public markUndoableState(): Promise<void> {
+  public markUndoableState() {
     return this._client.send<void>("DOM.markUndoableState");
   }
   /** Focuses the given element. */
-  public focus(params: DOM.FocusParameters): Promise<void> {
+  public focus(params: DOM.FocusParameters) {
     return this._client.send<void>("DOM.focus", params);
   }
   /** Sets files for the given file input element. */
-  public setFileInputFiles(params: DOM.SetFileInputFilesParameters): Promise<void> {
+  public setFileInputFiles(params: DOM.SetFileInputFilesParameters) {
     return this._client.send<void>("DOM.setFileInputFiles", params);
   }
   /** Returns boxes for the currently selected nodes. */
-  public getBoxModel(params: DOM.GetBoxModelParameters): Promise<DOM.GetBoxModelReturn> {
+  public getBoxModel(params: DOM.GetBoxModelParameters) {
     return this._client.send<DOM.GetBoxModelReturn>("DOM.getBoxModel", params);
   }
   /** Returns node id at given location. */
-  public getNodeForLocation(params: DOM.GetNodeForLocationParameters): Promise<DOM.GetNodeForLocationReturn> {
+  public getNodeForLocation(params: DOM.GetNodeForLocationParameters) {
     return this._client.send<DOM.GetNodeForLocationReturn>("DOM.getNodeForLocation", params);
   }
   /** Returns the id of the nearest ancestor that is a relayout boundary. */
-  public getRelayoutBoundary(params: DOM.GetRelayoutBoundaryParameters): Promise<DOM.GetRelayoutBoundaryReturn> {
+  public getRelayoutBoundary(params: DOM.GetRelayoutBoundaryParameters) {
     return this._client.send<DOM.GetRelayoutBoundaryReturn>("DOM.getRelayoutBoundary", params);
   }
   /** Fired when <code>Document</code> has been totally updated. Node ids are no longer valid. */
-  get documentUpdated(): DOM.DocumentUpdatedHandler | null {
+  get documentUpdated() {
     return this._documentUpdated;
   }
-  set documentUpdated(handler: DOM.DocumentUpdatedHandler | null) {
+  set documentUpdated(handler) {
     if (this._documentUpdated) {
       this._client.removeListener("DOM.documentUpdated", this._documentUpdated);
     }
@@ -2949,10 +2949,10 @@ export class DOM {
     }
   }
   /** Fired when backend wants to provide client with the missing DOM structure. This happens upon most of the calls requesting node ids. */
-  get setChildNodes(): DOM.SetChildNodesHandler | null {
+  get setChildNodes() {
     return this._setChildNodes;
   }
-  set setChildNodes(handler: DOM.SetChildNodesHandler | null) {
+  set setChildNodes(handler) {
     if (this._setChildNodes) {
       this._client.removeListener("DOM.setChildNodes", this._setChildNodes);
     }
@@ -2962,10 +2962,10 @@ export class DOM {
     }
   }
   /** Fired when <code>Element</code>'s attribute is modified. */
-  get attributeModified(): DOM.AttributeModifiedHandler | null {
+  get attributeModified() {
     return this._attributeModified;
   }
-  set attributeModified(handler: DOM.AttributeModifiedHandler | null) {
+  set attributeModified(handler) {
     if (this._attributeModified) {
       this._client.removeListener("DOM.attributeModified", this._attributeModified);
     }
@@ -2975,10 +2975,10 @@ export class DOM {
     }
   }
   /** Fired when <code>Element</code>'s attribute is removed. */
-  get attributeRemoved(): DOM.AttributeRemovedHandler | null {
+  get attributeRemoved() {
     return this._attributeRemoved;
   }
-  set attributeRemoved(handler: DOM.AttributeRemovedHandler | null) {
+  set attributeRemoved(handler) {
     if (this._attributeRemoved) {
       this._client.removeListener("DOM.attributeRemoved", this._attributeRemoved);
     }
@@ -2988,10 +2988,10 @@ export class DOM {
     }
   }
   /** Fired when <code>Element</code>'s inline style is modified via a CSS property modification. */
-  get inlineStyleInvalidated(): DOM.InlineStyleInvalidatedHandler | null {
+  get inlineStyleInvalidated() {
     return this._inlineStyleInvalidated;
   }
-  set inlineStyleInvalidated(handler: DOM.InlineStyleInvalidatedHandler | null) {
+  set inlineStyleInvalidated(handler) {
     if (this._inlineStyleInvalidated) {
       this._client.removeListener("DOM.inlineStyleInvalidated", this._inlineStyleInvalidated);
     }
@@ -3001,10 +3001,10 @@ export class DOM {
     }
   }
   /** Mirrors <code>DOMCharacterDataModified</code> event. */
-  get characterDataModified(): DOM.CharacterDataModifiedHandler | null {
+  get characterDataModified() {
     return this._characterDataModified;
   }
-  set characterDataModified(handler: DOM.CharacterDataModifiedHandler | null) {
+  set characterDataModified(handler) {
     if (this._characterDataModified) {
       this._client.removeListener("DOM.characterDataModified", this._characterDataModified);
     }
@@ -3014,10 +3014,10 @@ export class DOM {
     }
   }
   /** Fired when <code>Container</code>'s child node count has changed. */
-  get childNodeCountUpdated(): DOM.ChildNodeCountUpdatedHandler | null {
+  get childNodeCountUpdated() {
     return this._childNodeCountUpdated;
   }
-  set childNodeCountUpdated(handler: DOM.ChildNodeCountUpdatedHandler | null) {
+  set childNodeCountUpdated(handler) {
     if (this._childNodeCountUpdated) {
       this._client.removeListener("DOM.childNodeCountUpdated", this._childNodeCountUpdated);
     }
@@ -3027,10 +3027,10 @@ export class DOM {
     }
   }
   /** Mirrors <code>DOMNodeInserted</code> event. */
-  get childNodeInserted(): DOM.ChildNodeInsertedHandler | null {
+  get childNodeInserted() {
     return this._childNodeInserted;
   }
-  set childNodeInserted(handler: DOM.ChildNodeInsertedHandler | null) {
+  set childNodeInserted(handler) {
     if (this._childNodeInserted) {
       this._client.removeListener("DOM.childNodeInserted", this._childNodeInserted);
     }
@@ -3040,10 +3040,10 @@ export class DOM {
     }
   }
   /** Mirrors <code>DOMNodeRemoved</code> event. */
-  get childNodeRemoved(): DOM.ChildNodeRemovedHandler | null {
+  get childNodeRemoved() {
     return this._childNodeRemoved;
   }
-  set childNodeRemoved(handler: DOM.ChildNodeRemovedHandler | null) {
+  set childNodeRemoved(handler) {
     if (this._childNodeRemoved) {
       this._client.removeListener("DOM.childNodeRemoved", this._childNodeRemoved);
     }
@@ -3053,10 +3053,10 @@ export class DOM {
     }
   }
   /** Called when shadow root is pushed into the element. */
-  get shadowRootPushed(): DOM.ShadowRootPushedHandler | null {
+  get shadowRootPushed() {
     return this._shadowRootPushed;
   }
-  set shadowRootPushed(handler: DOM.ShadowRootPushedHandler | null) {
+  set shadowRootPushed(handler) {
     if (this._shadowRootPushed) {
       this._client.removeListener("DOM.shadowRootPushed", this._shadowRootPushed);
     }
@@ -3066,10 +3066,10 @@ export class DOM {
     }
   }
   /** Called when shadow root is popped from the element. */
-  get shadowRootPopped(): DOM.ShadowRootPoppedHandler | null {
+  get shadowRootPopped() {
     return this._shadowRootPopped;
   }
-  set shadowRootPopped(handler: DOM.ShadowRootPoppedHandler | null) {
+  set shadowRootPopped(handler) {
     if (this._shadowRootPopped) {
       this._client.removeListener("DOM.shadowRootPopped", this._shadowRootPopped);
     }
@@ -3079,10 +3079,10 @@ export class DOM {
     }
   }
   /** Called when a pseudo element is added to an element. */
-  get pseudoElementAdded(): DOM.PseudoElementAddedHandler | null {
+  get pseudoElementAdded() {
     return this._pseudoElementAdded;
   }
-  set pseudoElementAdded(handler: DOM.PseudoElementAddedHandler | null) {
+  set pseudoElementAdded(handler) {
     if (this._pseudoElementAdded) {
       this._client.removeListener("DOM.pseudoElementAdded", this._pseudoElementAdded);
     }
@@ -3092,10 +3092,10 @@ export class DOM {
     }
   }
   /** Called when a pseudo element is removed from an element. */
-  get pseudoElementRemoved(): DOM.PseudoElementRemovedHandler | null {
+  get pseudoElementRemoved() {
     return this._pseudoElementRemoved;
   }
-  set pseudoElementRemoved(handler: DOM.PseudoElementRemovedHandler | null) {
+  set pseudoElementRemoved(handler) {
     if (this._pseudoElementRemoved) {
       this._client.removeListener("DOM.pseudoElementRemoved", this._pseudoElementRemoved);
     }
@@ -3105,10 +3105,10 @@ export class DOM {
     }
   }
   /** Called when distrubution is changed. */
-  get distributedNodesUpdated(): DOM.DistributedNodesUpdatedHandler | null {
+  get distributedNodesUpdated() {
     return this._distributedNodesUpdated;
   }
-  set distributedNodesUpdated(handler: DOM.DistributedNodesUpdatedHandler | null) {
+  set distributedNodesUpdated(handler) {
     if (this._distributedNodesUpdated) {
       this._client.removeListener("DOM.distributedNodesUpdated", this._distributedNodesUpdated);
     }
@@ -3599,101 +3599,101 @@ export class CSS {
     this._client = client;
   }
   /** Enables the CSS agent for the given page. Clients should not assume that the CSS agent has been enabled until the result of this command is received. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("CSS.enable");
   }
   /** Disables the CSS agent for the given page. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("CSS.disable");
   }
   /** Returns requested styles for a DOM node identified by <code>nodeId</code>. */
-  public getMatchedStylesForNode(params: CSS.GetMatchedStylesForNodeParameters): Promise<CSS.GetMatchedStylesForNodeReturn> {
+  public getMatchedStylesForNode(params: CSS.GetMatchedStylesForNodeParameters) {
     return this._client.send<CSS.GetMatchedStylesForNodeReturn>("CSS.getMatchedStylesForNode", params);
   }
   /** Returns the styles defined inline (explicitly in the "style" attribute and implicitly, using DOM attributes) for a DOM node identified by <code>nodeId</code>. */
-  public getInlineStylesForNode(params: CSS.GetInlineStylesForNodeParameters): Promise<CSS.GetInlineStylesForNodeReturn> {
+  public getInlineStylesForNode(params: CSS.GetInlineStylesForNodeParameters) {
     return this._client.send<CSS.GetInlineStylesForNodeReturn>("CSS.getInlineStylesForNode", params);
   }
   /** Returns the computed style for a DOM node identified by <code>nodeId</code>. */
-  public getComputedStyleForNode(params: CSS.GetComputedStyleForNodeParameters): Promise<CSS.GetComputedStyleForNodeReturn> {
+  public getComputedStyleForNode(params: CSS.GetComputedStyleForNodeParameters) {
     return this._client.send<CSS.GetComputedStyleForNodeReturn>("CSS.getComputedStyleForNode", params);
   }
   /** Requests information about platform fonts which we used to render child TextNodes in the given node. */
-  public getPlatformFontsForNode(params: CSS.GetPlatformFontsForNodeParameters): Promise<CSS.GetPlatformFontsForNodeReturn> {
+  public getPlatformFontsForNode(params: CSS.GetPlatformFontsForNodeParameters) {
     return this._client.send<CSS.GetPlatformFontsForNodeReturn>("CSS.getPlatformFontsForNode", params);
   }
   /** Returns the current textual content and the URL for a stylesheet. */
-  public getStyleSheetText(params: CSS.GetStyleSheetTextParameters): Promise<CSS.GetStyleSheetTextReturn> {
+  public getStyleSheetText(params: CSS.GetStyleSheetTextParameters) {
     return this._client.send<CSS.GetStyleSheetTextReturn>("CSS.getStyleSheetText", params);
   }
   /** Returns all class names from specified stylesheet. */
-  public collectClassNames(params: CSS.CollectClassNamesParameters): Promise<CSS.CollectClassNamesReturn> {
+  public collectClassNames(params: CSS.CollectClassNamesParameters) {
     return this._client.send<CSS.CollectClassNamesReturn>("CSS.collectClassNames", params);
   }
   /** Sets the new stylesheet text. */
-  public setStyleSheetText(params: CSS.SetStyleSheetTextParameters): Promise<CSS.SetStyleSheetTextReturn> {
+  public setStyleSheetText(params: CSS.SetStyleSheetTextParameters) {
     return this._client.send<CSS.SetStyleSheetTextReturn>("CSS.setStyleSheetText", params);
   }
   /** Modifies the rule selector. */
-  public setRuleSelector(params: CSS.SetRuleSelectorParameters): Promise<CSS.SetRuleSelectorReturn> {
+  public setRuleSelector(params: CSS.SetRuleSelectorParameters) {
     return this._client.send<CSS.SetRuleSelectorReturn>("CSS.setRuleSelector", params);
   }
   /** Modifies the keyframe rule key text. */
-  public setKeyframeKey(params: CSS.SetKeyframeKeyParameters): Promise<CSS.SetKeyframeKeyReturn> {
+  public setKeyframeKey(params: CSS.SetKeyframeKeyParameters) {
     return this._client.send<CSS.SetKeyframeKeyReturn>("CSS.setKeyframeKey", params);
   }
   /** Applies specified style edits one after another in the given order. */
-  public setStyleTexts(params: CSS.SetStyleTextsParameters): Promise<CSS.SetStyleTextsReturn> {
+  public setStyleTexts(params: CSS.SetStyleTextsParameters) {
     return this._client.send<CSS.SetStyleTextsReturn>("CSS.setStyleTexts", params);
   }
   /** Modifies the rule selector. */
-  public setMediaText(params: CSS.SetMediaTextParameters): Promise<CSS.SetMediaTextReturn> {
+  public setMediaText(params: CSS.SetMediaTextParameters) {
     return this._client.send<CSS.SetMediaTextReturn>("CSS.setMediaText", params);
   }
   /** Creates a new special "via-inspector" stylesheet in the frame with given <code>frameId</code>. */
-  public createStyleSheet(params: CSS.CreateStyleSheetParameters): Promise<CSS.CreateStyleSheetReturn> {
+  public createStyleSheet(params: CSS.CreateStyleSheetParameters) {
     return this._client.send<CSS.CreateStyleSheetReturn>("CSS.createStyleSheet", params);
   }
   /** Inserts a new rule with the given <code>ruleText</code> in a stylesheet with given <code>styleSheetId</code>, at the position specified by <code>location</code>. */
-  public addRule(params: CSS.AddRuleParameters): Promise<CSS.AddRuleReturn> {
+  public addRule(params: CSS.AddRuleParameters) {
     return this._client.send<CSS.AddRuleReturn>("CSS.addRule", params);
   }
   /** Ensures that the given node will have specified pseudo-classes whenever its style is computed by the browser. */
-  public forcePseudoState(params: CSS.ForcePseudoStateParameters): Promise<void> {
+  public forcePseudoState(params: CSS.ForcePseudoStateParameters) {
     return this._client.send<void>("CSS.forcePseudoState", params);
   }
   /** Returns all media queries parsed by the rendering engine. */
-  public getMediaQueries(): Promise<CSS.GetMediaQueriesReturn> {
+  public getMediaQueries() {
     return this._client.send<CSS.GetMediaQueriesReturn>("CSS.getMediaQueries");
   }
   /** Find a rule with the given active property for the given node and set the new value for this property */
-  public setEffectivePropertyValueForNode(params: CSS.SetEffectivePropertyValueForNodeParameters): Promise<void> {
+  public setEffectivePropertyValueForNode(params: CSS.SetEffectivePropertyValueForNodeParameters) {
     return this._client.send<void>("CSS.setEffectivePropertyValueForNode", params);
   }
-  public getBackgroundColors(params: CSS.GetBackgroundColorsParameters): Promise<CSS.GetBackgroundColorsReturn> {
+  public getBackgroundColors(params: CSS.GetBackgroundColorsParameters) {
     return this._client.send<CSS.GetBackgroundColorsReturn>("CSS.getBackgroundColors", params);
   }
   /** For the main document and any content documents, return the LayoutTreeNodes and a whitelisted subset of the computed style. It only returns pushed nodes, on way to pull all nodes is to call DOM.getDocument with a depth of -1. */
-  public getLayoutTreeAndStyles(params: CSS.GetLayoutTreeAndStylesParameters): Promise<CSS.GetLayoutTreeAndStylesReturn> {
+  public getLayoutTreeAndStyles(params: CSS.GetLayoutTreeAndStylesParameters) {
     return this._client.send<CSS.GetLayoutTreeAndStylesReturn>("CSS.getLayoutTreeAndStyles", params);
   }
   /** Enables the selector recording. */
-  public startRuleUsageTracking(): Promise<void> {
+  public startRuleUsageTracking() {
     return this._client.send<void>("CSS.startRuleUsageTracking");
   }
   /** Obtain list of rules that became used since last call to this method (or since start of coverage instrumentation) */
-  public takeCoverageDelta(): Promise<CSS.TakeCoverageDeltaReturn> {
+  public takeCoverageDelta() {
     return this._client.send<CSS.TakeCoverageDeltaReturn>("CSS.takeCoverageDelta");
   }
   /** The list of rules with an indication of whether these were used */
-  public stopRuleUsageTracking(): Promise<CSS.StopRuleUsageTrackingReturn> {
+  public stopRuleUsageTracking() {
     return this._client.send<CSS.StopRuleUsageTrackingReturn>("CSS.stopRuleUsageTracking");
   }
   /** Fires whenever a MediaQuery result changes (for example, after a browser window has been resized.) The current implementation considers only viewport-dependent media features. */
-  get mediaQueryResultChanged(): CSS.MediaQueryResultChangedHandler | null {
+  get mediaQueryResultChanged() {
     return this._mediaQueryResultChanged;
   }
-  set mediaQueryResultChanged(handler: CSS.MediaQueryResultChangedHandler | null) {
+  set mediaQueryResultChanged(handler) {
     if (this._mediaQueryResultChanged) {
       this._client.removeListener("CSS.mediaQueryResultChanged", this._mediaQueryResultChanged);
     }
@@ -3703,10 +3703,10 @@ export class CSS {
     }
   }
   /** Fires whenever a web font gets loaded. */
-  get fontsUpdated(): CSS.FontsUpdatedHandler | null {
+  get fontsUpdated() {
     return this._fontsUpdated;
   }
-  set fontsUpdated(handler: CSS.FontsUpdatedHandler | null) {
+  set fontsUpdated(handler) {
     if (this._fontsUpdated) {
       this._client.removeListener("CSS.fontsUpdated", this._fontsUpdated);
     }
@@ -3716,10 +3716,10 @@ export class CSS {
     }
   }
   /** Fired whenever a stylesheet is changed as a result of the client operation. */
-  get styleSheetChanged(): CSS.StyleSheetChangedHandler | null {
+  get styleSheetChanged() {
     return this._styleSheetChanged;
   }
-  set styleSheetChanged(handler: CSS.StyleSheetChangedHandler | null) {
+  set styleSheetChanged(handler) {
     if (this._styleSheetChanged) {
       this._client.removeListener("CSS.styleSheetChanged", this._styleSheetChanged);
     }
@@ -3729,10 +3729,10 @@ export class CSS {
     }
   }
   /** Fired whenever an active document stylesheet is added. */
-  get styleSheetAdded(): CSS.StyleSheetAddedHandler | null {
+  get styleSheetAdded() {
     return this._styleSheetAdded;
   }
-  set styleSheetAdded(handler: CSS.StyleSheetAddedHandler | null) {
+  set styleSheetAdded(handler) {
     if (this._styleSheetAdded) {
       this._client.removeListener("CSS.styleSheetAdded", this._styleSheetAdded);
     }
@@ -3742,10 +3742,10 @@ export class CSS {
     }
   }
   /** Fired whenever an active document stylesheet is removed. */
-  get styleSheetRemoved(): CSS.StyleSheetRemovedHandler | null {
+  get styleSheetRemoved() {
     return this._styleSheetRemoved;
   }
-  set styleSheetRemoved(handler: CSS.StyleSheetRemovedHandler | null) {
+  set styleSheetRemoved(handler) {
     if (this._styleSheetRemoved) {
       this._client.removeListener("CSS.styleSheetRemoved", this._styleSheetRemoved);
     }
@@ -4178,11 +4178,11 @@ export class IO {
     this._client = client;
   }
   /** Read a chunk of the stream */
-  public read(params: IO.ReadParameters): Promise<IO.ReadReturn> {
+  public read(params: IO.ReadParameters) {
     return this._client.send<IO.ReadReturn>("IO.read", params);
   }
   /** Close the stream, discard any temporary backing storage. */
-  public close(params: IO.CloseParameters): Promise<void> {
+  public close(params: IO.CloseParameters) {
     return this._client.send<void>("IO.close", params);
   }
 }
@@ -4214,39 +4214,39 @@ export class DOMDebugger {
     this._client = client;
   }
   /** Sets breakpoint on particular operation with DOM. */
-  public setDOMBreakpoint(params: DOMDebugger.SetDOMBreakpointParameters): Promise<void> {
+  public setDOMBreakpoint(params: DOMDebugger.SetDOMBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.setDOMBreakpoint", params);
   }
   /** Removes DOM breakpoint that was set using <code>setDOMBreakpoint</code>. */
-  public removeDOMBreakpoint(params: DOMDebugger.RemoveDOMBreakpointParameters): Promise<void> {
+  public removeDOMBreakpoint(params: DOMDebugger.RemoveDOMBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.removeDOMBreakpoint", params);
   }
   /** Sets breakpoint on particular DOM event. */
-  public setEventListenerBreakpoint(params: DOMDebugger.SetEventListenerBreakpointParameters): Promise<void> {
+  public setEventListenerBreakpoint(params: DOMDebugger.SetEventListenerBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.setEventListenerBreakpoint", params);
   }
   /** Removes breakpoint on particular DOM event. */
-  public removeEventListenerBreakpoint(params: DOMDebugger.RemoveEventListenerBreakpointParameters): Promise<void> {
+  public removeEventListenerBreakpoint(params: DOMDebugger.RemoveEventListenerBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.removeEventListenerBreakpoint", params);
   }
   /** Sets breakpoint on particular native event. */
-  public setInstrumentationBreakpoint(params: DOMDebugger.SetInstrumentationBreakpointParameters): Promise<void> {
+  public setInstrumentationBreakpoint(params: DOMDebugger.SetInstrumentationBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.setInstrumentationBreakpoint", params);
   }
   /** Removes breakpoint on particular native event. */
-  public removeInstrumentationBreakpoint(params: DOMDebugger.RemoveInstrumentationBreakpointParameters): Promise<void> {
+  public removeInstrumentationBreakpoint(params: DOMDebugger.RemoveInstrumentationBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.removeInstrumentationBreakpoint", params);
   }
   /** Sets breakpoint on XMLHttpRequest. */
-  public setXHRBreakpoint(params: DOMDebugger.SetXHRBreakpointParameters): Promise<void> {
+  public setXHRBreakpoint(params: DOMDebugger.SetXHRBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.setXHRBreakpoint", params);
   }
   /** Removes breakpoint from XMLHttpRequest. */
-  public removeXHRBreakpoint(params: DOMDebugger.RemoveXHRBreakpointParameters): Promise<void> {
+  public removeXHRBreakpoint(params: DOMDebugger.RemoveXHRBreakpointParameters) {
     return this._client.send<void>("DOMDebugger.removeXHRBreakpoint", params);
   }
   /** Returns event listeners of the given object. */
-  public getEventListeners(params: DOMDebugger.GetEventListenersParameters): Promise<DOMDebugger.GetEventListenersReturn> {
+  public getEventListeners(params: DOMDebugger.GetEventListenersParameters) {
     return this._client.send<DOMDebugger.GetEventListenersReturn>("DOMDebugger.getEventListeners", params);
   }
 }
@@ -4341,65 +4341,65 @@ export class Target {
     this._client = client;
   }
   /** Controls whether to discover available targets and notify via <code>targetCreated/targetDestroyed</code> events. */
-  public setDiscoverTargets(params: Target.SetDiscoverTargetsParameters): Promise<void> {
+  public setDiscoverTargets(params: Target.SetDiscoverTargetsParameters) {
     return this._client.send<void>("Target.setDiscoverTargets", params);
   }
   /** Controls whether to automatically attach to new targets which are considered to be related to this one. When turned on, attaches to all existing related targets as well. When turned off, automatically detaches from all currently attached targets. */
-  public setAutoAttach(params: Target.SetAutoAttachParameters): Promise<void> {
+  public setAutoAttach(params: Target.SetAutoAttachParameters) {
     return this._client.send<void>("Target.setAutoAttach", params);
   }
-  public setAttachToFrames(params: Target.SetAttachToFramesParameters): Promise<void> {
+  public setAttachToFrames(params: Target.SetAttachToFramesParameters) {
     return this._client.send<void>("Target.setAttachToFrames", params);
   }
   /** Enables target discovery for the specified locations, when <code>setDiscoverTargets</code> was set to <code>true</code>. */
-  public setRemoteLocations(params: Target.SetRemoteLocationsParameters): Promise<void> {
+  public setRemoteLocations(params: Target.SetRemoteLocationsParameters) {
     return this._client.send<void>("Target.setRemoteLocations", params);
   }
   /** Sends protocol message to the target with given id. */
-  public sendMessageToTarget(params: Target.SendMessageToTargetParameters): Promise<void> {
+  public sendMessageToTarget(params: Target.SendMessageToTargetParameters) {
     return this._client.send<void>("Target.sendMessageToTarget", params);
   }
   /** Returns information about a target. */
-  public getTargetInfo(params: Target.GetTargetInfoParameters): Promise<Target.GetTargetInfoReturn> {
+  public getTargetInfo(params: Target.GetTargetInfoParameters) {
     return this._client.send<Target.GetTargetInfoReturn>("Target.getTargetInfo", params);
   }
   /** Activates (focuses) the target. */
-  public activateTarget(params: Target.ActivateTargetParameters): Promise<void> {
+  public activateTarget(params: Target.ActivateTargetParameters) {
     return this._client.send<void>("Target.activateTarget", params);
   }
   /** Closes the target. If the target is a page that gets closed too. */
-  public closeTarget(params: Target.CloseTargetParameters): Promise<Target.CloseTargetReturn> {
+  public closeTarget(params: Target.CloseTargetParameters) {
     return this._client.send<Target.CloseTargetReturn>("Target.closeTarget", params);
   }
   /** Attaches to the target with given id. */
-  public attachToTarget(params: Target.AttachToTargetParameters): Promise<Target.AttachToTargetReturn> {
+  public attachToTarget(params: Target.AttachToTargetParameters) {
     return this._client.send<Target.AttachToTargetReturn>("Target.attachToTarget", params);
   }
   /** Detaches from the target with given id. */
-  public detachFromTarget(params: Target.DetachFromTargetParameters): Promise<void> {
+  public detachFromTarget(params: Target.DetachFromTargetParameters) {
     return this._client.send<void>("Target.detachFromTarget", params);
   }
   /** Creates a new empty BrowserContext. Similar to an incognito profile but you can have more than one. */
-  public createBrowserContext(): Promise<Target.CreateBrowserContextReturn> {
+  public createBrowserContext() {
     return this._client.send<Target.CreateBrowserContextReturn>("Target.createBrowserContext");
   }
   /** Deletes a BrowserContext, will fail of any open page uses it. */
-  public disposeBrowserContext(params: Target.DisposeBrowserContextParameters): Promise<Target.DisposeBrowserContextReturn> {
+  public disposeBrowserContext(params: Target.DisposeBrowserContextParameters) {
     return this._client.send<Target.DisposeBrowserContextReturn>("Target.disposeBrowserContext", params);
   }
   /** Creates a new page. */
-  public createTarget(params: Target.CreateTargetParameters): Promise<Target.CreateTargetReturn> {
+  public createTarget(params: Target.CreateTargetParameters) {
     return this._client.send<Target.CreateTargetReturn>("Target.createTarget", params);
   }
   /** Retrieves a list of available targets. */
-  public getTargets(): Promise<Target.GetTargetsReturn> {
+  public getTargets() {
     return this._client.send<Target.GetTargetsReturn>("Target.getTargets");
   }
   /** Issued when a possible inspection target is created. */
-  get targetCreated(): Target.TargetCreatedHandler | null {
+  get targetCreated() {
     return this._targetCreated;
   }
-  set targetCreated(handler: Target.TargetCreatedHandler | null) {
+  set targetCreated(handler) {
     if (this._targetCreated) {
       this._client.removeListener("Target.targetCreated", this._targetCreated);
     }
@@ -4409,10 +4409,10 @@ export class Target {
     }
   }
   /** Issued when a target is destroyed. */
-  get targetDestroyed(): Target.TargetDestroyedHandler | null {
+  get targetDestroyed() {
     return this._targetDestroyed;
   }
-  set targetDestroyed(handler: Target.TargetDestroyedHandler | null) {
+  set targetDestroyed(handler) {
     if (this._targetDestroyed) {
       this._client.removeListener("Target.targetDestroyed", this._targetDestroyed);
     }
@@ -4422,10 +4422,10 @@ export class Target {
     }
   }
   /** Issued when attached to target because of auto-attach or <code>attachToTarget</code> command. */
-  get attachedToTarget(): Target.AttachedToTargetHandler | null {
+  get attachedToTarget() {
     return this._attachedToTarget;
   }
-  set attachedToTarget(handler: Target.AttachedToTargetHandler | null) {
+  set attachedToTarget(handler) {
     if (this._attachedToTarget) {
       this._client.removeListener("Target.attachedToTarget", this._attachedToTarget);
     }
@@ -4435,10 +4435,10 @@ export class Target {
     }
   }
   /** Issued when detached from target for any reason (including <code>detachFromTarget</code> command). */
-  get detachedFromTarget(): Target.DetachedFromTargetHandler | null {
+  get detachedFromTarget() {
     return this._detachedFromTarget;
   }
-  set detachedFromTarget(handler: Target.DetachedFromTargetHandler | null) {
+  set detachedFromTarget(handler) {
     if (this._detachedFromTarget) {
       this._client.removeListener("Target.detachedFromTarget", this._detachedFromTarget);
     }
@@ -4448,10 +4448,10 @@ export class Target {
     }
   }
   /** Notifies about new protocol message from attached target. */
-  get receivedMessageFromTarget(): Target.ReceivedMessageFromTargetHandler | null {
+  get receivedMessageFromTarget() {
     return this._receivedMessageFromTarget;
   }
-  set receivedMessageFromTarget(handler: Target.ReceivedMessageFromTargetHandler | null) {
+  set receivedMessageFromTarget(handler) {
     if (this._receivedMessageFromTarget) {
       this._client.removeListener("Target.receivedMessageFromTarget", this._receivedMessageFromTarget);
     }
@@ -4580,43 +4580,43 @@ export class ServiceWorker {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("ServiceWorker.enable");
   }
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("ServiceWorker.disable");
   }
-  public unregister(params: ServiceWorker.UnregisterParameters): Promise<void> {
+  public unregister(params: ServiceWorker.UnregisterParameters) {
     return this._client.send<void>("ServiceWorker.unregister", params);
   }
-  public updateRegistration(params: ServiceWorker.UpdateRegistrationParameters): Promise<void> {
+  public updateRegistration(params: ServiceWorker.UpdateRegistrationParameters) {
     return this._client.send<void>("ServiceWorker.updateRegistration", params);
   }
-  public startWorker(params: ServiceWorker.StartWorkerParameters): Promise<void> {
+  public startWorker(params: ServiceWorker.StartWorkerParameters) {
     return this._client.send<void>("ServiceWorker.startWorker", params);
   }
-  public skipWaiting(params: ServiceWorker.SkipWaitingParameters): Promise<void> {
+  public skipWaiting(params: ServiceWorker.SkipWaitingParameters) {
     return this._client.send<void>("ServiceWorker.skipWaiting", params);
   }
-  public stopWorker(params: ServiceWorker.StopWorkerParameters): Promise<void> {
+  public stopWorker(params: ServiceWorker.StopWorkerParameters) {
     return this._client.send<void>("ServiceWorker.stopWorker", params);
   }
-  public inspectWorker(params: ServiceWorker.InspectWorkerParameters): Promise<void> {
+  public inspectWorker(params: ServiceWorker.InspectWorkerParameters) {
     return this._client.send<void>("ServiceWorker.inspectWorker", params);
   }
-  public setForceUpdateOnPageLoad(params: ServiceWorker.SetForceUpdateOnPageLoadParameters): Promise<void> {
+  public setForceUpdateOnPageLoad(params: ServiceWorker.SetForceUpdateOnPageLoadParameters) {
     return this._client.send<void>("ServiceWorker.setForceUpdateOnPageLoad", params);
   }
-  public deliverPushMessage(params: ServiceWorker.DeliverPushMessageParameters): Promise<void> {
+  public deliverPushMessage(params: ServiceWorker.DeliverPushMessageParameters) {
     return this._client.send<void>("ServiceWorker.deliverPushMessage", params);
   }
-  public dispatchSyncEvent(params: ServiceWorker.DispatchSyncEventParameters): Promise<void> {
+  public dispatchSyncEvent(params: ServiceWorker.DispatchSyncEventParameters) {
     return this._client.send<void>("ServiceWorker.dispatchSyncEvent", params);
   }
-  get workerRegistrationUpdated(): ServiceWorker.WorkerRegistrationUpdatedHandler | null {
+  get workerRegistrationUpdated() {
     return this._workerRegistrationUpdated;
   }
-  set workerRegistrationUpdated(handler: ServiceWorker.WorkerRegistrationUpdatedHandler | null) {
+  set workerRegistrationUpdated(handler) {
     if (this._workerRegistrationUpdated) {
       this._client.removeListener("ServiceWorker.workerRegistrationUpdated", this._workerRegistrationUpdated);
     }
@@ -4625,10 +4625,10 @@ export class ServiceWorker {
       this._client.on("ServiceWorker.workerRegistrationUpdated", handler);
     }
   }
-  get workerVersionUpdated(): ServiceWorker.WorkerVersionUpdatedHandler | null {
+  get workerVersionUpdated() {
     return this._workerVersionUpdated;
   }
-  set workerVersionUpdated(handler: ServiceWorker.WorkerVersionUpdatedHandler | null) {
+  set workerVersionUpdated(handler) {
     if (this._workerVersionUpdated) {
       this._client.removeListener("ServiceWorker.workerVersionUpdated", this._workerVersionUpdated);
     }
@@ -4637,10 +4637,10 @@ export class ServiceWorker {
       this._client.on("ServiceWorker.workerVersionUpdated", handler);
     }
   }
-  get workerErrorReported(): ServiceWorker.WorkerErrorReportedHandler | null {
+  get workerErrorReported() {
     return this._workerErrorReported;
   }
-  set workerErrorReported(handler: ServiceWorker.WorkerErrorReportedHandler | null) {
+  set workerErrorReported(handler) {
     if (this._workerErrorReported) {
       this._client.removeListener("ServiceWorker.workerErrorReported", this._workerErrorReported);
     }
@@ -4733,31 +4733,31 @@ export class Input {
     this._client = client;
   }
   /** Dispatches a key event to the page. */
-  public dispatchKeyEvent(params: Input.DispatchKeyEventParameters): Promise<void> {
+  public dispatchKeyEvent(params: Input.DispatchKeyEventParameters) {
     return this._client.send<void>("Input.dispatchKeyEvent", params);
   }
   /** Dispatches a mouse event to the page. */
-  public dispatchMouseEvent(params: Input.DispatchMouseEventParameters): Promise<void> {
+  public dispatchMouseEvent(params: Input.DispatchMouseEventParameters) {
     return this._client.send<void>("Input.dispatchMouseEvent", params);
   }
   /** Dispatches a touch event to the page. */
-  public dispatchTouchEvent(params: Input.DispatchTouchEventParameters): Promise<void> {
+  public dispatchTouchEvent(params: Input.DispatchTouchEventParameters) {
     return this._client.send<void>("Input.dispatchTouchEvent", params);
   }
   /** Emulates touch event from the mouse event parameters. */
-  public emulateTouchFromMouseEvent(params: Input.EmulateTouchFromMouseEventParameters): Promise<void> {
+  public emulateTouchFromMouseEvent(params: Input.EmulateTouchFromMouseEventParameters) {
     return this._client.send<void>("Input.emulateTouchFromMouseEvent", params);
   }
   /** Synthesizes a pinch gesture over a time period by issuing appropriate touch events. */
-  public synthesizePinchGesture(params: Input.SynthesizePinchGestureParameters): Promise<void> {
+  public synthesizePinchGesture(params: Input.SynthesizePinchGestureParameters) {
     return this._client.send<void>("Input.synthesizePinchGesture", params);
   }
   /** Synthesizes a scroll gesture over a time period by issuing appropriate touch events. */
-  public synthesizeScrollGesture(params: Input.SynthesizeScrollGestureParameters): Promise<void> {
+  public synthesizeScrollGesture(params: Input.SynthesizeScrollGestureParameters) {
     return this._client.send<void>("Input.synthesizeScrollGesture", params);
   }
   /** Synthesizes a tap gesture over a time period by issuing appropriate touch events. */
-  public synthesizeTapGesture(params: Input.SynthesizeTapGestureParameters): Promise<void> {
+  public synthesizeTapGesture(params: Input.SynthesizeTapGestureParameters) {
     return this._client.send<void>("Input.synthesizeTapGesture", params);
   }
 }
@@ -4914,44 +4914,44 @@ export class LayerTree {
     this._client = client;
   }
   /** Enables compositing tree inspection. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("LayerTree.enable");
   }
   /** Disables compositing tree inspection. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("LayerTree.disable");
   }
   /** Provides the reasons why the given layer was composited. */
-  public compositingReasons(params: LayerTree.CompositingReasonsParameters): Promise<LayerTree.CompositingReasonsReturn> {
+  public compositingReasons(params: LayerTree.CompositingReasonsParameters) {
     return this._client.send<LayerTree.CompositingReasonsReturn>("LayerTree.compositingReasons", params);
   }
   /** Returns the layer snapshot identifier. */
-  public makeSnapshot(params: LayerTree.MakeSnapshotParameters): Promise<LayerTree.MakeSnapshotReturn> {
+  public makeSnapshot(params: LayerTree.MakeSnapshotParameters) {
     return this._client.send<LayerTree.MakeSnapshotReturn>("LayerTree.makeSnapshot", params);
   }
   /** Returns the snapshot identifier. */
-  public loadSnapshot(params: LayerTree.LoadSnapshotParameters): Promise<LayerTree.LoadSnapshotReturn> {
+  public loadSnapshot(params: LayerTree.LoadSnapshotParameters) {
     return this._client.send<LayerTree.LoadSnapshotReturn>("LayerTree.loadSnapshot", params);
   }
   /** Releases layer snapshot captured by the back-end. */
-  public releaseSnapshot(params: LayerTree.ReleaseSnapshotParameters): Promise<void> {
+  public releaseSnapshot(params: LayerTree.ReleaseSnapshotParameters) {
     return this._client.send<void>("LayerTree.releaseSnapshot", params);
   }
-  public profileSnapshot(params: LayerTree.ProfileSnapshotParameters): Promise<LayerTree.ProfileSnapshotReturn> {
+  public profileSnapshot(params: LayerTree.ProfileSnapshotParameters) {
     return this._client.send<LayerTree.ProfileSnapshotReturn>("LayerTree.profileSnapshot", params);
   }
   /** Replays the layer snapshot and returns the resulting bitmap. */
-  public replaySnapshot(params: LayerTree.ReplaySnapshotParameters): Promise<LayerTree.ReplaySnapshotReturn> {
+  public replaySnapshot(params: LayerTree.ReplaySnapshotParameters) {
     return this._client.send<LayerTree.ReplaySnapshotReturn>("LayerTree.replaySnapshot", params);
   }
   /** Replays the layer snapshot and returns canvas log. */
-  public snapshotCommandLog(params: LayerTree.SnapshotCommandLogParameters): Promise<LayerTree.SnapshotCommandLogReturn> {
+  public snapshotCommandLog(params: LayerTree.SnapshotCommandLogParameters) {
     return this._client.send<LayerTree.SnapshotCommandLogReturn>("LayerTree.snapshotCommandLog", params);
   }
-  get layerTreeDidChange(): LayerTree.LayerTreeDidChangeHandler | null {
+  get layerTreeDidChange() {
     return this._layerTreeDidChange;
   }
-  set layerTreeDidChange(handler: LayerTree.LayerTreeDidChangeHandler | null) {
+  set layerTreeDidChange(handler) {
     if (this._layerTreeDidChange) {
       this._client.removeListener("LayerTree.layerTreeDidChange", this._layerTreeDidChange);
     }
@@ -4960,10 +4960,10 @@ export class LayerTree {
       this._client.on("LayerTree.layerTreeDidChange", handler);
     }
   }
-  get layerPainted(): LayerTree.LayerPaintedHandler | null {
+  get layerPainted() {
     return this._layerPainted;
   }
-  set layerPainted(handler: LayerTree.LayerPaintedHandler | null) {
+  set layerPainted(handler) {
     if (this._layerPainted) {
       this._client.removeListener("LayerTree.layerPainted", this._layerPainted);
     }
@@ -5112,11 +5112,11 @@ export class DeviceOrientation {
     this._client = client;
   }
   /** Overrides the Device Orientation. */
-  public setDeviceOrientationOverride(params: DeviceOrientation.SetDeviceOrientationOverrideParameters): Promise<void> {
+  public setDeviceOrientationOverride(params: DeviceOrientation.SetDeviceOrientationOverrideParameters) {
     return this._client.send<void>("DeviceOrientation.setDeviceOrientationOverride", params);
   }
   /** Clears the overridden Device Orientation. */
-  public clearDeviceOrientationOverride(): Promise<void> {
+  public clearDeviceOrientationOverride() {
     return this._client.send<void>("DeviceOrientation.clearDeviceOrientationOverride");
   }
 }
@@ -5139,30 +5139,30 @@ export class Tracing {
     this._client = client;
   }
   /** Start trace events collection. */
-  public start(params: Tracing.StartParameters): Promise<void> {
+  public start(params: Tracing.StartParameters) {
     return this._client.send<void>("Tracing.start", params);
   }
   /** Stop trace events collection. */
-  public end(): Promise<void> {
+  public end() {
     return this._client.send<void>("Tracing.end");
   }
   /** Gets supported tracing categories. */
-  public getCategories(): Promise<Tracing.GetCategoriesReturn> {
+  public getCategories() {
     return this._client.send<Tracing.GetCategoriesReturn>("Tracing.getCategories");
   }
   /** Request a global memory dump. */
-  public requestMemoryDump(): Promise<Tracing.RequestMemoryDumpReturn> {
+  public requestMemoryDump() {
     return this._client.send<Tracing.RequestMemoryDumpReturn>("Tracing.requestMemoryDump");
   }
   /** Record a clock sync marker in the trace. */
-  public recordClockSyncMarker(params: Tracing.RecordClockSyncMarkerParameters): Promise<void> {
+  public recordClockSyncMarker(params: Tracing.RecordClockSyncMarkerParameters) {
     return this._client.send<void>("Tracing.recordClockSyncMarker", params);
   }
   /** Contains an bucket of collected trace events. When tracing is stopped collected events will be send as a sequence of dataCollected events followed by tracingComplete event. */
-  get dataCollected(): Tracing.DataCollectedHandler | null {
+  get dataCollected() {
     return this._dataCollected;
   }
-  set dataCollected(handler: Tracing.DataCollectedHandler | null) {
+  set dataCollected(handler) {
     if (this._dataCollected) {
       this._client.removeListener("Tracing.dataCollected", this._dataCollected);
     }
@@ -5172,10 +5172,10 @@ export class Tracing {
     }
   }
   /** Signals that tracing is stopped and there is no trace buffers pending flush, all data were delivered via dataCollected events. */
-  get tracingComplete(): Tracing.TracingCompleteHandler | null {
+  get tracingComplete() {
     return this._tracingComplete;
   }
-  set tracingComplete(handler: Tracing.TracingCompleteHandler | null) {
+  set tracingComplete(handler) {
     if (this._tracingComplete) {
       this._client.removeListener("Tracing.tracingComplete", this._tracingComplete);
     }
@@ -5184,10 +5184,10 @@ export class Tracing {
       this._client.on("Tracing.tracingComplete", handler);
     }
   }
-  get bufferUsage(): Tracing.BufferUsageHandler | null {
+  get bufferUsage() {
     return this._bufferUsage;
   }
-  set bufferUsage(handler: Tracing.BufferUsageHandler | null) {
+  set bufferUsage(handler) {
     if (this._bufferUsage) {
       this._client.removeListener("Tracing.bufferUsage", this._bufferUsage);
     }
@@ -5271,50 +5271,50 @@ export class Animation {
     this._client = client;
   }
   /** Enables animation domain notifications. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Animation.enable");
   }
   /** Disables animation domain notifications. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Animation.disable");
   }
   /** Gets the playback rate of the document timeline. */
-  public getPlaybackRate(): Promise<Animation.GetPlaybackRateReturn> {
+  public getPlaybackRate() {
     return this._client.send<Animation.GetPlaybackRateReturn>("Animation.getPlaybackRate");
   }
   /** Sets the playback rate of the document timeline. */
-  public setPlaybackRate(params: Animation.SetPlaybackRateParameters): Promise<void> {
+  public setPlaybackRate(params: Animation.SetPlaybackRateParameters) {
     return this._client.send<void>("Animation.setPlaybackRate", params);
   }
   /** Returns the current time of the an animation. */
-  public getCurrentTime(params: Animation.GetCurrentTimeParameters): Promise<Animation.GetCurrentTimeReturn> {
+  public getCurrentTime(params: Animation.GetCurrentTimeParameters) {
     return this._client.send<Animation.GetCurrentTimeReturn>("Animation.getCurrentTime", params);
   }
   /** Sets the paused state of a set of animations. */
-  public setPaused(params: Animation.SetPausedParameters): Promise<void> {
+  public setPaused(params: Animation.SetPausedParameters) {
     return this._client.send<void>("Animation.setPaused", params);
   }
   /** Sets the timing of an animation node. */
-  public setTiming(params: Animation.SetTimingParameters): Promise<void> {
+  public setTiming(params: Animation.SetTimingParameters) {
     return this._client.send<void>("Animation.setTiming", params);
   }
   /** Seek a set of animations to a particular time within each animation. */
-  public seekAnimations(params: Animation.SeekAnimationsParameters): Promise<void> {
+  public seekAnimations(params: Animation.SeekAnimationsParameters) {
     return this._client.send<void>("Animation.seekAnimations", params);
   }
   /** Releases a set of animations to no longer be manipulated. */
-  public releaseAnimations(params: Animation.ReleaseAnimationsParameters): Promise<void> {
+  public releaseAnimations(params: Animation.ReleaseAnimationsParameters) {
     return this._client.send<void>("Animation.releaseAnimations", params);
   }
   /** Gets the remote object of the Animation. */
-  public resolveAnimation(params: Animation.ResolveAnimationParameters): Promise<Animation.ResolveAnimationReturn> {
+  public resolveAnimation(params: Animation.ResolveAnimationParameters) {
     return this._client.send<Animation.ResolveAnimationReturn>("Animation.resolveAnimation", params);
   }
   /** Event for each animation that has been created. */
-  get animationCreated(): Animation.AnimationCreatedHandler | null {
+  get animationCreated() {
     return this._animationCreated;
   }
-  set animationCreated(handler: Animation.AnimationCreatedHandler | null) {
+  set animationCreated(handler) {
     if (this._animationCreated) {
       this._client.removeListener("Animation.animationCreated", this._animationCreated);
     }
@@ -5324,10 +5324,10 @@ export class Animation {
     }
   }
   /** Event for animation that has been started. */
-  get animationStarted(): Animation.AnimationStartedHandler | null {
+  get animationStarted() {
     return this._animationStarted;
   }
-  set animationStarted(handler: Animation.AnimationStartedHandler | null) {
+  set animationStarted(handler) {
     if (this._animationStarted) {
       this._client.removeListener("Animation.animationStarted", this._animationStarted);
     }
@@ -5337,10 +5337,10 @@ export class Animation {
     }
   }
   /** Event for when an animation has been cancelled. */
-  get animationCanceled(): Animation.AnimationCanceledHandler | null {
+  get animationCanceled() {
     return this._animationCanceled;
   }
-  set animationCanceled(handler: Animation.AnimationCanceledHandler | null) {
+  set animationCanceled(handler) {
     if (this._animationCanceled) {
       this._client.removeListener("Animation.animationCanceled", this._animationCanceled);
     }
@@ -5481,7 +5481,7 @@ export class Accessibility {
     this._client = client;
   }
   /** Fetches the accessibility node and partial accessibility tree for this DOM node, if it exists. */
-  public getPartialAXTree(params: Accessibility.GetPartialAXTreeParameters): Promise<Accessibility.GetPartialAXTreeReturn> {
+  public getPartialAXTree(params: Accessibility.GetPartialAXTreeParameters) {
     return this._client.send<Accessibility.GetPartialAXTreeReturn>("Accessibility.getPartialAXTree", params);
   }
 }
@@ -5590,7 +5590,7 @@ export class Storage {
     this._client = client;
   }
   /** Clears storage for origin. */
-  public clearDataForOrigin(params: Storage.ClearDataForOriginParameters): Promise<void> {
+  public clearDataForOrigin(params: Storage.ClearDataForOriginParameters) {
     return this._client.send<void>("Storage.clearDataForOrigin", params);
   }
 }
@@ -5612,30 +5612,30 @@ export class Log {
     this._client = client;
   }
   /** Enables log domain, sends the entries collected so far to the client by means of the <code>entryAdded</code> notification. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Log.enable");
   }
   /** Disables log domain, prevents further log entries from being reported to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Log.disable");
   }
   /** Clears the log. */
-  public clear(): Promise<void> {
+  public clear() {
     return this._client.send<void>("Log.clear");
   }
   /** start violation reporting. */
-  public startViolationsReport(params: Log.StartViolationsReportParameters): Promise<void> {
+  public startViolationsReport(params: Log.StartViolationsReportParameters) {
     return this._client.send<void>("Log.startViolationsReport", params);
   }
   /** Stop violation reporting. */
-  public stopViolationsReport(): Promise<void> {
+  public stopViolationsReport() {
     return this._client.send<void>("Log.stopViolationsReport");
   }
   /** Issued when new message was logged. */
-  get entryAdded(): Log.EntryAddedHandler | null {
+  get entryAdded() {
     return this._entryAdded;
   }
-  set entryAdded(handler: Log.EntryAddedHandler | null) {
+  set entryAdded(handler) {
     if (this._entryAdded) {
       this._client.removeListener("Log.entryAdded", this._entryAdded);
     }
@@ -5691,7 +5691,7 @@ export class SystemInfo {
     this._client = client;
   }
   /** Returns information about the system. */
-  public getInfo(): Promise<SystemInfo.GetInfoReturn> {
+  public getInfo() {
     return this._client.send<SystemInfo.GetInfoReturn>("SystemInfo.getInfo");
   }
 }
@@ -5735,18 +5735,18 @@ export class Tethering {
     this._client = client;
   }
   /** Request browser port binding. */
-  public bind(params: Tethering.BindParameters): Promise<void> {
+  public bind(params: Tethering.BindParameters) {
     return this._client.send<void>("Tethering.bind", params);
   }
   /** Request browser port unbinding. */
-  public unbind(params: Tethering.UnbindParameters): Promise<void> {
+  public unbind(params: Tethering.UnbindParameters) {
     return this._client.send<void>("Tethering.unbind", params);
   }
   /** Informs that port was successfully bound and got a specified connection id. */
-  get accepted(): Tethering.AcceptedHandler | null {
+  get accepted() {
     return this._accepted;
   }
-  set accepted(handler: Tethering.AcceptedHandler | null) {
+  set accepted(handler) {
     if (this._accepted) {
       this._client.removeListener("Tethering.accepted", this._accepted);
     }
@@ -5780,15 +5780,15 @@ export class Browser {
     this._client = client;
   }
   /** Get the browser window that contains the devtools target. */
-  public getWindowForTarget(params: Browser.GetWindowForTargetParameters): Promise<Browser.GetWindowForTargetReturn> {
+  public getWindowForTarget(params: Browser.GetWindowForTargetParameters) {
     return this._client.send<Browser.GetWindowForTargetReturn>("Browser.getWindowForTarget", params);
   }
   /** Set position and/or size of the browser window. */
-  public setWindowBounds(params: Browser.SetWindowBoundsParameters): Promise<void> {
+  public setWindowBounds(params: Browser.SetWindowBoundsParameters) {
     return this._client.send<void>("Browser.setWindowBounds", params);
   }
   /** Get position and size of the browser window. */
-  public getWindowBounds(params: Browser.GetWindowBoundsParameters): Promise<Browser.GetWindowBoundsReturn> {
+  public getWindowBounds(params: Browser.GetWindowBoundsParameters) {
     return this._client.send<Browser.GetWindowBoundsReturn>("Browser.getWindowBounds", params);
   }
 }
@@ -5841,7 +5841,7 @@ export class Schema {
     this._client = client;
   }
   /** Returns supported domains. */
-  public getDomains(): Promise<Schema.GetDomainsReturn> {
+  public getDomains() {
     return this._client.send<Schema.GetDomainsReturn>("Schema.getDomains");
   }
 }
@@ -5872,61 +5872,61 @@ export class Runtime {
     this._client = client;
   }
   /** Evaluates expression on global object. */
-  public evaluate(params: Runtime.EvaluateParameters): Promise<Runtime.EvaluateReturn> {
+  public evaluate(params: Runtime.EvaluateParameters) {
     return this._client.send<Runtime.EvaluateReturn>("Runtime.evaluate", params);
   }
   /** Add handler to promise with given promise object id. */
-  public awaitPromise(params: Runtime.AwaitPromiseParameters): Promise<Runtime.AwaitPromiseReturn> {
+  public awaitPromise(params: Runtime.AwaitPromiseParameters) {
     return this._client.send<Runtime.AwaitPromiseReturn>("Runtime.awaitPromise", params);
   }
   /** Calls function with given declaration on the given object. Object group of the result is inherited from the target object. */
-  public callFunctionOn(params: Runtime.CallFunctionOnParameters): Promise<Runtime.CallFunctionOnReturn> {
+  public callFunctionOn(params: Runtime.CallFunctionOnParameters) {
     return this._client.send<Runtime.CallFunctionOnReturn>("Runtime.callFunctionOn", params);
   }
   /** Returns properties of a given object. Object group of the result is inherited from the target object. */
-  public getProperties(params: Runtime.GetPropertiesParameters): Promise<Runtime.GetPropertiesReturn> {
+  public getProperties(params: Runtime.GetPropertiesParameters) {
     return this._client.send<Runtime.GetPropertiesReturn>("Runtime.getProperties", params);
   }
   /** Releases remote object with given id. */
-  public releaseObject(params: Runtime.ReleaseObjectParameters): Promise<void> {
+  public releaseObject(params: Runtime.ReleaseObjectParameters) {
     return this._client.send<void>("Runtime.releaseObject", params);
   }
   /** Releases all remote objects that belong to a given group. */
-  public releaseObjectGroup(params: Runtime.ReleaseObjectGroupParameters): Promise<void> {
+  public releaseObjectGroup(params: Runtime.ReleaseObjectGroupParameters) {
     return this._client.send<void>("Runtime.releaseObjectGroup", params);
   }
   /** Tells inspected instance to run if it was waiting for debugger to attach. */
-  public runIfWaitingForDebugger(): Promise<void> {
+  public runIfWaitingForDebugger() {
     return this._client.send<void>("Runtime.runIfWaitingForDebugger");
   }
   /** Enables reporting of execution contexts creation by means of <code>executionContextCreated</code> event. When the reporting gets enabled the event will be sent immediately for each existing execution context. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Runtime.enable");
   }
   /** Disables reporting of execution contexts creation. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Runtime.disable");
   }
   /** Discards collected exceptions and console API calls. */
-  public discardConsoleEntries(): Promise<void> {
+  public discardConsoleEntries() {
     return this._client.send<void>("Runtime.discardConsoleEntries");
   }
-  public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters): Promise<void> {
+  public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
   }
   /** Compiles expression. */
-  public compileScript(params: Runtime.CompileScriptParameters): Promise<Runtime.CompileScriptReturn> {
+  public compileScript(params: Runtime.CompileScriptParameters) {
     return this._client.send<Runtime.CompileScriptReturn>("Runtime.compileScript", params);
   }
   /** Runs script with given id in a given context. */
-  public runScript(params: Runtime.RunScriptParameters): Promise<Runtime.RunScriptReturn> {
+  public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
   }
   /** Issued when new execution context is created. */
-  get executionContextCreated(): Runtime.ExecutionContextCreatedHandler | null {
+  get executionContextCreated() {
     return this._executionContextCreated;
   }
-  set executionContextCreated(handler: Runtime.ExecutionContextCreatedHandler | null) {
+  set executionContextCreated(handler) {
     if (this._executionContextCreated) {
       this._client.removeListener("Runtime.executionContextCreated", this._executionContextCreated);
     }
@@ -5936,10 +5936,10 @@ export class Runtime {
     }
   }
   /** Issued when execution context is destroyed. */
-  get executionContextDestroyed(): Runtime.ExecutionContextDestroyedHandler | null {
+  get executionContextDestroyed() {
     return this._executionContextDestroyed;
   }
-  set executionContextDestroyed(handler: Runtime.ExecutionContextDestroyedHandler | null) {
+  set executionContextDestroyed(handler) {
     if (this._executionContextDestroyed) {
       this._client.removeListener("Runtime.executionContextDestroyed", this._executionContextDestroyed);
     }
@@ -5949,10 +5949,10 @@ export class Runtime {
     }
   }
   /** Issued when all executionContexts were cleared in browser */
-  get executionContextsCleared(): Runtime.ExecutionContextsClearedHandler | null {
+  get executionContextsCleared() {
     return this._executionContextsCleared;
   }
-  set executionContextsCleared(handler: Runtime.ExecutionContextsClearedHandler | null) {
+  set executionContextsCleared(handler) {
     if (this._executionContextsCleared) {
       this._client.removeListener("Runtime.executionContextsCleared", this._executionContextsCleared);
     }
@@ -5962,10 +5962,10 @@ export class Runtime {
     }
   }
   /** Issued when exception was thrown and unhandled. */
-  get exceptionThrown(): Runtime.ExceptionThrownHandler | null {
+  get exceptionThrown() {
     return this._exceptionThrown;
   }
-  set exceptionThrown(handler: Runtime.ExceptionThrownHandler | null) {
+  set exceptionThrown(handler) {
     if (this._exceptionThrown) {
       this._client.removeListener("Runtime.exceptionThrown", this._exceptionThrown);
     }
@@ -5975,10 +5975,10 @@ export class Runtime {
     }
   }
   /** Issued when unhandled exception was revoked. */
-  get exceptionRevoked(): Runtime.ExceptionRevokedHandler | null {
+  get exceptionRevoked() {
     return this._exceptionRevoked;
   }
-  set exceptionRevoked(handler: Runtime.ExceptionRevokedHandler | null) {
+  set exceptionRevoked(handler) {
     if (this._exceptionRevoked) {
       this._client.removeListener("Runtime.exceptionRevoked", this._exceptionRevoked);
     }
@@ -5988,10 +5988,10 @@ export class Runtime {
     }
   }
   /** Issued when console API was called. */
-  get consoleAPICalled(): Runtime.ConsoleAPICalledHandler | null {
+  get consoleAPICalled() {
     return this._consoleAPICalled;
   }
-  set consoleAPICalled(handler: Runtime.ConsoleAPICalledHandler | null) {
+  set consoleAPICalled(handler) {
     if (this._consoleAPICalled) {
       this._client.removeListener("Runtime.consoleAPICalled", this._consoleAPICalled);
     }
@@ -6001,10 +6001,10 @@ export class Runtime {
     }
   }
   /** Issued when object should be inspected (for example, as a result of inspect() command line API call). */
-  get inspectRequested(): Runtime.InspectRequestedHandler | null {
+  get inspectRequested() {
     return this._inspectRequested;
   }
-  set inspectRequested(handler: Runtime.InspectRequestedHandler | null) {
+  set inspectRequested(handler) {
     if (this._inspectRequested) {
       this._client.removeListener("Runtime.inspectRequested", this._inspectRequested);
     }
@@ -6368,110 +6368,110 @@ export class Debugger {
     this._client = client;
   }
   /** Enables debugger for the given page. Clients should not assume that the debugging has been enabled until the result for this command is received. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Debugger.enable");
   }
   /** Disables debugger for given page. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Debugger.disable");
   }
   /** Activates / deactivates all breakpoints on the page. */
-  public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters): Promise<void> {
+  public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters) {
     return this._client.send<void>("Debugger.setBreakpointsActive", params);
   }
   /** Makes page not interrupt on any pauses (breakpoint, exception, dom exception etc). */
-  public setSkipAllPauses(params: Debugger.SetSkipAllPausesParameters): Promise<void> {
+  public setSkipAllPauses(params: Debugger.SetSkipAllPausesParameters) {
     return this._client.send<void>("Debugger.setSkipAllPauses", params);
   }
   /** Sets JavaScript breakpoint at given location specified either by URL or URL regex. Once this command is issued, all existing parsed scripts will have breakpoints resolved and returned in <code>locations</code> property. Further matching script parsing will result in subsequent <code>breakpointResolved</code> events issued. This logical breakpoint will survive page reloads. */
-  public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters): Promise<Debugger.SetBreakpointByUrlReturn> {
+  public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters) {
     return this._client.send<Debugger.SetBreakpointByUrlReturn>("Debugger.setBreakpointByUrl", params);
   }
   /** Sets JavaScript breakpoint at a given location. */
-  public setBreakpoint(params: Debugger.SetBreakpointParameters): Promise<Debugger.SetBreakpointReturn> {
+  public setBreakpoint(params: Debugger.SetBreakpointParameters) {
     return this._client.send<Debugger.SetBreakpointReturn>("Debugger.setBreakpoint", params);
   }
   /** Removes JavaScript breakpoint. */
-  public removeBreakpoint(params: Debugger.RemoveBreakpointParameters): Promise<void> {
+  public removeBreakpoint(params: Debugger.RemoveBreakpointParameters) {
     return this._client.send<void>("Debugger.removeBreakpoint", params);
   }
   /** Returns possible locations for breakpoint. scriptId in start and end range locations should be the same. */
-  public getPossibleBreakpoints(params: Debugger.GetPossibleBreakpointsParameters): Promise<Debugger.GetPossibleBreakpointsReturn> {
+  public getPossibleBreakpoints(params: Debugger.GetPossibleBreakpointsParameters) {
     return this._client.send<Debugger.GetPossibleBreakpointsReturn>("Debugger.getPossibleBreakpoints", params);
   }
   /** Continues execution until specific location is reached. */
-  public continueToLocation(params: Debugger.ContinueToLocationParameters): Promise<void> {
+  public continueToLocation(params: Debugger.ContinueToLocationParameters) {
     return this._client.send<void>("Debugger.continueToLocation", params);
   }
   /** Steps over the statement. */
-  public stepOver(): Promise<void> {
+  public stepOver() {
     return this._client.send<void>("Debugger.stepOver");
   }
   /** Steps into the function call. */
-  public stepInto(): Promise<void> {
+  public stepInto() {
     return this._client.send<void>("Debugger.stepInto");
   }
   /** Steps out of the function call. */
-  public stepOut(): Promise<void> {
+  public stepOut() {
     return this._client.send<void>("Debugger.stepOut");
   }
   /** Stops on the next JavaScript statement. */
-  public pause(): Promise<void> {
+  public pause() {
     return this._client.send<void>("Debugger.pause");
   }
   /** Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
-  public scheduleStepIntoAsync(): Promise<void> {
+  public scheduleStepIntoAsync() {
     return this._client.send<void>("Debugger.scheduleStepIntoAsync");
   }
   /** Resumes JavaScript execution. */
-  public resume(): Promise<void> {
+  public resume() {
     return this._client.send<void>("Debugger.resume");
   }
   /** Searches for given string in script content. */
-  public searchInContent(params: Debugger.SearchInContentParameters): Promise<Debugger.SearchInContentReturn> {
+  public searchInContent(params: Debugger.SearchInContentParameters) {
     return this._client.send<Debugger.SearchInContentReturn>("Debugger.searchInContent", params);
   }
   /** Edits JavaScript source live. */
-  public setScriptSource(params: Debugger.SetScriptSourceParameters): Promise<Debugger.SetScriptSourceReturn> {
+  public setScriptSource(params: Debugger.SetScriptSourceParameters) {
     return this._client.send<Debugger.SetScriptSourceReturn>("Debugger.setScriptSource", params);
   }
   /** Restarts particular call frame from the beginning. */
-  public restartFrame(params: Debugger.RestartFrameParameters): Promise<Debugger.RestartFrameReturn> {
+  public restartFrame(params: Debugger.RestartFrameParameters) {
     return this._client.send<Debugger.RestartFrameReturn>("Debugger.restartFrame", params);
   }
   /** Returns source for the script with given id. */
-  public getScriptSource(params: Debugger.GetScriptSourceParameters): Promise<Debugger.GetScriptSourceReturn> {
+  public getScriptSource(params: Debugger.GetScriptSourceParameters) {
     return this._client.send<Debugger.GetScriptSourceReturn>("Debugger.getScriptSource", params);
   }
   /** Defines pause on exceptions state. Can be set to stop on all exceptions, uncaught exceptions or no exceptions. Initial pause on exceptions state is <code>none</code>. */
-  public setPauseOnExceptions(params: Debugger.SetPauseOnExceptionsParameters): Promise<void> {
+  public setPauseOnExceptions(params: Debugger.SetPauseOnExceptionsParameters) {
     return this._client.send<void>("Debugger.setPauseOnExceptions", params);
   }
   /** Evaluates expression on a given call frame. */
-  public evaluateOnCallFrame(params: Debugger.EvaluateOnCallFrameParameters): Promise<Debugger.EvaluateOnCallFrameReturn> {
+  public evaluateOnCallFrame(params: Debugger.EvaluateOnCallFrameParameters) {
     return this._client.send<Debugger.EvaluateOnCallFrameReturn>("Debugger.evaluateOnCallFrame", params);
   }
   /** Changes value of variable in a callframe. Object-based scopes are not supported and must be mutated manually. */
-  public setVariableValue(params: Debugger.SetVariableValueParameters): Promise<void> {
+  public setVariableValue(params: Debugger.SetVariableValueParameters) {
     return this._client.send<void>("Debugger.setVariableValue", params);
   }
   /** Enables or disables async call stacks tracking. */
-  public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters): Promise<void> {
+  public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters) {
     return this._client.send<void>("Debugger.setAsyncCallStackDepth", params);
   }
   /** Replace previous blackbox patterns with passed ones. Forces backend to skip stepping/pausing in scripts with url matching one of the patterns. VM will try to leave blackboxed script by performing 'step in' several times, finally resorting to 'step out' if unsuccessful. */
-  public setBlackboxPatterns(params: Debugger.SetBlackboxPatternsParameters): Promise<void> {
+  public setBlackboxPatterns(params: Debugger.SetBlackboxPatternsParameters) {
     return this._client.send<void>("Debugger.setBlackboxPatterns", params);
   }
   /** Makes backend skip steps in the script in blackboxed ranges. VM will try leave blacklisted scripts by performing 'step in' several times, finally resorting to 'step out' if unsuccessful. Positions array contains positions where blackbox state is changed. First interval isn't blackboxed. Array should be sorted. */
-  public setBlackboxedRanges(params: Debugger.SetBlackboxedRangesParameters): Promise<void> {
+  public setBlackboxedRanges(params: Debugger.SetBlackboxedRangesParameters) {
     return this._client.send<void>("Debugger.setBlackboxedRanges", params);
   }
   /** Fired when virtual machine parses script. This event is also fired for all known and uncollected scripts upon enabling debugger. */
-  get scriptParsed(): Debugger.ScriptParsedHandler | null {
+  get scriptParsed() {
     return this._scriptParsed;
   }
-  set scriptParsed(handler: Debugger.ScriptParsedHandler | null) {
+  set scriptParsed(handler) {
     if (this._scriptParsed) {
       this._client.removeListener("Debugger.scriptParsed", this._scriptParsed);
     }
@@ -6481,10 +6481,10 @@ export class Debugger {
     }
   }
   /** Fired when virtual machine fails to parse the script. */
-  get scriptFailedToParse(): Debugger.ScriptFailedToParseHandler | null {
+  get scriptFailedToParse() {
     return this._scriptFailedToParse;
   }
-  set scriptFailedToParse(handler: Debugger.ScriptFailedToParseHandler | null) {
+  set scriptFailedToParse(handler) {
     if (this._scriptFailedToParse) {
       this._client.removeListener("Debugger.scriptFailedToParse", this._scriptFailedToParse);
     }
@@ -6494,10 +6494,10 @@ export class Debugger {
     }
   }
   /** Fired when breakpoint is resolved to an actual script and location. */
-  get breakpointResolved(): Debugger.BreakpointResolvedHandler | null {
+  get breakpointResolved() {
     return this._breakpointResolved;
   }
-  set breakpointResolved(handler: Debugger.BreakpointResolvedHandler | null) {
+  set breakpointResolved(handler) {
     if (this._breakpointResolved) {
       this._client.removeListener("Debugger.breakpointResolved", this._breakpointResolved);
     }
@@ -6507,10 +6507,10 @@ export class Debugger {
     }
   }
   /** Fired when the virtual machine stopped on breakpoint or exception or any other stop criteria. */
-  get paused(): Debugger.PausedHandler | null {
+  get paused() {
     return this._paused;
   }
-  set paused(handler: Debugger.PausedHandler | null) {
+  set paused(handler) {
     if (this._paused) {
       this._client.removeListener("Debugger.paused", this._paused);
     }
@@ -6520,10 +6520,10 @@ export class Debugger {
     }
   }
   /** Fired when the virtual machine resumed execution. */
-  get resumed(): Debugger.ResumedHandler | null {
+  get resumed() {
     return this._resumed;
   }
-  set resumed(handler: Debugger.ResumedHandler | null) {
+  set resumed(handler) {
     if (this._resumed) {
       this._client.removeListener("Debugger.resumed", this._resumed);
     }
@@ -6849,22 +6849,22 @@ export class Console {
     this._client = client;
   }
   /** Enables console domain, sends the messages collected so far to the client by means of the <code>messageAdded</code> notification. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Console.enable");
   }
   /** Disables console domain, prevents further console messages from being reported to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Console.disable");
   }
   /** Does nothing. */
-  public clearMessages(): Promise<void> {
+  public clearMessages() {
     return this._client.send<void>("Console.clearMessages");
   }
   /** Issued when new console message is added. */
-  get messageAdded(): Console.MessageAddedHandler | null {
+  get messageAdded() {
     return this._messageAdded;
   }
-  set messageAdded(handler: Console.MessageAddedHandler | null) {
+  set messageAdded(handler) {
     if (this._messageAdded) {
       this._client.removeListener("Console.messageAdded", this._messageAdded);
     }
@@ -6903,43 +6903,43 @@ export class Profiler {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Profiler.enable");
   }
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Profiler.disable");
   }
   /** Changes CPU profiler sampling interval. Must be called before CPU profiles recording started. */
-  public setSamplingInterval(params: Profiler.SetSamplingIntervalParameters): Promise<void> {
+  public setSamplingInterval(params: Profiler.SetSamplingIntervalParameters) {
     return this._client.send<void>("Profiler.setSamplingInterval", params);
   }
-  public start(): Promise<void> {
+  public start() {
     return this._client.send<void>("Profiler.start");
   }
-  public stop(): Promise<Profiler.StopReturn> {
+  public stop() {
     return this._client.send<Profiler.StopReturn>("Profiler.stop");
   }
   /** Enable precise code coverage. Coverage data for JavaScript executed before enabling precise code coverage may be incomplete. Enabling prevents running optimized code and resets execution counters. */
-  public startPreciseCoverage(params: Profiler.StartPreciseCoverageParameters): Promise<void> {
+  public startPreciseCoverage(params: Profiler.StartPreciseCoverageParameters) {
     return this._client.send<void>("Profiler.startPreciseCoverage", params);
   }
   /** Disable precise code coverage. Disabling releases unnecessary execution count records and allows executing optimized code. */
-  public stopPreciseCoverage(): Promise<void> {
+  public stopPreciseCoverage() {
     return this._client.send<void>("Profiler.stopPreciseCoverage");
   }
   /** Collect coverage data for the current isolate, and resets execution counters. Precise code coverage needs to have started. */
-  public takePreciseCoverage(): Promise<Profiler.TakePreciseCoverageReturn> {
+  public takePreciseCoverage() {
     return this._client.send<Profiler.TakePreciseCoverageReturn>("Profiler.takePreciseCoverage");
   }
   /** Collect coverage data for the current isolate. The coverage data may be incomplete due to garbage collection. */
-  public getBestEffortCoverage(): Promise<Profiler.GetBestEffortCoverageReturn> {
+  public getBestEffortCoverage() {
     return this._client.send<Profiler.GetBestEffortCoverageReturn>("Profiler.getBestEffortCoverage");
   }
   /** Sent when new profile recording is started using console.profile() call. */
-  get consoleProfileStarted(): Profiler.ConsoleProfileStartedHandler | null {
+  get consoleProfileStarted() {
     return this._consoleProfileStarted;
   }
-  set consoleProfileStarted(handler: Profiler.ConsoleProfileStartedHandler | null) {
+  set consoleProfileStarted(handler) {
     if (this._consoleProfileStarted) {
       this._client.removeListener("Profiler.consoleProfileStarted", this._consoleProfileStarted);
     }
@@ -6948,10 +6948,10 @@ export class Profiler {
       this._client.on("Profiler.consoleProfileStarted", handler);
     }
   }
-  get consoleProfileFinished(): Profiler.ConsoleProfileFinishedHandler | null {
+  get consoleProfileFinished() {
     return this._consoleProfileFinished;
   }
-  set consoleProfileFinished(handler: Profiler.ConsoleProfileFinishedHandler | null) {
+  set consoleProfileFinished(handler) {
     if (this._consoleProfileFinished) {
       this._client.removeListener("Profiler.consoleProfileFinished", this._consoleProfileFinished);
     }
@@ -7070,44 +7070,44 @@ export class HeapProfiler {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("HeapProfiler.enable");
   }
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("HeapProfiler.disable");
   }
-  public startTrackingHeapObjects(params: HeapProfiler.StartTrackingHeapObjectsParameters): Promise<void> {
+  public startTrackingHeapObjects(params: HeapProfiler.StartTrackingHeapObjectsParameters) {
     return this._client.send<void>("HeapProfiler.startTrackingHeapObjects", params);
   }
-  public stopTrackingHeapObjects(params: HeapProfiler.StopTrackingHeapObjectsParameters): Promise<void> {
+  public stopTrackingHeapObjects(params: HeapProfiler.StopTrackingHeapObjectsParameters) {
     return this._client.send<void>("HeapProfiler.stopTrackingHeapObjects", params);
   }
-  public takeHeapSnapshot(params: HeapProfiler.TakeHeapSnapshotParameters): Promise<void> {
+  public takeHeapSnapshot(params: HeapProfiler.TakeHeapSnapshotParameters) {
     return this._client.send<void>("HeapProfiler.takeHeapSnapshot", params);
   }
-  public collectGarbage(): Promise<void> {
+  public collectGarbage() {
     return this._client.send<void>("HeapProfiler.collectGarbage");
   }
-  public getObjectByHeapObjectId(params: HeapProfiler.GetObjectByHeapObjectIdParameters): Promise<HeapProfiler.GetObjectByHeapObjectIdReturn> {
+  public getObjectByHeapObjectId(params: HeapProfiler.GetObjectByHeapObjectIdParameters) {
     return this._client.send<HeapProfiler.GetObjectByHeapObjectIdReturn>("HeapProfiler.getObjectByHeapObjectId", params);
   }
   /** Enables console to refer to the node with given id via $x (see Command Line API for more details $x functions). */
-  public addInspectedHeapObject(params: HeapProfiler.AddInspectedHeapObjectParameters): Promise<void> {
+  public addInspectedHeapObject(params: HeapProfiler.AddInspectedHeapObjectParameters) {
     return this._client.send<void>("HeapProfiler.addInspectedHeapObject", params);
   }
-  public getHeapObjectId(params: HeapProfiler.GetHeapObjectIdParameters): Promise<HeapProfiler.GetHeapObjectIdReturn> {
+  public getHeapObjectId(params: HeapProfiler.GetHeapObjectIdParameters) {
     return this._client.send<HeapProfiler.GetHeapObjectIdReturn>("HeapProfiler.getHeapObjectId", params);
   }
-  public startSampling(params: HeapProfiler.StartSamplingParameters): Promise<void> {
+  public startSampling(params: HeapProfiler.StartSamplingParameters) {
     return this._client.send<void>("HeapProfiler.startSampling", params);
   }
-  public stopSampling(): Promise<HeapProfiler.StopSamplingReturn> {
+  public stopSampling() {
     return this._client.send<HeapProfiler.StopSamplingReturn>("HeapProfiler.stopSampling");
   }
-  get addHeapSnapshotChunk(): HeapProfiler.AddHeapSnapshotChunkHandler | null {
+  get addHeapSnapshotChunk() {
     return this._addHeapSnapshotChunk;
   }
-  set addHeapSnapshotChunk(handler: HeapProfiler.AddHeapSnapshotChunkHandler | null) {
+  set addHeapSnapshotChunk(handler) {
     if (this._addHeapSnapshotChunk) {
       this._client.removeListener("HeapProfiler.addHeapSnapshotChunk", this._addHeapSnapshotChunk);
     }
@@ -7116,10 +7116,10 @@ export class HeapProfiler {
       this._client.on("HeapProfiler.addHeapSnapshotChunk", handler);
     }
   }
-  get resetProfiles(): HeapProfiler.ResetProfilesHandler | null {
+  get resetProfiles() {
     return this._resetProfiles;
   }
-  set resetProfiles(handler: HeapProfiler.ResetProfilesHandler | null) {
+  set resetProfiles(handler) {
     if (this._resetProfiles) {
       this._client.removeListener("HeapProfiler.resetProfiles", this._resetProfiles);
     }
@@ -7128,10 +7128,10 @@ export class HeapProfiler {
       this._client.on("HeapProfiler.resetProfiles", handler);
     }
   }
-  get reportHeapSnapshotProgress(): HeapProfiler.ReportHeapSnapshotProgressHandler | null {
+  get reportHeapSnapshotProgress() {
     return this._reportHeapSnapshotProgress;
   }
-  set reportHeapSnapshotProgress(handler: HeapProfiler.ReportHeapSnapshotProgressHandler | null) {
+  set reportHeapSnapshotProgress(handler) {
     if (this._reportHeapSnapshotProgress) {
       this._client.removeListener("HeapProfiler.reportHeapSnapshotProgress", this._reportHeapSnapshotProgress);
     }
@@ -7141,10 +7141,10 @@ export class HeapProfiler {
     }
   }
   /** If heap objects tracking has been started then backend regularly sends a current value for last seen object id and corresponding timestamp. If the were changes in the heap since last event then one or more heapStatsUpdate events will be sent before a new lastSeenObjectId event. */
-  get lastSeenObjectId(): HeapProfiler.LastSeenObjectIdHandler | null {
+  get lastSeenObjectId() {
     return this._lastSeenObjectId;
   }
-  set lastSeenObjectId(handler: HeapProfiler.LastSeenObjectIdHandler | null) {
+  set lastSeenObjectId(handler) {
     if (this._lastSeenObjectId) {
       this._client.removeListener("HeapProfiler.lastSeenObjectId", this._lastSeenObjectId);
     }
@@ -7154,10 +7154,10 @@ export class HeapProfiler {
     }
   }
   /** If heap objects tracking has been started then backend may send update for one or more fragments */
-  get heapStatsUpdate(): HeapProfiler.HeapStatsUpdateHandler | null {
+  get heapStatsUpdate() {
     return this._heapStatsUpdate;
   }
-  set heapStatsUpdate(handler: HeapProfiler.HeapStatsUpdateHandler | null) {
+  set heapStatsUpdate(handler) {
     if (this._heapStatsUpdate) {
       this._client.removeListener("HeapProfiler.heapStatsUpdate", this._heapStatsUpdate);
     }

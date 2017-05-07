@@ -31,8 +31,9 @@ export interface IEvent extends IDoc {
 
 export interface IDoc {
   description?: string;
-  hidden?: boolean;
   deprecated?: boolean;
+  experimental?: boolean;
+  hidden?: boolean;
 }
 
 export type TypeRefOrDescriptor = ITypeRef | Descriptor;

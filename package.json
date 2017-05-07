@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "An async/await friendly Chrome debugging client with TypeScript support",
   "keywords": [
     "chrome",
@@ -35,7 +35,7 @@
   "author": "Kris Selden <kris.selden@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/krisselden/chrome-tracing.git"
+    "url": "https://github.com/krisselden/chrome-debugging-client.git"
   },
   "license": "Apache-2.0",
   "dependencies": {

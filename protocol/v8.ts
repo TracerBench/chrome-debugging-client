@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Sun May 07 2017 15:08:14 GMT-0700 (PDT)
+ * Generated on Sun May 07 2017 15:48:22 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -11,7 +11,7 @@ export class Schema {
     this._client = client;
   }
   /** Returns supported domains. */
-  public getDomains(): Promise<Schema.GetDomainsReturn> {
+  public getDomains() {
     return this._client.send<Schema.GetDomainsReturn>("Schema.getDomains");
   }
 }
@@ -42,61 +42,61 @@ export class Runtime {
     this._client = client;
   }
   /** Evaluates expression on global object. */
-  public evaluate(params: Runtime.EvaluateParameters): Promise<Runtime.EvaluateReturn> {
+  public evaluate(params: Runtime.EvaluateParameters) {
     return this._client.send<Runtime.EvaluateReturn>("Runtime.evaluate", params);
   }
   /** Add handler to promise with given promise object id. */
-  public awaitPromise(params: Runtime.AwaitPromiseParameters): Promise<Runtime.AwaitPromiseReturn> {
+  public awaitPromise(params: Runtime.AwaitPromiseParameters) {
     return this._client.send<Runtime.AwaitPromiseReturn>("Runtime.awaitPromise", params);
   }
   /** Calls function with given declaration on the given object. Object group of the result is inherited from the target object. */
-  public callFunctionOn(params: Runtime.CallFunctionOnParameters): Promise<Runtime.CallFunctionOnReturn> {
+  public callFunctionOn(params: Runtime.CallFunctionOnParameters) {
     return this._client.send<Runtime.CallFunctionOnReturn>("Runtime.callFunctionOn", params);
   }
   /** Returns properties of a given object. Object group of the result is inherited from the target object. */
-  public getProperties(params: Runtime.GetPropertiesParameters): Promise<Runtime.GetPropertiesReturn> {
+  public getProperties(params: Runtime.GetPropertiesParameters) {
     return this._client.send<Runtime.GetPropertiesReturn>("Runtime.getProperties", params);
   }
   /** Releases remote object with given id. */
-  public releaseObject(params: Runtime.ReleaseObjectParameters): Promise<void> {
+  public releaseObject(params: Runtime.ReleaseObjectParameters) {
     return this._client.send<void>("Runtime.releaseObject", params);
   }
   /** Releases all remote objects that belong to a given group. */
-  public releaseObjectGroup(params: Runtime.ReleaseObjectGroupParameters): Promise<void> {
+  public releaseObjectGroup(params: Runtime.ReleaseObjectGroupParameters) {
     return this._client.send<void>("Runtime.releaseObjectGroup", params);
   }
   /** Tells inspected instance to run if it was waiting for debugger to attach. */
-  public runIfWaitingForDebugger(): Promise<void> {
+  public runIfWaitingForDebugger() {
     return this._client.send<void>("Runtime.runIfWaitingForDebugger");
   }
   /** Enables reporting of execution contexts creation by means of <code>executionContextCreated</code> event. When the reporting gets enabled the event will be sent immediately for each existing execution context. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Runtime.enable");
   }
   /** Disables reporting of execution contexts creation. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Runtime.disable");
   }
   /** Discards collected exceptions and console API calls. */
-  public discardConsoleEntries(): Promise<void> {
+  public discardConsoleEntries() {
     return this._client.send<void>("Runtime.discardConsoleEntries");
   }
-  public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters): Promise<void> {
+  public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
   }
   /** Compiles expression. */
-  public compileScript(params: Runtime.CompileScriptParameters): Promise<Runtime.CompileScriptReturn> {
+  public compileScript(params: Runtime.CompileScriptParameters) {
     return this._client.send<Runtime.CompileScriptReturn>("Runtime.compileScript", params);
   }
   /** Runs script with given id in a given context. */
-  public runScript(params: Runtime.RunScriptParameters): Promise<Runtime.RunScriptReturn> {
+  public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
   }
   /** Issued when new execution context is created. */
-  get executionContextCreated(): Runtime.ExecutionContextCreatedHandler | null {
+  get executionContextCreated() {
     return this._executionContextCreated;
   }
-  set executionContextCreated(handler: Runtime.ExecutionContextCreatedHandler | null) {
+  set executionContextCreated(handler) {
     if (this._executionContextCreated) {
       this._client.removeListener("Runtime.executionContextCreated", this._executionContextCreated);
     }
@@ -106,10 +106,10 @@ export class Runtime {
     }
   }
   /** Issued when execution context is destroyed. */
-  get executionContextDestroyed(): Runtime.ExecutionContextDestroyedHandler | null {
+  get executionContextDestroyed() {
     return this._executionContextDestroyed;
   }
-  set executionContextDestroyed(handler: Runtime.ExecutionContextDestroyedHandler | null) {
+  set executionContextDestroyed(handler) {
     if (this._executionContextDestroyed) {
       this._client.removeListener("Runtime.executionContextDestroyed", this._executionContextDestroyed);
     }
@@ -119,10 +119,10 @@ export class Runtime {
     }
   }
   /** Issued when all executionContexts were cleared in browser */
-  get executionContextsCleared(): Runtime.ExecutionContextsClearedHandler | null {
+  get executionContextsCleared() {
     return this._executionContextsCleared;
   }
-  set executionContextsCleared(handler: Runtime.ExecutionContextsClearedHandler | null) {
+  set executionContextsCleared(handler) {
     if (this._executionContextsCleared) {
       this._client.removeListener("Runtime.executionContextsCleared", this._executionContextsCleared);
     }
@@ -132,10 +132,10 @@ export class Runtime {
     }
   }
   /** Issued when exception was thrown and unhandled. */
-  get exceptionThrown(): Runtime.ExceptionThrownHandler | null {
+  get exceptionThrown() {
     return this._exceptionThrown;
   }
-  set exceptionThrown(handler: Runtime.ExceptionThrownHandler | null) {
+  set exceptionThrown(handler) {
     if (this._exceptionThrown) {
       this._client.removeListener("Runtime.exceptionThrown", this._exceptionThrown);
     }
@@ -145,10 +145,10 @@ export class Runtime {
     }
   }
   /** Issued when unhandled exception was revoked. */
-  get exceptionRevoked(): Runtime.ExceptionRevokedHandler | null {
+  get exceptionRevoked() {
     return this._exceptionRevoked;
   }
-  set exceptionRevoked(handler: Runtime.ExceptionRevokedHandler | null) {
+  set exceptionRevoked(handler) {
     if (this._exceptionRevoked) {
       this._client.removeListener("Runtime.exceptionRevoked", this._exceptionRevoked);
     }
@@ -158,10 +158,10 @@ export class Runtime {
     }
   }
   /** Issued when console API was called. */
-  get consoleAPICalled(): Runtime.ConsoleAPICalledHandler | null {
+  get consoleAPICalled() {
     return this._consoleAPICalled;
   }
-  set consoleAPICalled(handler: Runtime.ConsoleAPICalledHandler | null) {
+  set consoleAPICalled(handler) {
     if (this._consoleAPICalled) {
       this._client.removeListener("Runtime.consoleAPICalled", this._consoleAPICalled);
     }
@@ -171,10 +171,10 @@ export class Runtime {
     }
   }
   /** Issued when object should be inspected (for example, as a result of inspect() command line API call). */
-  get inspectRequested(): Runtime.InspectRequestedHandler | null {
+  get inspectRequested() {
     return this._inspectRequested;
   }
-  set inspectRequested(handler: Runtime.InspectRequestedHandler | null) {
+  set inspectRequested(handler) {
     if (this._inspectRequested) {
       this._client.removeListener("Runtime.inspectRequested", this._inspectRequested);
     }
@@ -538,110 +538,110 @@ export class Debugger {
     this._client = client;
   }
   /** Enables debugger for the given page. Clients should not assume that the debugging has been enabled until the result for this command is received. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Debugger.enable");
   }
   /** Disables debugger for given page. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Debugger.disable");
   }
   /** Activates / deactivates all breakpoints on the page. */
-  public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters): Promise<void> {
+  public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters) {
     return this._client.send<void>("Debugger.setBreakpointsActive", params);
   }
   /** Makes page not interrupt on any pauses (breakpoint, exception, dom exception etc). */
-  public setSkipAllPauses(params: Debugger.SetSkipAllPausesParameters): Promise<void> {
+  public setSkipAllPauses(params: Debugger.SetSkipAllPausesParameters) {
     return this._client.send<void>("Debugger.setSkipAllPauses", params);
   }
   /** Sets JavaScript breakpoint at given location specified either by URL or URL regex. Once this command is issued, all existing parsed scripts will have breakpoints resolved and returned in <code>locations</code> property. Further matching script parsing will result in subsequent <code>breakpointResolved</code> events issued. This logical breakpoint will survive page reloads. */
-  public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters): Promise<Debugger.SetBreakpointByUrlReturn> {
+  public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters) {
     return this._client.send<Debugger.SetBreakpointByUrlReturn>("Debugger.setBreakpointByUrl", params);
   }
   /** Sets JavaScript breakpoint at a given location. */
-  public setBreakpoint(params: Debugger.SetBreakpointParameters): Promise<Debugger.SetBreakpointReturn> {
+  public setBreakpoint(params: Debugger.SetBreakpointParameters) {
     return this._client.send<Debugger.SetBreakpointReturn>("Debugger.setBreakpoint", params);
   }
   /** Removes JavaScript breakpoint. */
-  public removeBreakpoint(params: Debugger.RemoveBreakpointParameters): Promise<void> {
+  public removeBreakpoint(params: Debugger.RemoveBreakpointParameters) {
     return this._client.send<void>("Debugger.removeBreakpoint", params);
   }
   /** Returns possible locations for breakpoint. scriptId in start and end range locations should be the same. */
-  public getPossibleBreakpoints(params: Debugger.GetPossibleBreakpointsParameters): Promise<Debugger.GetPossibleBreakpointsReturn> {
+  public getPossibleBreakpoints(params: Debugger.GetPossibleBreakpointsParameters) {
     return this._client.send<Debugger.GetPossibleBreakpointsReturn>("Debugger.getPossibleBreakpoints", params);
   }
   /** Continues execution until specific location is reached. */
-  public continueToLocation(params: Debugger.ContinueToLocationParameters): Promise<void> {
+  public continueToLocation(params: Debugger.ContinueToLocationParameters) {
     return this._client.send<void>("Debugger.continueToLocation", params);
   }
   /** Steps over the statement. */
-  public stepOver(): Promise<void> {
+  public stepOver() {
     return this._client.send<void>("Debugger.stepOver");
   }
   /** Steps into the function call. */
-  public stepInto(): Promise<void> {
+  public stepInto() {
     return this._client.send<void>("Debugger.stepInto");
   }
   /** Steps out of the function call. */
-  public stepOut(): Promise<void> {
+  public stepOut() {
     return this._client.send<void>("Debugger.stepOut");
   }
   /** Stops on the next JavaScript statement. */
-  public pause(): Promise<void> {
+  public pause() {
     return this._client.send<void>("Debugger.pause");
   }
   /** Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
-  public scheduleStepIntoAsync(): Promise<void> {
+  public scheduleStepIntoAsync() {
     return this._client.send<void>("Debugger.scheduleStepIntoAsync");
   }
   /** Resumes JavaScript execution. */
-  public resume(): Promise<void> {
+  public resume() {
     return this._client.send<void>("Debugger.resume");
   }
   /** Searches for given string in script content. */
-  public searchInContent(params: Debugger.SearchInContentParameters): Promise<Debugger.SearchInContentReturn> {
+  public searchInContent(params: Debugger.SearchInContentParameters) {
     return this._client.send<Debugger.SearchInContentReturn>("Debugger.searchInContent", params);
   }
   /** Edits JavaScript source live. */
-  public setScriptSource(params: Debugger.SetScriptSourceParameters): Promise<Debugger.SetScriptSourceReturn> {
+  public setScriptSource(params: Debugger.SetScriptSourceParameters) {
     return this._client.send<Debugger.SetScriptSourceReturn>("Debugger.setScriptSource", params);
   }
   /** Restarts particular call frame from the beginning. */
-  public restartFrame(params: Debugger.RestartFrameParameters): Promise<Debugger.RestartFrameReturn> {
+  public restartFrame(params: Debugger.RestartFrameParameters) {
     return this._client.send<Debugger.RestartFrameReturn>("Debugger.restartFrame", params);
   }
   /** Returns source for the script with given id. */
-  public getScriptSource(params: Debugger.GetScriptSourceParameters): Promise<Debugger.GetScriptSourceReturn> {
+  public getScriptSource(params: Debugger.GetScriptSourceParameters) {
     return this._client.send<Debugger.GetScriptSourceReturn>("Debugger.getScriptSource", params);
   }
   /** Defines pause on exceptions state. Can be set to stop on all exceptions, uncaught exceptions or no exceptions. Initial pause on exceptions state is <code>none</code>. */
-  public setPauseOnExceptions(params: Debugger.SetPauseOnExceptionsParameters): Promise<void> {
+  public setPauseOnExceptions(params: Debugger.SetPauseOnExceptionsParameters) {
     return this._client.send<void>("Debugger.setPauseOnExceptions", params);
   }
   /** Evaluates expression on a given call frame. */
-  public evaluateOnCallFrame(params: Debugger.EvaluateOnCallFrameParameters): Promise<Debugger.EvaluateOnCallFrameReturn> {
+  public evaluateOnCallFrame(params: Debugger.EvaluateOnCallFrameParameters) {
     return this._client.send<Debugger.EvaluateOnCallFrameReturn>("Debugger.evaluateOnCallFrame", params);
   }
   /** Changes value of variable in a callframe. Object-based scopes are not supported and must be mutated manually. */
-  public setVariableValue(params: Debugger.SetVariableValueParameters): Promise<void> {
+  public setVariableValue(params: Debugger.SetVariableValueParameters) {
     return this._client.send<void>("Debugger.setVariableValue", params);
   }
   /** Enables or disables async call stacks tracking. */
-  public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters): Promise<void> {
+  public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters) {
     return this._client.send<void>("Debugger.setAsyncCallStackDepth", params);
   }
   /** Replace previous blackbox patterns with passed ones. Forces backend to skip stepping/pausing in scripts with url matching one of the patterns. VM will try to leave blackboxed script by performing 'step in' several times, finally resorting to 'step out' if unsuccessful. */
-  public setBlackboxPatterns(params: Debugger.SetBlackboxPatternsParameters): Promise<void> {
+  public setBlackboxPatterns(params: Debugger.SetBlackboxPatternsParameters) {
     return this._client.send<void>("Debugger.setBlackboxPatterns", params);
   }
   /** Makes backend skip steps in the script in blackboxed ranges. VM will try leave blacklisted scripts by performing 'step in' several times, finally resorting to 'step out' if unsuccessful. Positions array contains positions where blackbox state is changed. First interval isn't blackboxed. Array should be sorted. */
-  public setBlackboxedRanges(params: Debugger.SetBlackboxedRangesParameters): Promise<void> {
+  public setBlackboxedRanges(params: Debugger.SetBlackboxedRangesParameters) {
     return this._client.send<void>("Debugger.setBlackboxedRanges", params);
   }
   /** Fired when virtual machine parses script. This event is also fired for all known and uncollected scripts upon enabling debugger. */
-  get scriptParsed(): Debugger.ScriptParsedHandler | null {
+  get scriptParsed() {
     return this._scriptParsed;
   }
-  set scriptParsed(handler: Debugger.ScriptParsedHandler | null) {
+  set scriptParsed(handler) {
     if (this._scriptParsed) {
       this._client.removeListener("Debugger.scriptParsed", this._scriptParsed);
     }
@@ -651,10 +651,10 @@ export class Debugger {
     }
   }
   /** Fired when virtual machine fails to parse the script. */
-  get scriptFailedToParse(): Debugger.ScriptFailedToParseHandler | null {
+  get scriptFailedToParse() {
     return this._scriptFailedToParse;
   }
-  set scriptFailedToParse(handler: Debugger.ScriptFailedToParseHandler | null) {
+  set scriptFailedToParse(handler) {
     if (this._scriptFailedToParse) {
       this._client.removeListener("Debugger.scriptFailedToParse", this._scriptFailedToParse);
     }
@@ -664,10 +664,10 @@ export class Debugger {
     }
   }
   /** Fired when breakpoint is resolved to an actual script and location. */
-  get breakpointResolved(): Debugger.BreakpointResolvedHandler | null {
+  get breakpointResolved() {
     return this._breakpointResolved;
   }
-  set breakpointResolved(handler: Debugger.BreakpointResolvedHandler | null) {
+  set breakpointResolved(handler) {
     if (this._breakpointResolved) {
       this._client.removeListener("Debugger.breakpointResolved", this._breakpointResolved);
     }
@@ -677,10 +677,10 @@ export class Debugger {
     }
   }
   /** Fired when the virtual machine stopped on breakpoint or exception or any other stop criteria. */
-  get paused(): Debugger.PausedHandler | null {
+  get paused() {
     return this._paused;
   }
-  set paused(handler: Debugger.PausedHandler | null) {
+  set paused(handler) {
     if (this._paused) {
       this._client.removeListener("Debugger.paused", this._paused);
     }
@@ -690,10 +690,10 @@ export class Debugger {
     }
   }
   /** Fired when the virtual machine resumed execution. */
-  get resumed(): Debugger.ResumedHandler | null {
+  get resumed() {
     return this._resumed;
   }
-  set resumed(handler: Debugger.ResumedHandler | null) {
+  set resumed(handler) {
     if (this._resumed) {
       this._client.removeListener("Debugger.resumed", this._resumed);
     }
@@ -1019,22 +1019,22 @@ export class Console {
     this._client = client;
   }
   /** Enables console domain, sends the messages collected so far to the client by means of the <code>messageAdded</code> notification. */
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Console.enable");
   }
   /** Disables console domain, prevents further console messages from being reported to the client. */
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Console.disable");
   }
   /** Does nothing. */
-  public clearMessages(): Promise<void> {
+  public clearMessages() {
     return this._client.send<void>("Console.clearMessages");
   }
   /** Issued when new console message is added. */
-  get messageAdded(): Console.MessageAddedHandler | null {
+  get messageAdded() {
     return this._messageAdded;
   }
-  set messageAdded(handler: Console.MessageAddedHandler | null) {
+  set messageAdded(handler) {
     if (this._messageAdded) {
       this._client.removeListener("Console.messageAdded", this._messageAdded);
     }
@@ -1073,43 +1073,43 @@ export class Profiler {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("Profiler.enable");
   }
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("Profiler.disable");
   }
   /** Changes CPU profiler sampling interval. Must be called before CPU profiles recording started. */
-  public setSamplingInterval(params: Profiler.SetSamplingIntervalParameters): Promise<void> {
+  public setSamplingInterval(params: Profiler.SetSamplingIntervalParameters) {
     return this._client.send<void>("Profiler.setSamplingInterval", params);
   }
-  public start(): Promise<void> {
+  public start() {
     return this._client.send<void>("Profiler.start");
   }
-  public stop(): Promise<Profiler.StopReturn> {
+  public stop() {
     return this._client.send<Profiler.StopReturn>("Profiler.stop");
   }
   /** Enable precise code coverage. Coverage data for JavaScript executed before enabling precise code coverage may be incomplete. Enabling prevents running optimized code and resets execution counters. */
-  public startPreciseCoverage(params: Profiler.StartPreciseCoverageParameters): Promise<void> {
+  public startPreciseCoverage(params: Profiler.StartPreciseCoverageParameters) {
     return this._client.send<void>("Profiler.startPreciseCoverage", params);
   }
   /** Disable precise code coverage. Disabling releases unnecessary execution count records and allows executing optimized code. */
-  public stopPreciseCoverage(): Promise<void> {
+  public stopPreciseCoverage() {
     return this._client.send<void>("Profiler.stopPreciseCoverage");
   }
   /** Collect coverage data for the current isolate, and resets execution counters. Precise code coverage needs to have started. */
-  public takePreciseCoverage(): Promise<Profiler.TakePreciseCoverageReturn> {
+  public takePreciseCoverage() {
     return this._client.send<Profiler.TakePreciseCoverageReturn>("Profiler.takePreciseCoverage");
   }
   /** Collect coverage data for the current isolate. The coverage data may be incomplete due to garbage collection. */
-  public getBestEffortCoverage(): Promise<Profiler.GetBestEffortCoverageReturn> {
+  public getBestEffortCoverage() {
     return this._client.send<Profiler.GetBestEffortCoverageReturn>("Profiler.getBestEffortCoverage");
   }
   /** Sent when new profile recording is started using console.profile() call. */
-  get consoleProfileStarted(): Profiler.ConsoleProfileStartedHandler | null {
+  get consoleProfileStarted() {
     return this._consoleProfileStarted;
   }
-  set consoleProfileStarted(handler: Profiler.ConsoleProfileStartedHandler | null) {
+  set consoleProfileStarted(handler) {
     if (this._consoleProfileStarted) {
       this._client.removeListener("Profiler.consoleProfileStarted", this._consoleProfileStarted);
     }
@@ -1118,10 +1118,10 @@ export class Profiler {
       this._client.on("Profiler.consoleProfileStarted", handler);
     }
   }
-  get consoleProfileFinished(): Profiler.ConsoleProfileFinishedHandler | null {
+  get consoleProfileFinished() {
     return this._consoleProfileFinished;
   }
-  set consoleProfileFinished(handler: Profiler.ConsoleProfileFinishedHandler | null) {
+  set consoleProfileFinished(handler) {
     if (this._consoleProfileFinished) {
       this._client.removeListener("Profiler.consoleProfileFinished", this._consoleProfileFinished);
     }
@@ -1240,44 +1240,44 @@ export class HeapProfiler {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  public enable(): Promise<void> {
+  public enable() {
     return this._client.send<void>("HeapProfiler.enable");
   }
-  public disable(): Promise<void> {
+  public disable() {
     return this._client.send<void>("HeapProfiler.disable");
   }
-  public startTrackingHeapObjects(params: HeapProfiler.StartTrackingHeapObjectsParameters): Promise<void> {
+  public startTrackingHeapObjects(params: HeapProfiler.StartTrackingHeapObjectsParameters) {
     return this._client.send<void>("HeapProfiler.startTrackingHeapObjects", params);
   }
-  public stopTrackingHeapObjects(params: HeapProfiler.StopTrackingHeapObjectsParameters): Promise<void> {
+  public stopTrackingHeapObjects(params: HeapProfiler.StopTrackingHeapObjectsParameters) {
     return this._client.send<void>("HeapProfiler.stopTrackingHeapObjects", params);
   }
-  public takeHeapSnapshot(params: HeapProfiler.TakeHeapSnapshotParameters): Promise<void> {
+  public takeHeapSnapshot(params: HeapProfiler.TakeHeapSnapshotParameters) {
     return this._client.send<void>("HeapProfiler.takeHeapSnapshot", params);
   }
-  public collectGarbage(): Promise<void> {
+  public collectGarbage() {
     return this._client.send<void>("HeapProfiler.collectGarbage");
   }
-  public getObjectByHeapObjectId(params: HeapProfiler.GetObjectByHeapObjectIdParameters): Promise<HeapProfiler.GetObjectByHeapObjectIdReturn> {
+  public getObjectByHeapObjectId(params: HeapProfiler.GetObjectByHeapObjectIdParameters) {
     return this._client.send<HeapProfiler.GetObjectByHeapObjectIdReturn>("HeapProfiler.getObjectByHeapObjectId", params);
   }
   /** Enables console to refer to the node with given id via $x (see Command Line API for more details $x functions). */
-  public addInspectedHeapObject(params: HeapProfiler.AddInspectedHeapObjectParameters): Promise<void> {
+  public addInspectedHeapObject(params: HeapProfiler.AddInspectedHeapObjectParameters) {
     return this._client.send<void>("HeapProfiler.addInspectedHeapObject", params);
   }
-  public getHeapObjectId(params: HeapProfiler.GetHeapObjectIdParameters): Promise<HeapProfiler.GetHeapObjectIdReturn> {
+  public getHeapObjectId(params: HeapProfiler.GetHeapObjectIdParameters) {
     return this._client.send<HeapProfiler.GetHeapObjectIdReturn>("HeapProfiler.getHeapObjectId", params);
   }
-  public startSampling(params: HeapProfiler.StartSamplingParameters): Promise<void> {
+  public startSampling(params: HeapProfiler.StartSamplingParameters) {
     return this._client.send<void>("HeapProfiler.startSampling", params);
   }
-  public stopSampling(): Promise<HeapProfiler.StopSamplingReturn> {
+  public stopSampling() {
     return this._client.send<HeapProfiler.StopSamplingReturn>("HeapProfiler.stopSampling");
   }
-  get addHeapSnapshotChunk(): HeapProfiler.AddHeapSnapshotChunkHandler | null {
+  get addHeapSnapshotChunk() {
     return this._addHeapSnapshotChunk;
   }
-  set addHeapSnapshotChunk(handler: HeapProfiler.AddHeapSnapshotChunkHandler | null) {
+  set addHeapSnapshotChunk(handler) {
     if (this._addHeapSnapshotChunk) {
       this._client.removeListener("HeapProfiler.addHeapSnapshotChunk", this._addHeapSnapshotChunk);
     }
@@ -1286,10 +1286,10 @@ export class HeapProfiler {
       this._client.on("HeapProfiler.addHeapSnapshotChunk", handler);
     }
   }
-  get resetProfiles(): HeapProfiler.ResetProfilesHandler | null {
+  get resetProfiles() {
     return this._resetProfiles;
   }
-  set resetProfiles(handler: HeapProfiler.ResetProfilesHandler | null) {
+  set resetProfiles(handler) {
     if (this._resetProfiles) {
       this._client.removeListener("HeapProfiler.resetProfiles", this._resetProfiles);
     }
@@ -1298,10 +1298,10 @@ export class HeapProfiler {
       this._client.on("HeapProfiler.resetProfiles", handler);
     }
   }
-  get reportHeapSnapshotProgress(): HeapProfiler.ReportHeapSnapshotProgressHandler | null {
+  get reportHeapSnapshotProgress() {
     return this._reportHeapSnapshotProgress;
   }
-  set reportHeapSnapshotProgress(handler: HeapProfiler.ReportHeapSnapshotProgressHandler | null) {
+  set reportHeapSnapshotProgress(handler) {
     if (this._reportHeapSnapshotProgress) {
       this._client.removeListener("HeapProfiler.reportHeapSnapshotProgress", this._reportHeapSnapshotProgress);
     }
@@ -1311,10 +1311,10 @@ export class HeapProfiler {
     }
   }
   /** If heap objects tracking has been started then backend regularly sends a current value for last seen object id and corresponding timestamp. If the were changes in the heap since last event then one or more heapStatsUpdate events will be sent before a new lastSeenObjectId event. */
-  get lastSeenObjectId(): HeapProfiler.LastSeenObjectIdHandler | null {
+  get lastSeenObjectId() {
     return this._lastSeenObjectId;
   }
-  set lastSeenObjectId(handler: HeapProfiler.LastSeenObjectIdHandler | null) {
+  set lastSeenObjectId(handler) {
     if (this._lastSeenObjectId) {
       this._client.removeListener("HeapProfiler.lastSeenObjectId", this._lastSeenObjectId);
     }
@@ -1324,10 +1324,10 @@ export class HeapProfiler {
     }
   }
   /** If heap objects tracking has been started then backend may send update for one or more fragments */
-  get heapStatsUpdate(): HeapProfiler.HeapStatsUpdateHandler | null {
+  get heapStatsUpdate() {
     return this._heapStatsUpdate;
   }
-  set heapStatsUpdate(handler: HeapProfiler.HeapStatsUpdateHandler | null) {
+  set heapStatsUpdate(handler) {
     if (this._heapStatsUpdate) {
       this._client.removeListener("HeapProfiler.heapStatsUpdate", this._heapStatsUpdate);
     }

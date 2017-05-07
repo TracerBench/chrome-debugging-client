@@ -213,7 +213,7 @@ export default class ProtocolCodegen {
     const paramsArg = command.parameters ? ", params" : "";
     const returnType = command.returns ? this.returnTypeName(name, domainName) : "void";
 
-    this.append(`public ${name}(${params}): Promise<${returnType}> {`);
+    this.append(`public ${name}(${params}) {`);
     this.block(() => {
       this.append(`return this._client.send<${returnType}>("${domainName}.${name}"${paramsArg});`);
     });
@@ -222,12 +222,12 @@ export default class ProtocolCodegen {
 
   protected appendEventAccessors(event: Protocol.IEvent, domainName: string) {
     const name = event.name;
-    this.append(`get ${name}(): ${this.handlerTypeName(name, domainName)} | null {`);
+    this.append(`get ${name}() {`);
     this.block(() => {
       this.append(`return this._${name};`);
     });
     this.append("}");
-    this.append(`set ${name}(handler: ${this.handlerTypeName(name, domainName)} | null) {`);
+    this.append(`set ${name}(handler) {`);
     this.block(() => {
       this.append(`if (this._${name}) {`);
       this.block(() => {

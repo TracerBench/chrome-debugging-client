@@ -99,7 +99,7 @@ export default class ProtocolCodegen {
         /* tslint:disable:no-console */
         console.warn(`missing $ref ${domainName}.${key}`);
         /* tslint:enable:no-console */
-        this.generateObjectTypeAlias(key, undefined);
+        this.generateObjectTypeAlias(key, []);
       }
     });
   }
@@ -138,27 +138,27 @@ export default class ProtocolCodegen {
     this.refs.set(domain.domain, refs);
   }
 
-  protected gatherRefsFromDescs(descs: Protocol.IDescriptor[], refs: Map<string, boolean>) {
+  protected gatherRefsFromDescs(descs: Protocol.TypeRefOrDescriptor[], refs: Map<string, boolean>) {
     for (const desc of descs) {
       this.gatherRefsFromDesc(desc, refs);
     }
   }
 
-  protected gatherRefsFromDesc(desc: Protocol.IDescriptor, refs: Map<string, boolean>) {
-    const ref = desc.$ref;
-    if (ref) {
+  protected gatherRefsFromDesc(desc: Protocol.TypeRefOrDescriptor, refs: Map<string, boolean>) {
+    if (Protocol.isTypeRef(desc)) {
+      const ref = desc.$ref;
       const period = ref.indexOf(".");
       if (period !== -1) {
         this.getRefs(ref.substring(0, period)).set(ref.substring(period + 1), false);
       } else {
         refs.set(ref, false);
       }
-    }
-    if (desc.items) {
+    } else if (Protocol.isArrayDescriptor(desc)) {
       this.gatherRefsFromDesc(desc.items, refs);
-    }
-    if (desc.properties) {
-      this.gatherRefsFromDescs(desc.properties, refs);
+    } else if (Protocol.isObjectDescriptor(desc)) {
+      if (desc.properties) {
+        this.gatherRefsFromDescs(desc.properties, refs);
+      }
     }
   }
 
@@ -244,14 +244,20 @@ export default class ProtocolCodegen {
     this.append("}");
   }
 
-  protected appendType(type: Protocol.IType) {
-    const properties = type.properties;
-    if (type.type === "object" && properties && properties.length) {
-      this.append(`export interface ${type.id} {`);
-      this.block(() => {
-        each(properties, (prop) => this.generateProperty(prop));
-      });
-      this.append("}");
+  protected appendType(type: Protocol.Type) {
+    if (Protocol.isTypeRef(type)) {
+      this.append(`export type ${type.id} = ${type.$ref};`);
+    } else if (Protocol.isObjectDescriptor(type)) {
+      const { properties } = type;
+      if (properties && properties.length > 0) {
+        this.append(`export interface ${type.id} {`);
+        this.block(() => {
+          each(properties, (prop) => this.generateProperty(prop));
+        });
+        this.append("}");
+      } else {
+        this.append(`export type ${type.id} = any;`);
+      }
     } else {
       this.append(`export type ${type.id} = ${this.typeString(type)};`);
     }
@@ -278,7 +284,7 @@ export default class ProtocolCodegen {
     this.code += this.currentIndent + line + "\n";
   }
 
-  protected generateProperty(desc: Protocol.INamedDescriptor) {
+  protected generateProperty(desc: Protocol.NamedDescriptor) {
     this.appendComment(desc);
     this.append(this.namedTypeString(desc));
   }
@@ -292,8 +298,12 @@ export default class ProtocolCodegen {
 
   protected appendCommandTypes(command: Protocol.ICommand) {
     const name = command.name;
-    this.generateObjectTypeAlias(this.parametersTypeName(name), command.parameters);
-    this.generateObjectTypeAlias(this.returnTypeName(name), command.returns);
+    if (command.parameters) {
+      this.generateObjectTypeAlias(this.parametersTypeName(name), command.parameters);
+    }
+    if (command.returns) {
+      this.generateObjectTypeAlias(this.returnTypeName(name), command.returns);
+    }
   }
 
   protected returnTypeName(name: string, domainName?: string) {
@@ -308,7 +318,7 @@ export default class ProtocolCodegen {
     return buildTypeName(name, "Handler", domainName);
   }
 
-  protected generateObjectTypeAlias(name: string, props: Protocol.INamedDescriptor[] | undefined) {
+  protected generateObjectTypeAlias(name: string, props: Protocol.NamedDescriptor[]) {
     if (props && props.length) {
       this.append(`export type ${name} = {`);
       this.block(() => {
@@ -320,52 +330,36 @@ export default class ProtocolCodegen {
     }
   }
 
-  protected namedTypeString(desc: Protocol.INamedDescriptor): string {
+  protected namedTypeString(desc: Protocol.NamedDescriptor): string {
     return `${desc.name}${desc.optional ? "?" : ""}: ${this.typeString(desc)};`;
   }
 
-  protected typeString(desc: Protocol.IDescriptor | undefined, isArray?: boolean): string {
+  protected typeString(desc: Protocol.TypeRefOrDescriptor, isArray?: boolean): string {
     let typeName: string;
     let simple = true;
-    if (desc) {
-      if (desc.$ref) {
-        typeName = desc.$ref;
+    if (Protocol.isTypeRef(desc)) {
+      typeName = desc.$ref;
+    } else if (Protocol.isObjectDescriptor(desc)) {
+      const { properties } = desc;
+      if (properties && properties.length) {
+        simple = false;
+        typeName = "{ " + properties.map((p) => this.namedTypeString(p)).join(" ") + " }";
       } else {
-        const properties = desc.properties;
-        switch (desc.type) {
-          case "integer":
-            typeName = "number";
-            break;
-          case "number":
-          case "boolean":
-          case "any":
-            typeName = desc.type;
-            break;
-          case "string":
-            if (desc.enum) {
-              simple = false;
-              typeName = desc.enum.map((str) => JSON.stringify(str)).join(" | ");
-            } else {
-              typeName = "string";
-            }
-            break;
-          case "array":
-            typeName = this.typeString(desc.items, true);
-            break;
-          case "object":
-            if (properties && properties.length) {
-              simple = false;
-              typeName = "{ " + properties.map((p) => this.namedTypeString(p)).join(" ") + " }";
-            } else {
-              typeName = "any";
-            }
-            break;
-          default:
-            throw new Error("unexpected type" + JSON.stringify(desc));
-        }
+        typeName = "any";
       }
+    } else if (Protocol.isArrayDescriptor(desc)) {
+      typeName = this.typeString(desc.items, true);
+    } else if (Protocol.isStringDescriptor(desc)) {
+      if (Protocol.isEnumDescriptor(desc)) {
+        simple = false;
+        typeName = desc.enum.map((str) => JSON.stringify(str)).join(" | ");
+      } else {
+        typeName = "string";
+      }
+    } else if (Protocol.isNumberDescriptor(desc)) {
+      typeName = "number";
     } else {
-      typeName = "any";
+      typeName = desc.type;
     }
     return isArray ? simple ? `${typeName}[]` : `Array<${typeName}>` : typeName;
   }

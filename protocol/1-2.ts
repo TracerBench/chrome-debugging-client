@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Sat May 06 2017 14:09:02 GMT-0700 (PDT)
+ * Generated on Sun May 07 2017 15:08:14 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -249,17 +249,12 @@ export namespace Page {
     url: string;
   };
   export type NavigationRequestedHandler = (params: NavigationRequestedParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type ReloadParameters = {
     /** If true, browser cache is ignored (as if the user pressed Shift+refresh). */
     ignoreCache?: boolean;
     /** If set, the script will be injected into all frames of the inspected page after reload. */
     scriptToEvaluateOnLoad?: string;
   };
-  export type ReloadReturn = any;
   export type NavigateParameters = {
     /** URL to navigate the page to. */
     url: string;
@@ -276,16 +271,12 @@ export namespace Page {
     /** Mock accuracy */
     accuracy?: number;
   };
-  export type SetGeolocationOverrideReturn = any;
-  export type ClearGeolocationOverrideParameters = any;
-  export type ClearGeolocationOverrideReturn = any;
   export type HandleJavaScriptDialogParameters = {
     /** Whether to accept or dismiss the dialog. */
     accept: boolean;
     /** The text to enter into the dialog prompt before accepting. Used only if this is a prompt dialog. */
     promptText?: string;
   };
-  export type HandleJavaScriptDialogReturn = any;
 }
 /** This domain emulates different environments for the page. */
 export class Emulation {
@@ -346,21 +337,16 @@ export namespace Emulation {
     /** Screen orientation override. */
     screenOrientation?: ScreenOrientation;
   };
-  export type SetDeviceMetricsOverrideReturn = any;
-  export type ClearDeviceMetricsOverrideParameters = any;
-  export type ClearDeviceMetricsOverrideReturn = any;
   export type SetTouchEmulationEnabledParameters = {
     /** Whether the touch event emulation should be enabled. */
     enabled: boolean;
     /** Touch/gesture events configuration. Default: current platform. */
     configuration?: "mobile" | "desktop";
   };
-  export type SetTouchEmulationEnabledReturn = any;
   export type SetEmulatedMediaParameters = {
     /** Media type to emulate. Empty string disables the override. */
     media: string;
   };
-  export type SetEmulatedMediaReturn = any;
 }
 /** Network domain allows tracking network activities of the page. It exposes information about http, file, data and other requests and responses, their headers, bodies, timing, etc. */
 export class Network {
@@ -756,19 +742,14 @@ export namespace Network {
     /** Per-resource buffer size in bytes to use when preserving network payloads (XHRs, etc). */
     maxResourceBufferSize?: number;
   };
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type SetUserAgentOverrideParameters = {
     /** User agent to use. */
     userAgent: string;
   };
-  export type SetUserAgentOverrideReturn = any;
   export type SetExtraHTTPHeadersParameters = {
     /** Map with extra HTTP headers. */
     headers: Headers;
   };
-  export type SetExtraHTTPHeadersReturn = any;
   export type GetResponseBodyParameters = {
     /** Identifier of the network request to get content for. */
     requestId: RequestId;
@@ -779,20 +760,14 @@ export namespace Network {
     /** True, if content was sent as base64. */
     base64Encoded: boolean;
   };
-  export type CanClearBrowserCacheParameters = any;
   export type CanClearBrowserCacheReturn = {
     /** True if browser cache can be cleared. */
     result: boolean;
   };
-  export type ClearBrowserCacheParameters = any;
-  export type ClearBrowserCacheReturn = any;
-  export type CanClearBrowserCookiesParameters = any;
   export type CanClearBrowserCookiesReturn = {
     /** True if browser cookies can be cleared. */
     result: boolean;
   };
-  export type ClearBrowserCookiesParameters = any;
-  export type ClearBrowserCookiesReturn = any;
   export type EmulateNetworkConditionsParameters = {
     /** True to emulate internet disconnection. */
     offline: boolean;
@@ -805,12 +780,10 @@ export namespace Network {
     /** Connection type if known. */
     connectionType?: ConnectionType;
   };
-  export type EmulateNetworkConditionsReturn = any;
   export type SetCacheDisabledParameters = {
     /** Cache disabled state. */
     cacheDisabled: boolean;
   };
-  export type SetCacheDisabledReturn = any;
 }
 /** This domain exposes DOM read/write operations. Each DOM Node is represented with its mirror object that has an <code>id</code>. This <code>id</code> can be used to get additional information on the Node, resolve it into the JavaScript object wrapper, etc. It is important that client receives DOM events only for the nodes that are known to the client. Backend keeps track of the nodes that were sent to the client and never sends the same node twice. It is client's responsibility to collect information about the nodes that were sent to the client.<p>Note that <code>iframe</code> owner elements will return corresponding document elements as their child nodes.</p> */
 export class DOM {
@@ -1168,11 +1141,6 @@ export namespace DOM {
     nodeId: NodeId;
   };
   export type ChildNodeRemovedHandler = (params: ChildNodeRemovedParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
-  export type GetDocumentParameters = any;
   export type GetDocumentReturn = {
     /** Resulting node. */
     root: Node;
@@ -1183,7 +1151,6 @@ export namespace DOM {
     /** The maximum depth at which children should be retrieved, defaults to 1. Use -1 for the entire subtree or provide an integer larger than 0. */
     depth?: number;
   };
-  export type RequestChildNodesReturn = any;
   export type QuerySelectorParameters = {
     /** Id of the node to query upon. */
     nodeId: NodeId;
@@ -1220,12 +1187,10 @@ export namespace DOM {
     /** New node's value. */
     value: string;
   };
-  export type SetNodeValueReturn = any;
   export type RemoveNodeParameters = {
     /** Id of the node to remove. */
     nodeId: NodeId;
   };
-  export type RemoveNodeReturn = any;
   export type SetAttributeValueParameters = {
     /** Id of the element to set attribute for. */
     nodeId: NodeId;
@@ -1234,7 +1199,6 @@ export namespace DOM {
     /** Attribute value. */
     value: string;
   };
-  export type SetAttributeValueReturn = any;
   export type SetAttributesAsTextParameters = {
     /** Id of the element to set attributes for. */
     nodeId: NodeId;
@@ -1243,14 +1207,12 @@ export namespace DOM {
     /** Attribute name to replace with new attributes derived from text in case text parsed successfully. */
     name?: string;
   };
-  export type SetAttributesAsTextReturn = any;
   export type RemoveAttributeParameters = {
     /** Id of the element to remove attribute from. */
     nodeId: NodeId;
     /** Name of the attribute to remove. */
     name: string;
   };
-  export type RemoveAttributeReturn = any;
   export type GetOuterHTMLParameters = {
     /** Id of the node to get markup for. */
     nodeId: NodeId;
@@ -1265,7 +1227,6 @@ export namespace DOM {
     /** Outer HTML markup to set. */
     outerHTML: string;
   };
-  export type SetOuterHTMLReturn = any;
   export type RequestNodeParameters = {
     /** JavaScript object id to convert into node. */
     objectId: Runtime.RemoteObjectId;
@@ -1288,7 +1249,6 @@ export namespace DOM {
     /** The highlight outline color (default: transparent). */
     outlineColor?: RGBA;
   };
-  export type HighlightRectReturn = any;
   export type HighlightNodeParameters = {
     /** A descriptor for the highlight appearance. */
     highlightConfig: HighlightConfig;
@@ -1299,9 +1259,6 @@ export namespace DOM {
     /** JavaScript object id of the node to be highlighted. */
     objectId?: Runtime.RemoteObjectId;
   };
-  export type HighlightNodeReturn = any;
-  export type HideHighlightParameters = any;
-  export type HideHighlightReturn = any;
   export type ResolveNodeParameters = {
     /** Id of the node to resolve. */
     nodeId: NodeId;
@@ -1373,38 +1330,32 @@ export namespace DOMDebugger {
     /** Type of the operation to stop upon. */
     type: DOMBreakpointType;
   };
-  export type SetDOMBreakpointReturn = any;
   export type RemoveDOMBreakpointParameters = {
     /** Identifier of the node to remove breakpoint from. */
     nodeId: DOM.NodeId;
     /** Type of the breakpoint to remove. */
     type: DOMBreakpointType;
   };
-  export type RemoveDOMBreakpointReturn = any;
   export type SetEventListenerBreakpointParameters = {
     /** DOM Event name to stop on (any DOM event will do). */
     eventName: string;
     /** EventTarget interface name to stop on. If equal to <code>"*"</code> or not provided, will stop on any EventTarget. */
     targetName?: string;
   };
-  export type SetEventListenerBreakpointReturn = any;
   export type RemoveEventListenerBreakpointParameters = {
     /** Event name. */
     eventName: string;
     /** EventTarget interface name. */
     targetName?: string;
   };
-  export type RemoveEventListenerBreakpointReturn = any;
   export type SetXHRBreakpointParameters = {
     /** Resource URL substring. All XHRs having this substring in the URL will get stopped upon. */
     url: string;
   };
-  export type SetXHRBreakpointReturn = any;
   export type RemoveXHRBreakpointParameters = {
     /** Resource URL substring. */
     url: string;
   };
-  export type RemoveXHRBreakpointReturn = any;
 }
 export class Input {
   private _client: IDebuggingProtocolClient;
@@ -1449,7 +1400,6 @@ export namespace Input {
     /** Whether the event was a system key event (default: false). */
     isSystemKey?: boolean;
   };
-  export type DispatchKeyEventReturn = any;
   export type DispatchMouseEventParameters = {
     /** Type of the mouse event. */
     type: "mousePressed" | "mouseReleased" | "mouseMoved";
@@ -1466,7 +1416,6 @@ export namespace Input {
     /** Number of times the mouse button was clicked (default: 0). */
     clickCount?: number;
   };
-  export type DispatchMouseEventReturn = any;
 }
 /** Provides information about the protocol schema. */
 export class Schema {
@@ -1487,7 +1436,6 @@ export namespace Schema {
     /** Domain version. */
     version: string;
   }
-  export type GetDomainsParameters = any;
   export type GetDomainsReturn = {
     /** List of supported domains. */
     domains: Domain[];
@@ -1900,20 +1848,10 @@ export namespace Runtime {
     /** Identifier of the object to release. */
     objectId: RemoteObjectId;
   };
-  export type ReleaseObjectReturn = any;
   export type ReleaseObjectGroupParameters = {
     /** Symbolic object group name. */
     objectGroup: string;
   };
-  export type ReleaseObjectGroupReturn = any;
-  export type RunIfWaitingForDebuggerParameters = any;
-  export type RunIfWaitingForDebuggerReturn = any;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
-  export type DiscardConsoleEntriesParameters = any;
-  export type DiscardConsoleEntriesReturn = any;
   export type CompileScriptParameters = {
     /** Expression to compile. */
     expression: string;
@@ -2228,20 +2166,14 @@ export namespace Debugger {
   };
   export type PausedHandler = (params: PausedParameters) => void;
   export type ResumedHandler = () => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type SetBreakpointsActiveParameters = {
     /** New value for breakpoints active state. */
     active: boolean;
   };
-  export type SetBreakpointsActiveReturn = any;
   export type SetSkipAllPausesParameters = {
     /** New value for skip pauses state. */
     skip: boolean;
   };
-  export type SetSkipAllPausesReturn = any;
   export type SetBreakpointByUrlParameters = {
     /** Line number to set breakpoint at. */
     lineNumber: number;
@@ -2275,22 +2207,10 @@ export namespace Debugger {
   export type RemoveBreakpointParameters = {
     breakpointId: BreakpointId;
   };
-  export type RemoveBreakpointReturn = any;
   export type ContinueToLocationParameters = {
     /** Location to continue to. */
     location: Location;
   };
-  export type ContinueToLocationReturn = any;
-  export type StepOverParameters = any;
-  export type StepOverReturn = any;
-  export type StepIntoParameters = any;
-  export type StepIntoReturn = any;
-  export type StepOutParameters = any;
-  export type StepOutReturn = any;
-  export type PauseParameters = any;
-  export type PauseReturn = any;
-  export type ResumeParameters = any;
-  export type ResumeReturn = any;
   export type SetScriptSourceParameters = {
     /** Id of the script to edit. */
     scriptId: Runtime.ScriptId;
@@ -2331,7 +2251,6 @@ export namespace Debugger {
     /** Pause on exceptions mode. */
     state: "none" | "uncaught" | "all";
   };
-  export type SetPauseOnExceptionsReturn = any;
   export type EvaluateOnCallFrameParameters = {
     /** Call frame identifier to evaluate on. */
     callFrameId: CallFrameId;
@@ -2364,12 +2283,10 @@ export namespace Debugger {
     /** Id of callframe that holds variable. */
     callFrameId: CallFrameId;
   };
-  export type SetVariableValueReturn = any;
   export type SetAsyncCallStackDepthParameters = {
     /** Maximum depth of async call stacks. Setting to <code>0</code> will effectively disable collecting async call stacks (default). */
     maxDepth: number;
   };
-  export type SetAsyncCallStackDepthReturn = any;
 }
 export class Profiler {
   private _consoleProfileStarted: Profiler.ConsoleProfileStartedHandler | null = null;
@@ -2467,18 +2384,10 @@ export namespace Profiler {
     title?: string;
   };
   export type ConsoleProfileFinishedHandler = (params: ConsoleProfileFinishedParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type SetSamplingIntervalParameters = {
     /** New sampling interval in microseconds. */
     interval: number;
   };
-  export type SetSamplingIntervalReturn = any;
-  export type StartParameters = any;
-  export type StartReturn = any;
-  export type StopParameters = any;
   export type StopReturn = {
     /** Recorded profile. */
     profile: Profile;

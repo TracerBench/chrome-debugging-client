@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Sat May 06 2017 14:09:02 GMT-0700 (PDT)
+ * Generated on Sun May 07 2017 15:08:14 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -23,7 +23,6 @@ export namespace Schema {
     /** Domain version. */
     version: string;
   }
-  export type GetDomainsParameters = any;
   export type GetDomainsReturn = {
     /** List of supported domains. */
     domains: Domain[];
@@ -479,24 +478,13 @@ export namespace Runtime {
     /** Identifier of the object to release. */
     objectId: RemoteObjectId;
   };
-  export type ReleaseObjectReturn = any;
   export type ReleaseObjectGroupParameters = {
     /** Symbolic object group name. */
     objectGroup: string;
   };
-  export type ReleaseObjectGroupReturn = any;
-  export type RunIfWaitingForDebuggerParameters = any;
-  export type RunIfWaitingForDebuggerReturn = any;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
-  export type DiscardConsoleEntriesParameters = any;
-  export type DiscardConsoleEntriesReturn = any;
   export type SetCustomObjectFormatterEnabledParameters = {
     enabled: boolean;
   };
-  export type SetCustomObjectFormatterEnabledReturn = any;
   export type CompileScriptParameters = {
     /** Expression to compile. */
     expression: string;
@@ -864,20 +852,14 @@ export namespace Debugger {
   };
   export type PausedHandler = (params: PausedParameters) => void;
   export type ResumedHandler = () => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type SetBreakpointsActiveParameters = {
     /** New value for breakpoints active state. */
     active: boolean;
   };
-  export type SetBreakpointsActiveReturn = any;
   export type SetSkipAllPausesParameters = {
     /** New value for skip pauses state. */
     skip: boolean;
   };
-  export type SetSkipAllPausesReturn = any;
   export type SetBreakpointByUrlParameters = {
     /** Line number to set breakpoint at. */
     lineNumber: number;
@@ -911,7 +893,6 @@ export namespace Debugger {
   export type RemoveBreakpointParameters = {
     breakpointId: BreakpointId;
   };
-  export type RemoveBreakpointReturn = any;
   export type GetPossibleBreakpointsParameters = {
     /** Start of range to search possible breakpoint locations in. */
     start: Location;
@@ -928,19 +909,6 @@ export namespace Debugger {
     /** Location to continue to. */
     location: Location;
   };
-  export type ContinueToLocationReturn = any;
-  export type StepOverParameters = any;
-  export type StepOverReturn = any;
-  export type StepIntoParameters = any;
-  export type StepIntoReturn = any;
-  export type StepOutParameters = any;
-  export type StepOutReturn = any;
-  export type PauseParameters = any;
-  export type PauseReturn = any;
-  export type ScheduleStepIntoAsyncParameters = any;
-  export type ScheduleStepIntoAsyncReturn = any;
-  export type ResumeParameters = any;
-  export type ResumeReturn = any;
   export type SearchInContentParameters = {
     /** Id of the script to search in. */
     scriptId: Runtime.ScriptId;
@@ -995,7 +963,6 @@ export namespace Debugger {
     /** Pause on exceptions mode. */
     state: "none" | "uncaught" | "all";
   };
-  export type SetPauseOnExceptionsReturn = any;
   export type EvaluateOnCallFrameParameters = {
     /** Call frame identifier to evaluate on. */
     callFrameId: CallFrameId;
@@ -1030,23 +997,19 @@ export namespace Debugger {
     /** Id of callframe that holds variable. */
     callFrameId: CallFrameId;
   };
-  export type SetVariableValueReturn = any;
   export type SetAsyncCallStackDepthParameters = {
     /** Maximum depth of async call stacks. Setting to <code>0</code> will effectively disable collecting async call stacks (default). */
     maxDepth: number;
   };
-  export type SetAsyncCallStackDepthReturn = any;
   export type SetBlackboxPatternsParameters = {
     /** Array of regexps that will be used to check script url for blackbox state. */
     patterns: string[];
   };
-  export type SetBlackboxPatternsReturn = any;
   export type SetBlackboxedRangesParameters = {
     /** Id of the script. */
     scriptId: Runtime.ScriptId;
     positions: ScriptPosition[];
   };
-  export type SetBlackboxedRangesReturn = any;
 }
 /** This domain is deprecated - use Runtime or Log instead. */
 export class Console {
@@ -1102,12 +1065,6 @@ export namespace Console {
     message: ConsoleMessage;
   };
   export type MessageAddedHandler = (params: MessageAddedParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
-  export type ClearMessagesParameters = any;
-  export type ClearMessagesReturn = any;
 }
 export class Profiler {
   private _consoleProfileStarted: Profiler.ConsoleProfileStartedHandler | null = null;
@@ -1252,18 +1209,10 @@ export namespace Profiler {
     title?: string;
   };
   export type ConsoleProfileFinishedHandler = (params: ConsoleProfileFinishedParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type SetSamplingIntervalParameters = {
     /** New sampling interval in microseconds. */
     interval: number;
   };
-  export type SetSamplingIntervalReturn = any;
-  export type StartParameters = any;
-  export type StartReturn = any;
-  export type StopParameters = any;
   export type StopReturn = {
     /** Recorded profile. */
     profile: Profile;
@@ -1272,15 +1221,10 @@ export namespace Profiler {
     /** Collect accurate call counts beyond simple 'covered' or 'not covered'. */
     callCount?: boolean;
   };
-  export type StartPreciseCoverageReturn = any;
-  export type StopPreciseCoverageParameters = any;
-  export type StopPreciseCoverageReturn = any;
-  export type TakePreciseCoverageParameters = any;
   export type TakePreciseCoverageReturn = {
     /** Coverage data for the current isolate. */
     result: ScriptCoverage[];
   };
-  export type GetBestEffortCoverageParameters = any;
   export type GetBestEffortCoverageReturn = {
     /** Coverage data for the current isolate. */
     result: ScriptCoverage[];
@@ -1430,26 +1374,17 @@ export namespace HeapProfiler {
     statsUpdate: number[];
   };
   export type HeapStatsUpdateHandler = (params: HeapStatsUpdateParameters) => void;
-  export type EnableParameters = any;
-  export type EnableReturn = any;
-  export type DisableParameters = any;
-  export type DisableReturn = any;
   export type StartTrackingHeapObjectsParameters = {
     trackAllocations?: boolean;
   };
-  export type StartTrackingHeapObjectsReturn = any;
   export type StopTrackingHeapObjectsParameters = {
     /** If true 'reportHeapSnapshotProgress' events will be generated while snapshot is being taken when the tracking is stopped. */
     reportProgress?: boolean;
   };
-  export type StopTrackingHeapObjectsReturn = any;
   export type TakeHeapSnapshotParameters = {
     /** If true 'reportHeapSnapshotProgress' events will be generated while snapshot is being taken. */
     reportProgress?: boolean;
   };
-  export type TakeHeapSnapshotReturn = any;
-  export type CollectGarbageParameters = any;
-  export type CollectGarbageReturn = any;
   export type GetObjectByHeapObjectIdParameters = {
     objectId: HeapSnapshotObjectId;
     /** Symbolic group name that can be used to release multiple objects. */
@@ -1463,7 +1398,6 @@ export namespace HeapProfiler {
     /** Heap snapshot object id to be accessible by means of $x command line API. */
     heapObjectId: HeapSnapshotObjectId;
   };
-  export type AddInspectedHeapObjectReturn = any;
   export type GetHeapObjectIdParameters = {
     /** Identifier of the object to get heap object id for. */
     objectId: Runtime.RemoteObjectId;
@@ -1476,8 +1410,6 @@ export namespace HeapProfiler {
     /** Average sample interval in bytes. Poisson distribution is used for the intervals. The default value is 32768 bytes. */
     samplingInterval?: number;
   };
-  export type StartSamplingReturn = any;
-  export type StopSamplingParameters = any;
   export type StopSamplingReturn = {
     /** Recorded sampling heap profile. */
     profile: SamplingHeapProfile;

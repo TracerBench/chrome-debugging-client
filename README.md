@@ -12,7 +12,8 @@ Features:
   (regardless if you already have Chrome open).
 * Opens an ephemeral remote debugging port so you don't need to configure a port.
 * A TypeScript codegen for API autocomplete and tooltips with documentation for
-  the debugger protocol https://github.com/ChromeDevTools/debugger-protocol-viewer
+  the debugger protocol https://chromedevtools.github.io/devtools-protocol/
+* Cleans up processes and connections at end of session.
 
 Example:
 
@@ -36,7 +37,7 @@ createSession(async (session) => {
   await client.activateTab(tab.id);
 
   // open the debugger protocol
-  // https://github.com/ChromeDevTools/debugger-protocol-viewer
+  // https://chromedevtools.github.io/devtools-protocol/
   const debuggerClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
 
   // create the HeapProfiler domain with the debugger protocol client

@@ -26,6 +26,7 @@ createSession(async (session) => {
   // spawns a chrome instance with a tmp user data
   // and the debugger open to an ephemeral port
   const process = await session.spawn("canary", {
+    additionalArguments: ['--headless'],
     windowSize: { width: 640, height: 320 }
   });
 

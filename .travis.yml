@@ -3,8 +3,11 @@ dist: trusty
 language: node_js
 node_js:
   - "stable"
-
-before_install:
-  - export CHROME_BIN=/usr/bin/google-chrome-beta
-  - wget https://dl.google.com/linux/direct/google-chrome-beta_current_amd64.deb
-  - sudo dpkg -i google-chrome*.deb
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-beta
+env:
+  - CHROME_BIN=/usr/bin/google-chrome-beta

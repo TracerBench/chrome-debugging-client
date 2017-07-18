@@ -21,7 +21,7 @@ export async function createSession<T>(cb: (session: ISession) => PromiseLike<T>
   try {
     return await cb(session);
   } finally {
-    session.dispose();
+    await session.dispose();
   }
 }
 

@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Sun May 07 2017 15:48:22 GMT-0700 (PDT)
+ * Generated on Wed Jul 19 2017 13:57:10 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -385,6 +385,8 @@ export namespace Runtime {
     timestamp: Timestamp;
     /** Stack trace captured when the call was made. */
     stackTrace?: StackTrace;
+    /** Console context descriptor for calls on non-default console context (not console.*): 'anonymous#unique-logger-id' for call on unnamed context, 'name#unique-logger-id' for call on named context. */
+    context?: string;
   };
   export type ConsoleAPICalledHandler = (params: ConsoleAPICalledParameters) => void;
   export type InspectRequestedParameters = {
@@ -908,6 +910,7 @@ export namespace Debugger {
   export type ContinueToLocationParameters = {
     /** Location to continue to. */
     location: Location;
+    targetCallFrames?: "any" | "current";
   };
   export type SearchInContentParameters = {
     /** Id of the script to search in. */
@@ -1182,6 +1185,8 @@ export namespace Profiler {
     functionName: string;
     /** Source ranges inside the function with coverage data. */
     ranges: CoverageRange[];
+    /** Whether coverage data for this function has block granularity. */
+    isBlockCoverage: boolean;
   }
   /** Coverage data for a JavaScript script. */
   export interface ScriptCoverage {

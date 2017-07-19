@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sun May 07 2017 15:48:22 GMT-0700 (PDT)
+ * Generated on Wed Jul 19 2017 13:57:10 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -119,11 +119,21 @@ export class Page {
   public disable() {
     return this._client.send<void>("Page.disable");
   }
+  /** Deprecated, please use addScriptToEvaluateOnNewDocument instead. */
   public addScriptToEvaluateOnLoad(params: Page.AddScriptToEvaluateOnLoadParameters) {
     return this._client.send<Page.AddScriptToEvaluateOnLoadReturn>("Page.addScriptToEvaluateOnLoad", params);
   }
+  /** Deprecated, please use removeScriptToEvaluateOnNewDocument instead. */
   public removeScriptToEvaluateOnLoad(params: Page.RemoveScriptToEvaluateOnLoadParameters) {
     return this._client.send<void>("Page.removeScriptToEvaluateOnLoad", params);
+  }
+  /** Evaluates given script in every frame upon creation (before loading frame's scripts). */
+  public addScriptToEvaluateOnNewDocument(params: Page.AddScriptToEvaluateOnNewDocumentParameters) {
+    return this._client.send<Page.AddScriptToEvaluateOnNewDocumentReturn>("Page.addScriptToEvaluateOnNewDocument", params);
+  }
+  /** Removes given script from the list. */
+  public removeScriptToEvaluateOnNewDocument(params: Page.RemoveScriptToEvaluateOnNewDocumentParameters) {
+    return this._client.send<void>("Page.removeScriptToEvaluateOnNewDocument", params);
   }
   /** Controls whether browser will open a new inspector window for connected pages. */
   public setAutoAttachToCreatedPages(params: Page.SetAutoAttachToCreatedPagesParameters) {
@@ -205,9 +215,9 @@ export class Page {
   public captureScreenshot(params: Page.CaptureScreenshotParameters) {
     return this._client.send<Page.CaptureScreenshotReturn>("Page.captureScreenshot", params);
   }
-  /** Print page as pdf. */
-  public printToPDF() {
-    return this._client.send<Page.PrintToPDFReturn>("Page.printToPDF");
+  /** Print page as PDF. */
+  public printToPDF(params: Page.PrintToPDFParameters) {
+    return this._client.send<Page.PrintToPDFReturn>("Page.printToPDF", params);
   }
   /** Starts sending each frame using the <code>screencastFrame</code> event. */
   public startScreencast(params: Page.StartScreencastParameters) {
@@ -242,6 +252,10 @@ export class Page {
   /** Returns metrics relating to the layouting of the page, such as viewport bounds/scale. */
   public getLayoutMetrics() {
     return this._client.send<Page.GetLayoutMetricsReturn>("Page.getLayoutMetrics");
+  }
+  /** Creates an isolated world for the given frame. */
+  public createIsolatedWorld(params: Page.CreateIsolatedWorldParameters) {
+    return this._client.send<Page.CreateIsolatedWorldReturn>("Page.createIsolatedWorld", params);
   }
   get domContentEventFired() {
     return this._domContentEventFired;
@@ -483,6 +497,8 @@ export namespace Page {
     securityOrigin: string;
     /** Frame document's mimeType as determined by the browser. */
     mimeType: string;
+    /** If the frame failed to load, this contains the URL that could not be loaded. */
+    unreachableUrl?: string;
   }
   /** Information about the Resource on the page. */
   export interface FrameResource {
@@ -493,7 +509,7 @@ export namespace Page {
     /** Resource mimeType as determined by the browser. */
     mimeType: string;
     /** last-modified timestamp as reported by server. */
-    lastModified?: Network.Timestamp;
+    lastModified?: Network.TimeSinceEpoch;
     /** Resource content size. */
     contentSize?: number;
     /** True if the resource failed to load. */
@@ -512,14 +528,20 @@ export namespace Page {
   }
   /** Unique script identifier. */
   export type ScriptIdentifier = string;
+  /** Transition type. */
+  export type TransitionType = "link" | "typed" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated" | "other";
   /** Navigation history entry. */
   export interface NavigationEntry {
     /** Unique id of the navigation history entry. */
     id: number;
     /** URL of the navigation history entry. */
     url: string;
+    /** URL that the user typed in the url bar. */
+    userTypedURL: string;
     /** Title of the navigation history entry. */
     title: string;
+    /** Transition type. */
+    transitionType: TransitionType;
   }
   /** Screencast frame metadata. */
   export interface ScreencastFrameMetadata {
@@ -536,7 +558,7 @@ export namespace Page {
     /** Position of vertical scroll in CSS pixels. */
     scrollOffsetY: number;
     /** Frame swap timestamp. */
-    timestamp?: number;
+    timestamp?: Network.TimeSinceEpoch;
   }
   /** Javascript dialog type. */
   export type DialogType = "alert" | "confirm" | "prompt" | "beforeunload";
@@ -581,12 +603,25 @@ export namespace Page {
     /** Scale relative to the ideal viewport (size at width=device-width). */
     scale: number;
   }
+  /** Viewport for capturing screenshot. */
+  export interface Viewport {
+    /** X offset in CSS pixels. */
+    x: number;
+    /** Y offset in CSS pixels */
+    y: number;
+    /** Rectangle width in CSS pixels */
+    width: number;
+    /** Rectangle height in CSS pixels */
+    height: number;
+    /** Page scale factor. */
+    scale: number;
+  }
   export type DomContentEventFiredParameters = {
-    timestamp: number;
+    timestamp: Network.MonotonicTime;
   };
   export type DomContentEventFiredHandler = (params: DomContentEventFiredParameters) => void;
   export type LoadEventFiredParameters = {
-    timestamp: number;
+    timestamp: Network.MonotonicTime;
   };
   export type LoadEventFiredHandler = (params: LoadEventFiredParameters) => void;
   export type FrameAttachedParameters = {
@@ -679,6 +714,16 @@ export namespace Page {
   export type RemoveScriptToEvaluateOnLoadParameters = {
     identifier: ScriptIdentifier;
   };
+  export type AddScriptToEvaluateOnNewDocumentParameters = {
+    source: string;
+  };
+  export type AddScriptToEvaluateOnNewDocumentReturn = {
+    /** Identifier of the added script. */
+    identifier: ScriptIdentifier;
+  };
+  export type RemoveScriptToEvaluateOnNewDocumentParameters = {
+    identifier: ScriptIdentifier;
+  };
   export type SetAutoAttachToCreatedPagesParameters = {
     /** If true, browser will open a new inspector window for every page created from this one. */
     autoAttach: boolean;
@@ -694,6 +739,8 @@ export namespace Page {
     url: string;
     /** Referrer URL. */
     referrer?: string;
+    /** Intended transition type. */
+    transitionType?: TransitionType;
   };
   export type NavigateReturn = {
     /** Frame id that will be navigated. */
@@ -767,7 +814,7 @@ export namespace Page {
     /** Whether to emulate mobile device. This includes viewport meta tag, overlay scrollbars, text autosizing and more. */
     mobile: boolean;
     /** Whether a view that exceeds the available browser window area should be scaled down to fit. */
-    fitWindow: boolean;
+    fitWindow?: boolean;
     /** Scale to apply to resulting view image. Ignored in |fitWindow| mode. */
     scale?: number;
     /** X offset to shift resulting view image by. Ignored in |fitWindow| mode. */
@@ -812,12 +859,40 @@ export namespace Page {
     format?: "jpeg" | "png";
     /** Compression quality from range [0..100] (jpeg only). */
     quality?: number;
-    /** Capture the screenshot from the surface, rather than the view. Defaults to false. */
+    /** Capture the screenshot of a given region only. */
+    clip?: Viewport;
+    /** Capture the screenshot from the surface, rather than the view. Defaults to true. */
     fromSurface?: boolean;
   };
   export type CaptureScreenshotReturn = {
     /** Base64-encoded image data. */
     data: string;
+  };
+  export type PrintToPDFParameters = {
+    /** Paper orientation. Defaults to false. */
+    landscape?: boolean;
+    /** Display header and footer. Defaults to false. */
+    displayHeaderFooter?: boolean;
+    /** Print background graphics. Defaults to false. */
+    printBackground?: boolean;
+    /** Scale of the webpage rendering. Defaults to 1. */
+    scale?: number;
+    /** Paper width in inches. Defaults to 8.5 inches. */
+    paperWidth?: number;
+    /** Paper height in inches. Defaults to 11 inches. */
+    paperHeight?: number;
+    /** Top margin in inches. Defaults to 1cm (~0.4 inches). */
+    marginTop?: number;
+    /** Bottom margin in inches. Defaults to 1cm (~0.4 inches). */
+    marginBottom?: number;
+    /** Left margin in inches. Defaults to 1cm (~0.4 inches). */
+    marginLeft?: number;
+    /** Right margin in inches. Defaults to 1cm (~0.4 inches). */
+    marginRight?: number;
+    /** Paper ranges to print, e.g., '1-5, 8, 11-13'. Defaults to the empty string, which means print all pages. */
+    pageRanges?: string;
+    /** Whether to silently ignore invalid but successfully parsed page ranges, such as '3-2'. Defaults to false. */
+    ignoreInvalidPageRanges?: boolean;
   };
   export type PrintToPDFReturn = {
     /** Base64-encoded pdf data. */
@@ -866,6 +941,18 @@ export namespace Page {
     visualViewport: VisualViewport;
     /** Size of scrollable area. */
     contentSize: DOM.Rect;
+  };
+  export type CreateIsolatedWorldParameters = {
+    /** Id of the frame in which the isolated world should be created. */
+    frameId: FrameId;
+    /** An optional name which is reported in the Execution Context. */
+    worldName?: string;
+    /** Whether or not universal access should be granted to the isolated world. This is a powerful option, use with caution. */
+    grantUniveralAccess?: boolean;
+  };
+  export type CreateIsolatedWorldReturn = {
+    /** Execution context of the isolated world. */
+    executionContextId: Runtime.ExecutionContextId;
   };
 }
 /** This domain provides various functionality related to drawing atop the inspected page. */
@@ -1100,14 +1187,6 @@ export class Emulation {
   public clearDeviceMetricsOverride() {
     return this._client.send<void>("Emulation.clearDeviceMetricsOverride");
   }
-  /** Overrides the visible area of the page. The change is hidden from the page, i.e. the observable scroll position and page scale does not change. In effect, the command moves the specified area of the page into the top-left corner of the frame. */
-  public forceViewport(params: Emulation.ForceViewportParameters) {
-    return this._client.send<void>("Emulation.forceViewport", params);
-  }
-  /** Resets the visible area of the page to the original viewport, undoing any effects of the <code>forceViewport</code> command. */
-  public resetViewport() {
-    return this._client.send<void>("Emulation.resetViewport");
-  }
   /** Requests that page scale factor is reset to initial values. */
   public resetPageScaleFactor() {
     return this._client.send<void>("Emulation.resetPageScaleFactor");
@@ -1116,7 +1195,7 @@ export class Emulation {
   public setPageScaleFactor(params: Emulation.SetPageScaleFactorParameters) {
     return this._client.send<void>("Emulation.setPageScaleFactor", params);
   }
-  /** Resizes the frame/viewport of the page. Note that this does not affect the frame's container (e.g. browser window). Can be used to produce screenshots of the specified size. Not supported on Android. */
+  /** Deprecated, does nothing. Please use setDeviceMetricsOverride instead. */
   public setVisibleSize(params: Emulation.SetVisibleSizeParameters) {
     return this._client.send<void>("Emulation.setVisibleSize", params);
   }
@@ -1191,7 +1270,7 @@ export namespace Emulation {
     /** Whether to emulate mobile device. This includes viewport meta tag, overlay scrollbars, text autosizing and more. */
     mobile: boolean;
     /** Whether a view that exceeds the available browser window area should be scaled down to fit. */
-    fitWindow: boolean;
+    fitWindow?: boolean;
     /** Scale to apply to resulting view image. Ignored in |fitWindow| mode. */
     scale?: number;
     /** Not used. */
@@ -1208,14 +1287,6 @@ export namespace Emulation {
     positionY?: number;
     /** Screen orientation override. */
     screenOrientation?: ScreenOrientation;
-  };
-  export type ForceViewportParameters = {
-    /** X coordinate of top-left corner of the area (CSS pixels). */
-    x: number;
-    /** Y coordinate of top-left corner of the area (CSS pixels). */
-    y: number;
-    /** Scale to apply to the area (relative to a page scale of 1.0). */
-    scale: number;
   };
   export type SetPageScaleFactorParameters = {
     /** Page scale factor. */
@@ -1325,6 +1396,8 @@ export class Security {
 export namespace Security {
   /** An internal certificate ID value. */
   export type CertificateId = number;
+  /** A description of mixed content (HTTP resources on HTTPS pages), as defined by https://www.w3.org/TR/mixed-content/#categories */
+  export type MixedContentType = "blockable" | "optionally-blockable" | "none";
   /** The security level of a page or resource. */
   export type SecurityState = "unknown" | "neutral" | "insecure" | "warning" | "secure" | "info";
   /** An explanation of an factor contributing to the security state. */
@@ -1337,6 +1410,8 @@ export namespace Security {
     description: string;
     /** True if the page has a certificate. */
     hasCertificate: boolean;
+    /** The type of mixed content described by the explanation. */
+    mixedContentType: MixedContentType;
   }
   /** Information about insecure content on the page. */
   export interface InsecureContentStatus {
@@ -1407,6 +1482,7 @@ export class Network {
   private _webSocketFrameError: Network.WebSocketFrameErrorHandler | null = null;
   private _webSocketFrameSent: Network.WebSocketFrameSentHandler | null = null;
   private _eventSourceMessageReceived: Network.EventSourceMessageReceivedHandler | null = null;
+  private _requestIntercepted: Network.RequestInterceptedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -1494,6 +1570,13 @@ export class Network {
   /** Returns the DER-encoded certificate. */
   public getCertificate(params: Network.GetCertificateParameters) {
     return this._client.send<Network.GetCertificateReturn>("Network.getCertificate", params);
+  }
+  public setRequestInterceptionEnabled(params: Network.SetRequestInterceptionEnabledParameters) {
+    return this._client.send<void>("Network.setRequestInterceptionEnabled", params);
+  }
+  /** Response to Network.requestIntercepted which either modifies the request to continue with any modifications, or blocks it, or completes it with the provided response bytes. If a network fetch occurs as a result which encounters a redirect an additional Network.requestIntercepted event will be sent with the same InterceptionId. */
+  public continueInterceptedRequest(params: Network.ContinueInterceptedRequestParameters) {
+    return this._client.send<void>("Network.continueInterceptedRequest", params);
   }
   /** Fired when resource loading priority is changed */
   get resourceChangedPriority() {
@@ -1690,14 +1773,33 @@ export class Network {
       this._client.on("Network.eventSourceMessageReceived", handler);
     }
   }
+  /** Details of an intercepted HTTP request, which must be either allowed, blocked, modified or mocked. */
+  get requestIntercepted() {
+    return this._requestIntercepted;
+  }
+  set requestIntercepted(handler) {
+    if (this._requestIntercepted) {
+      this._client.removeListener("Network.requestIntercepted", this._requestIntercepted);
+    }
+    this._requestIntercepted = handler;
+    if (handler) {
+      this._client.on("Network.requestIntercepted", handler);
+    }
+  }
 }
 export namespace Network {
   /** Unique loader identifier. */
   export type LoaderId = string;
   /** Unique request identifier. */
   export type RequestId = string;
-  /** Number of seconds since epoch. */
-  export type Timestamp = number;
+  /** Unique intercepted request identifier. */
+  export type InterceptionId = string;
+  /** Network level fetch failure reason. */
+  export type ErrorReason = "Failed" | "Aborted" | "TimedOut" | "AccessDenied" | "ConnectionClosed" | "ConnectionReset" | "ConnectionRefused" | "ConnectionAborted" | "ConnectionFailed" | "NameNotResolved" | "InternetDisconnected" | "AddressUnreachable";
+  /** UTC time in seconds, counted from January 1, 1970. */
+  export type TimeSinceEpoch = number;
+  /** Monotonically increasing time in seconds since an arbitrary point in the past. */
+  export type MonotonicTime = number;
   /** Request / response headers as keys / values of JSON object. */
   export type Headers = any;
   /** Loading priority of a resource request. */
@@ -1751,12 +1853,12 @@ export namespace Network {
     headers: Headers;
     /** HTTP POST request data. */
     postData?: string;
-    /** The mixed content status of the request, as defined in http://www.w3.org/TR/mixed-content/ */
-    mixedContentType?: "blockable" | "optionally-blockable" | "none";
+    /** The mixed content type of the request. */
+    mixedContentType?: Security.MixedContentType;
     /** Priority of the resource request at the time request is sent. */
     initialPriority: ResourcePriority;
     /** The referrer policy of the request, as defined in https://www.w3.org/TR/referrer-policy/ */
-    referrerPolicy: "unsafe-url" | "no-referrer-when-downgrade" | "no-referrer" | "origin" | "origin-when-cross-origin" | "no-referrer-when-downgrade-origin-when-cross-origin";
+    referrerPolicy: "unsafe-url" | "no-referrer-when-downgrade" | "no-referrer" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin";
     /** Whether is loaded via link preload. */
     isLinkPreload?: boolean;
   }
@@ -1771,7 +1873,7 @@ export namespace Network {
     /** Log ID. */
     logId: string;
     /** Issuance date. */
-    timestamp: Timestamp;
+    timestamp: TimeSinceEpoch;
     /** Hash algorithm. */
     hashAlgorithm: string;
     /** Signature algorithm. */
@@ -1800,9 +1902,9 @@ export namespace Network {
     /** Name of the issuing CA. */
     issuer: string;
     /** Certificate valid from date. */
-    validFrom: Timestamp;
+    validFrom: TimeSinceEpoch;
     /** Certificate valid to (expiration) date */
-    validTo: Timestamp;
+    validTo: TimeSinceEpoch;
     /** List of signed certificate timestamps (SCTs). */
     signedCertificateTimestampList: SignedCertificateTimestamp[];
   }
@@ -1895,9 +1997,9 @@ export namespace Network {
     type: "parser" | "script" | "preload" | "other";
     /** Initiator JavaScript stack trace, set for Script only. */
     stack?: Runtime.StackTrace;
-    /** Initiator URL, set for Parser type only. */
+    /** Initiator URL, set for Parser type or for Script type (when script is importing module). */
     url?: string;
-    /** Initiator line number, set for Parser type only (0-based). */
+    /** Initiator line number, set for Parser type or for Script type (when script is importing module) (0-based). */
     lineNumber?: number;
   }
   /** Cookie object */
@@ -1923,36 +2025,56 @@ export namespace Network {
     /** Cookie SameSite type. */
     sameSite?: CookieSameSite;
   }
+  /** Authorization challenge for HTTP status code 401 or 407. */
+  export interface AuthChallenge {
+    /** Source of the authentication challenge. */
+    source?: "Server" | "Proxy";
+    /** Origin of the challenger. */
+    origin: string;
+    /** The authentication scheme used, such as basic or digest */
+    scheme: string;
+    /** The realm of the challenge. May be empty. */
+    realm: string;
+  }
+  /** Response to an AuthChallenge. */
+  export interface AuthChallengeResponse {
+    /** The decision on what to do in response to the authorization challenge.  Default means deferring to the default behavior of the net stack, which will likely either the Cancel authentication or display a popup dialog box. */
+    response: "Default" | "CancelAuth" | "ProvideCredentials";
+    /** The username to provide, possibly empty. Should only be set if response is ProvideCredentials. */
+    username?: string;
+    /** The password to provide, possibly empty. Should only be set if response is ProvideCredentials. */
+    password?: string;
+  }
   export type ResourceChangedPriorityParameters = {
     /** Request identifier. */
     requestId: RequestId;
     /** New priority */
     newPriority: ResourcePriority;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
   };
   export type ResourceChangedPriorityHandler = (params: ResourceChangedPriorityParameters) => void;
   export type RequestWillBeSentParameters = {
     /** Request identifier. */
     requestId: RequestId;
-    /** Frame identifier. */
-    frameId: Page.FrameId;
-    /** Loader identifier. */
+    /** Loader identifier. Empty string if the request is fetched form worker. */
     loaderId: LoaderId;
     /** URL of the document this request is loaded for. */
     documentURL: string;
     /** Request data. */
     request: Request;
     /** Timestamp. */
-    timestamp: Timestamp;
-    /** UTC Timestamp. */
-    wallTime: Timestamp;
+    timestamp: MonotonicTime;
+    /** Timestamp. */
+    wallTime: TimeSinceEpoch;
     /** Request initiator. */
     initiator: Initiator;
     /** Redirect response data. */
     redirectResponse?: Response;
     /** Type of this resource. */
     type?: Page.ResourceType;
+    /** Frame identifier. */
+    frameId?: Page.FrameId;
   };
   export type RequestWillBeSentHandler = (params: RequestWillBeSentParameters) => void;
   export type RequestServedFromCacheParameters = {
@@ -1963,23 +2085,23 @@ export namespace Network {
   export type ResponseReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
-    /** Frame identifier. */
-    frameId: Page.FrameId;
-    /** Loader identifier. */
+    /** Loader identifier. Empty string if the request is fetched form worker. */
     loaderId: LoaderId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** Resource type. */
     type: Page.ResourceType;
     /** Response data. */
     response: Response;
+    /** Frame identifier. */
+    frameId?: Page.FrameId;
   };
   export type ResponseReceivedHandler = (params: ResponseReceivedParameters) => void;
   export type DataReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** Data chunk length. */
     dataLength: number;
     /** Actual bytes received (might be less than dataLength for compressed encodings). */
@@ -1990,7 +2112,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** Total number of bytes received for this request. */
     encodedDataLength: number;
   };
@@ -1999,7 +2121,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** Resource type. */
     type: Page.ResourceType;
     /** User friendly error message. */
@@ -2014,9 +2136,9 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** UTC Timestamp. */
-    wallTime: Timestamp;
+    wallTime: TimeSinceEpoch;
     /** WebSocket request data. */
     request: WebSocketRequest;
   };
@@ -2025,7 +2147,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** WebSocket response data. */
     response: WebSocketResponse;
   };
@@ -2043,14 +2165,14 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
   };
   export type WebSocketClosedHandler = (params: WebSocketClosedParameters) => void;
   export type WebSocketFrameReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** WebSocket response data. */
     response: WebSocketFrame;
   };
@@ -2059,7 +2181,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** WebSocket frame error message. */
     errorMessage: string;
   };
@@ -2068,7 +2190,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** WebSocket response data. */
     response: WebSocketFrame;
   };
@@ -2077,7 +2199,7 @@ export namespace Network {
     /** Request identifier. */
     requestId: RequestId;
     /** Timestamp. */
-    timestamp: Timestamp;
+    timestamp: MonotonicTime;
     /** Message type. */
     eventName: string;
     /** Message identifier. */
@@ -2086,6 +2208,22 @@ export namespace Network {
     data: string;
   };
   export type EventSourceMessageReceivedHandler = (params: EventSourceMessageReceivedParameters) => void;
+  export type RequestInterceptedParameters = {
+    /** Each request the page makes will have a unique id, however if any redirects are encountered while processing that fetch, they will be reported with the same id as the original fetch. Likewise if HTTP authentication is needed then the same fetch id will be used. */
+    interceptionId: InterceptionId;
+    request: Request;
+    /** How the requested resource will be used. */
+    resourceType: Page.ResourceType;
+    /** HTTP response headers, only sent if a redirect was intercepted. */
+    redirectHeaders?: Headers;
+    /** HTTP response code, only sent if a redirect was intercepted. */
+    redirectStatusCode?: number;
+    /** Redirect location, only sent if a redirect was intercepted. */
+    redirectUrl?: string;
+    /** Details of the Authorization Challenge encountered. If this is set then continueInterceptedRequest must contain an authChallengeResponse. */
+    authChallenge?: AuthChallenge;
+  };
+  export type RequestInterceptedHandler = (params: RequestInterceptedParameters) => void;
   export type EnableParameters = {
     /** Buffer size in bytes to use when preserving network payloads (XHRs, etc). */
     maxTotalBufferSize?: number;
@@ -2162,7 +2300,7 @@ export namespace Network {
     /** Defaults to browser default behavior. */
     sameSite?: CookieSameSite;
     /** If omitted, the cookie becomes a session cookie. */
-    expirationDate?: Timestamp;
+    expirationDate?: TimeSinceEpoch;
   };
   export type SetCookieReturn = {
     /** True if successfully set cookie. */
@@ -2204,6 +2342,27 @@ export namespace Network {
   };
   export type GetCertificateReturn = {
     tableNames: string[];
+  };
+  export type SetRequestInterceptionEnabledParameters = {
+    /** Whether or not HTTP requests should be intercepted and Network.requestIntercepted events sent. */
+    enabled: boolean;
+  };
+  export type ContinueInterceptedRequestParameters = {
+    interceptionId: InterceptionId;
+    /** If set this causes the request to fail with the given reason. Must not be set in response to an authChallenge. */
+    errorReason?: ErrorReason;
+    /** If set the requests completes using with the provided base64 encoded raw response, including HTTP status line and headers etc... Must not be set in response to an authChallenge. */
+    rawResponse?: string;
+    /** If set the request url will be modified in a way that's not observable by page. Must not be set in response to an authChallenge. */
+    url?: string;
+    /** If set this allows the request method to be overridden. Must not be set in response to an authChallenge. */
+    method?: string;
+    /** If set this allows postData to be set. Must not be set in response to an authChallenge. */
+    postData?: string;
+    /** If set this allows the request headers to be changed. Must not be set in response to an authChallenge. */
+    headers?: Headers;
+    /** Response to a requestIntercepted with an authChallenge. Must not be set otherwise. */
+    authChallengeResponse?: AuthChallengeResponse;
   };
 }
 export class Database {
@@ -2474,8 +2633,10 @@ export namespace CacheStorage {
   export interface DataEntry {
     /** Request url spec. */
     request: string;
-    /** Response stataus text. */
+    /** Response status text. */
     response: string;
+    /** Number of seconds since epoch. */
+    responseTime: number;
   }
   /** Cache identifier. */
   export interface Cache {
@@ -2887,7 +3048,7 @@ export class DOM {
   public setInspectedNode(params: DOM.SetInspectedNodeParameters) {
     return this._client.send<void>("DOM.setInspectedNode", params);
   }
-  /** Resolves JavaScript node object for given node id. */
+  /** Resolves the JavaScript node object for a given NodeId or BackendNodeId. */
   public resolveNode(params: DOM.ResolveNodeParameters) {
     return this._client.send<DOM.ResolveNodeReturn>("DOM.resolveNode", params);
   }
@@ -3508,7 +3669,9 @@ export namespace DOM {
   };
   export type ResolveNodeParameters = {
     /** Id of the node to resolve. */
-    nodeId: NodeId;
+    nodeId?: NodeId;
+    /** Backend identifier of the node to resolve. */
+    backendNodeId?: DOM.BackendNodeId;
     /** Symbolic group name that can be used to release multiple objects. */
     objectGroup?: string;
   };
@@ -3549,18 +3712,30 @@ export namespace DOM {
     nodeId: NodeId;
   };
   export type FocusParameters = {
-    /** Id of the node to focus. */
-    nodeId: NodeId;
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
   };
   export type SetFileInputFilesParameters = {
-    /** Id of the file input node to set files for. */
-    nodeId: NodeId;
     /** Array of file paths to set. */
     files: string[];
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
   };
   export type GetBoxModelParameters = {
-    /** Id of the node to get box model for. */
-    nodeId: NodeId;
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
   };
   export type GetBoxModelReturn = {
     /** Box model for the node. */
@@ -3587,7 +3762,7 @@ export namespace DOM {
     nodeId: NodeId;
   };
 }
-/** This domain exposes CSS read/write operations. All CSS objects (stylesheets, rules, and styles) have an associated <code>id</code> used in subsequent operations on the related object. Each object type has a specific <code>id</code> structure, and those are not interchangeable between objects of different kinds. CSS objects can be loaded using the <code>get*ForNode()</code> calls (which accept a DOM node id). A client can also discover all the existing stylesheets with the <code>getAllStyleSheets()</code> method (or keeping track of the <code>styleSheetAdded</code>/<code>styleSheetRemoved</code> events) and subsequently load the required stylesheet contents using the <code>getStyleSheet[Text]()</code> methods. */
+/** This domain exposes CSS read/write operations. All CSS objects (stylesheets, rules, and styles) have an associated <code>id</code> used in subsequent operations on the related object. Each object type has a specific <code>id</code> structure, and those are not interchangeable between objects of different kinds. CSS objects can be loaded using the <code>get*ForNode()</code> calls (which accept a DOM node id). A client can also keep track of stylesheets via the <code>styleSheetAdded</code>/<code>styleSheetRemoved</code> events and subsequently load the required stylesheet contents using the <code>getStyleSheet[Text]()</code> methods. */
 export class CSS {
   private _mediaQueryResultChanged: CSS.MediaQueryResultChangedHandler | null = null;
   private _fontsUpdated: CSS.FontsUpdatedHandler | null = null;
@@ -3672,10 +3847,6 @@ export class CSS {
   }
   public getBackgroundColors(params: CSS.GetBackgroundColorsParameters) {
     return this._client.send<CSS.GetBackgroundColorsReturn>("CSS.getBackgroundColors", params);
-  }
-  /** For the main document and any content documents, return the LayoutTreeNodes and a whitelisted subset of the computed style. It only returns pushed nodes, on way to pull all nodes is to call DOM.getDocument with a depth of -1. */
-  public getLayoutTreeAndStyles(params: CSS.GetLayoutTreeAndStylesParameters) {
-    return this._client.send<CSS.GetLayoutTreeAndStylesReturn>("CSS.getLayoutTreeAndStyles", params);
   }
   /** Enables the selector recording. */
   public startRuleUsageTracking() {
@@ -3984,23 +4155,6 @@ export namespace CSS {
     /** The number of characters in this post layout textbox substring. */
     numCharacters: number;
   }
-  /** Details of an element in the DOM tree with a LayoutObject. */
-  export interface LayoutTreeNode {
-    /** The id of the related DOM node matching one from DOM.GetDocument. */
-    nodeId: DOM.NodeId;
-    /** The absolute position bounding box. */
-    boundingBox: DOM.Rect;
-    /** Contents of the LayoutText if any */
-    layoutText?: string;
-    /** The post layout inline text nodes, if any. */
-    inlineTextNodes?: InlineTextBox[];
-    /** Index into the computedStyles array returned by getLayoutTreeAndStyles. */
-    styleIndex?: number;
-  }
-  /** A subset of the full ComputedStyle as defined by the request whitelist. */
-  export interface ComputedStyle {
-    properties: CSSComputedStyleProperty[];
-  }
   export type MediaQueryResultChangedHandler = () => void;
   export type FontsUpdatedHandler = () => void;
   export type StyleSheetChangedParameters = {
@@ -4156,19 +4310,110 @@ export namespace CSS {
     /** The range of background colors behind this element, if it contains any visible text. If no visible text is present, this will be undefined. In the case of a flat background color, this will consist of simply that color. In the case of a gradient, this will consist of each of the color stops. For anything more complicated, this will be an empty array. Images will be ignored (as if the image had failed to load). */
     backgroundColors?: string[];
   };
-  export type GetLayoutTreeAndStylesParameters = {
-    /** Whitelist of computed styles to return. */
-    computedStyleWhitelist: string[];
-  };
-  export type GetLayoutTreeAndStylesReturn = {
-    layoutTreeNodes: LayoutTreeNode[];
-    computedStyles: ComputedStyle[];
-  };
   export type TakeCoverageDeltaReturn = {
     coverage: RuleUsage[];
   };
   export type StopRuleUsageTrackingReturn = {
     ruleUsage: RuleUsage[];
+  };
+}
+/** This domain facilitates obtaining document snapshots with DOM, layout, and style information. */
+export class DOMSnapshot {
+  private _client: IDebuggingProtocolClient;
+  constructor(client: IDebuggingProtocolClient) {
+    this._client = client;
+  }
+  /** Returns a document snapshot, including the full DOM tree of the root node (including iframes, template contents, and imported documents) in a flattened array, as well as layout and white-listed computed style information for the nodes. Shadow DOM in the returned DOM tree is flattened.  */
+  public getSnapshot(params: DOMSnapshot.GetSnapshotParameters) {
+    return this._client.send<DOMSnapshot.GetSnapshotReturn>("DOMSnapshot.getSnapshot", params);
+  }
+}
+export namespace DOMSnapshot {
+  /** A Node in the DOM tree. */
+  export interface DOMNode {
+    /** <code>Node</code>'s nodeType. */
+    nodeType: number;
+    /** <code>Node</code>'s nodeName. */
+    nodeName: string;
+    /** <code>Node</code>'s nodeValue. */
+    nodeValue: string;
+    /** Only set for textarea elements, contains the text value. */
+    textValue?: string;
+    /** Only set for input elements, contains the input's associated text value. */
+    inputValue?: string;
+    /** Only set for radio and checkbox input elements, indicates if the element has been checked */
+    inputChecked?: boolean;
+    /** Only set for option elements, indicates if the element has been selected */
+    optionSelected?: boolean;
+    /** <code>Node</code>'s id, corresponds to DOM.Node.backendNodeId. */
+    backendNodeId: DOM.BackendNodeId;
+    /** The indexes of the node's child nodes in the <code>domNodes</code> array returned by <code>getSnapshot</code>, if any. */
+    childNodeIndexes?: number[];
+    /** Attributes of an <code>Element</code> node. */
+    attributes?: NameValue[];
+    /** Indexes of pseudo elements associated with this node in the <code>domNodes</code> array returned by <code>getSnapshot</code>, if any. */
+    pseudoElementIndexes?: number[];
+    /** The index of the node's related layout tree node in the <code>layoutTreeNodes</code> array returned by <code>getSnapshot</code>, if any. */
+    layoutNodeIndex?: number;
+    /** Document URL that <code>Document</code> or <code>FrameOwner</code> node points to. */
+    documentURL?: string;
+    /** Base URL that <code>Document</code> or <code>FrameOwner</code> node uses for URL completion. */
+    baseURL?: string;
+    /** Only set for documents, contains the document's content language. */
+    contentLanguage?: string;
+    /** <code>DocumentType</code> node's publicId. */
+    publicId?: string;
+    /** <code>DocumentType</code> node's systemId. */
+    systemId?: string;
+    /** Frame ID for frame owner elements. */
+    frameId?: Page.FrameId;
+    /** The index of a frame owner element's content document in the <code>domNodes</code> array returned by <code>getSnapshot</code>, if any. */
+    contentDocumentIndex?: number;
+    /** Index of the imported document's node of a link element in the <code>domNodes</code> array returned by <code>getSnapshot</code>, if any. */
+    importedDocumentIndex?: number;
+    /** Index of the content node of a template element in the <code>domNodes</code> array returned by <code>getSnapshot</code>. */
+    templateContentIndex?: number;
+    /** Type of a pseudo element node. */
+    pseudoType?: DOM.PseudoType;
+    /** Whether this DOM node responds to mouse clicks. This includes nodes that have had click event listeners attached via JavaScript as well as anchor tags that naturally navigate when clicked. */
+    isClickable?: boolean;
+  }
+  /** Details of an element in the DOM tree with a LayoutObject. */
+  export interface LayoutTreeNode {
+    /** The index of the related DOM node in the <code>domNodes</code> array returned by <code>getSnapshot</code>. */
+    domNodeIndex: number;
+    /** The absolute position bounding box. */
+    boundingBox: DOM.Rect;
+    /** Contents of the LayoutText, if any. */
+    layoutText?: string;
+    /** The post-layout inline text nodes, if any. */
+    inlineTextNodes?: CSS.InlineTextBox[];
+    /** Index into the <code>computedStyles</code> array returned by <code>getSnapshot</code>. */
+    styleIndex?: number;
+  }
+  /** A subset of the full ComputedStyle as defined by the request whitelist. */
+  export interface ComputedStyle {
+    /** Name/value pairs of computed style properties. */
+    properties: NameValue[];
+  }
+  /** A name/value pair. */
+  export interface NameValue {
+    /** Attribute/property name. */
+    name: string;
+    /** Attribute/property value. */
+    value: string;
+  }
+  export type GetSnapshotParameters = {
+    /** Whitelist of computed styles to return. */
+    computedStyleWhitelist: string[];
+  };
+  export type GetSnapshotReturn = {
+    /** The nodes in the DOM tree. The DOMNode at index 0 corresponds to the root document. */
+    domNodes: DOMNode[];
+    /** The nodes in the layout tree. */
+    layoutTreeNodes: LayoutTreeNode[];
+    /** Whitelisted ComputedStyle properties for each node in the layout tree. */
+    computedStyles: ComputedStyle[];
   };
 }
 /** Input/Output operations for streams produced by DevTools. */
@@ -4332,6 +4577,7 @@ export namespace DOMDebugger {
 /** Supports additional targets discovery and allows to attach to them. */
 export class Target {
   private _targetCreated: Target.TargetCreatedHandler | null = null;
+  private _targetInfoChanged: Target.TargetInfoChangedHandler | null = null;
   private _targetDestroyed: Target.TargetDestroyedHandler | null = null;
   private _attachedToTarget: Target.AttachedToTargetHandler | null = null;
   private _detachedFromTarget: Target.DetachedFromTargetHandler | null = null;
@@ -4340,7 +4586,7 @@ export class Target {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
-  /** Controls whether to discover available targets and notify via <code>targetCreated/targetDestroyed</code> events. */
+  /** Controls whether to discover available targets and notify via <code>targetCreated/targetInfoChanged/targetDestroyed</code> events. */
   public setDiscoverTargets(params: Target.SetDiscoverTargetsParameters) {
     return this._client.send<void>("Target.setDiscoverTargets", params);
   }
@@ -4408,6 +4654,19 @@ export class Target {
       this._client.on("Target.targetCreated", handler);
     }
   }
+  /** Issued when some information about a target has changed. This only happens between <code>targetCreated</code> and <code>targetDestroyed</code>. */
+  get targetInfoChanged() {
+    return this._targetInfoChanged;
+  }
+  set targetInfoChanged(handler) {
+    if (this._targetInfoChanged) {
+      this._client.removeListener("Target.targetInfoChanged", this._targetInfoChanged);
+    }
+    this._targetInfoChanged = handler;
+    if (handler) {
+      this._client.on("Target.targetInfoChanged", handler);
+    }
+  }
   /** Issued when a target is destroyed. */
   get targetDestroyed() {
     return this._targetDestroyed;
@@ -4469,6 +4728,8 @@ export namespace Target {
     type: string;
     title: string;
     url: string;
+    /** Whether the target has an attached client. */
+    attached: boolean;
   }
   export interface RemoteLocation {
     host: string;
@@ -4478,6 +4739,10 @@ export namespace Target {
     targetInfo: TargetInfo;
   };
   export type TargetCreatedHandler = (params: TargetCreatedParameters) => void;
+  export type TargetInfoChangedParameters = {
+    targetInfo: TargetInfo;
+  };
+  export type TargetInfoChangedHandler = (params: TargetInfoChangedParameters) => void;
   export type TargetDestroyedParameters = {
     targetId: TargetID;
   };
@@ -4732,6 +4997,10 @@ export class Input {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
+  /** Ignores input events (useful while auditing page). */
+  public setIgnoreInputEvents(params: Input.SetIgnoreInputEventsParameters) {
+    return this._client.send<void>("Input.setIgnoreInputEvents", params);
+  }
   /** Dispatches a key event to the page. */
   public dispatchKeyEvent(params: Input.DispatchKeyEventParameters) {
     return this._client.send<void>("Input.dispatchKeyEvent", params);
@@ -4781,13 +5050,19 @@ export namespace Input {
     id?: number;
   }
   export type GestureSourceType = "default" | "touch" | "mouse";
+  /** UTC time in seconds, counted from January 1, 1970. */
+  export type TimeSinceEpoch = number;
+  export type SetIgnoreInputEventsParameters = {
+    /** Ignores input events processing when set to true. */
+    ignore: boolean;
+  };
   export type DispatchKeyEventParameters = {
     /** Type of the key event. */
     type: "keyDown" | "keyUp" | "rawKeyDown" | "char";
     /** Bit field representing pressed modifier keys. Alt=1, Ctrl=2, Meta/Command=4, Shift=8 (default: 0). */
     modifiers?: number;
-    /** Time at which the event occurred. Measured in UTC time in seconds since January 1, 1970 (default: current time). */
-    timestamp?: number;
+    /** Time at which the event occurred. */
+    timestamp?: TimeSinceEpoch;
     /** Text as generated by processing a virtual key code with a keyboard layout. Not needed for for <code>keyUp</code> and <code>rawKeyDown</code> events (default: "") */
     text?: string;
     /** Text that would have been generated by the keyboard if no modifiers were pressed (except for shift). Useful for shortcut (accelerator) key handling (default: ""). */
@@ -4812,14 +5087,14 @@ export namespace Input {
   export type DispatchMouseEventParameters = {
     /** Type of the mouse event. */
     type: "mousePressed" | "mouseReleased" | "mouseMoved";
-    /** X coordinate of the event relative to the main frame's viewport. */
+    /** X coordinate of the event relative to the main frame's viewport in CSS pixels. */
     x: number;
-    /** Y coordinate of the event relative to the main frame's viewport. 0 refers to the top of the viewport and Y increases as it proceeds towards the bottom of the viewport. */
+    /** Y coordinate of the event relative to the main frame's viewport in CSS pixels. 0 refers to the top of the viewport and Y increases as it proceeds towards the bottom of the viewport. */
     y: number;
     /** Bit field representing pressed modifier keys. Alt=1, Ctrl=2, Meta/Command=4, Shift=8 (default: 0). */
     modifiers?: number;
-    /** Time at which the event occurred. Measured in UTC time in seconds since January 1, 1970 (default: current time). */
-    timestamp?: number;
+    /** Time at which the event occurred. */
+    timestamp?: TimeSinceEpoch;
     /** Mouse button (default: "none"). */
     button?: "none" | "left" | "middle" | "right";
     /** Number of times the mouse button was clicked (default: 0). */
@@ -4832,8 +5107,8 @@ export namespace Input {
     touchPoints: TouchPoint[];
     /** Bit field representing pressed modifier keys. Alt=1, Ctrl=2, Meta/Command=4, Shift=8 (default: 0). */
     modifiers?: number;
-    /** Time at which the event occurred. Measured in UTC time in seconds since January 1, 1970 (default: current time). */
-    timestamp?: number;
+    /** Time at which the event occurred. */
+    timestamp?: TimeSinceEpoch;
   };
   export type EmulateTouchFromMouseEventParameters = {
     /** Type of the mouse event. */
@@ -4842,8 +5117,8 @@ export namespace Input {
     x: number;
     /** Y coordinate of the mouse pointer in DIP. */
     y: number;
-    /** Time at which the event occurred. Measured in UTC time in seconds since January 1, 1970. */
-    timestamp: number;
+    /** Time at which the event occurred. */
+    timestamp: TimeSinceEpoch;
     /** Mouse button. */
     button: "none" | "left" | "middle" | "right";
     /** X delta in DIP for mouse wheel event (default: 0). */
@@ -5593,15 +5868,38 @@ export class Storage {
   public clearDataForOrigin(params: Storage.ClearDataForOriginParameters) {
     return this._client.send<void>("Storage.clearDataForOrigin", params);
   }
+  /** Returns usage and quota in bytes. */
+  public getUsageAndQuota(params: Storage.GetUsageAndQuotaParameters) {
+    return this._client.send<Storage.GetUsageAndQuotaReturn>("Storage.getUsageAndQuota", params);
+  }
 }
 export namespace Storage {
   /** Enum of possible storage types. */
-  export type StorageType = "appcache" | "cookies" | "file_systems" | "indexeddb" | "local_storage" | "shader_cache" | "websql" | "service_workers" | "cache_storage" | "all";
+  export type StorageType = "appcache" | "cookies" | "file_systems" | "indexeddb" | "local_storage" | "shader_cache" | "websql" | "service_workers" | "cache_storage" | "all" | "other";
+  /** Usage for a storage type. */
+  export interface UsageForType {
+    /** Name of storage type. */
+    storageType: StorageType;
+    /** Storage usage (bytes). */
+    usage: number;
+  }
   export type ClearDataForOriginParameters = {
     /** Security origin. */
     origin: string;
     /** Comma separated origin names. */
     storageTypes: string;
+  };
+  export type GetUsageAndQuotaParameters = {
+    /** Security origin. */
+    origin: string;
+  };
+  export type GetUsageAndQuotaReturn = {
+    /** Storage usage (bytes). */
+    usage: number;
+    /** Storage quota (bytes). */
+    quota: number;
+    /** Storage usage per type (bytes). */
+    usageBreakdown: UsageForType[];
   };
 }
 /** Provides access to log entries. */
@@ -5725,6 +6023,8 @@ export namespace SystemInfo {
     modelName: string;
     /** A platform-dependent description of the version of the machine. On Mac OS, this is, for example, '10.1'. Will be the empty string if not supported. */
     modelVersion: string;
+    /** The command line string used to launch the browser. Will be the empty string if not supported. */
+    commandLine: string;
   };
 }
 /** The Tethering domain defines methods and events for browser port binding. */
@@ -6215,6 +6515,8 @@ export namespace Runtime {
     timestamp: Timestamp;
     /** Stack trace captured when the call was made. */
     stackTrace?: StackTrace;
+    /** Console context descriptor for calls on non-default console context (not console.*): 'anonymous#unique-logger-id' for call on unnamed context, 'name#unique-logger-id' for call on named context. */
+    context?: string;
   };
   export type ConsoleAPICalledHandler = (params: ConsoleAPICalledParameters) => void;
   export type InspectRequestedParameters = {
@@ -6738,6 +7040,7 @@ export namespace Debugger {
   export type ContinueToLocationParameters = {
     /** Location to continue to. */
     location: Location;
+    targetCallFrames?: "any" | "current";
   };
   export type SearchInContentParameters = {
     /** Id of the script to search in. */
@@ -7012,6 +7315,8 @@ export namespace Profiler {
     functionName: string;
     /** Source ranges inside the function with coverage data. */
     ranges: CoverageRange[];
+    /** Whether coverage data for this function has block granularity. */
+    isBlockCoverage: boolean;
   }
   /** Coverage data for a JavaScript script. */
   export interface ScriptCoverage {

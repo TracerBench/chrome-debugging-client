@@ -50,7 +50,7 @@
   "devDependencies": {
     "faucet": "0.0.1",
     "tape": "^4.4.0",
-    "tslint": "^5.2.0",
+    "tslint": "^5.5.0",
     "typescript": "^2.3.2"
   },
   "engine": "node >= 4.0.0"

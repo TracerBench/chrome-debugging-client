@@ -3,9 +3,9 @@ import { createSession } from "../index";
 import { HeapProfiler } from "../protocol/tot";
 
 tape("test REST API", async (t) => {
-  createSession(async (session) => {
+  await createSession(async (session) => {
     const browser = await session.spawnBrowser("exact", {
-      additionalArguments: ['--headless'],
+      additionalArguments: ["--headless"],
       executablePath: process.env.CHROME_BIN,
       windowSize: { width: 320, height: 640 },
     });
@@ -26,9 +26,9 @@ tape("test REST API", async (t) => {
 });
 
 tape("test debugging protocol domains", async (t) => {
-  createSession(async (session) => {
+  await createSession(async (session) => {
     const browser = await session.spawnBrowser("exact", {
-      additionalArguments: ['--headless'],
+      additionalArguments: ["--headless"],
       executablePath: process.env.CHROME_BIN,
     });
     const apiClient = session.createAPIClient("localhost", browser.remoteDebuggingPort);

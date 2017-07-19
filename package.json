@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "An async/await friendly Chrome debugging client with TypeScript support",
   "keywords": [
     "chrome",

@@ -62,3 +62,12 @@ createSession(async (session) => {
   console.error(err);
 });
 ```
+
+## customize browser executable path
+By default, this tool launches Chrome Canary. It may error if it cannot find the executable. For this and other reasons, you can configure the executable path like so:
+```js
+// example for macOS
+let browser = await session.spawnBrowser('exact', {
+ executablePath: '/Users/someone/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
+});
+```

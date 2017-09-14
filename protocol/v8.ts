@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Wed Jul 19 2017 13:57:10 GMT-0700 (PDT)
+ * Generated on Thu Sep 14 2017 10:58:48 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -91,6 +91,9 @@ export class Runtime {
   /** Runs script with given id in a given context. */
   public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
+  }
+  public queryObjects(params: Runtime.QueryObjectsParameters) {
+    return this._client.send<Runtime.QueryObjectsReturn>("Runtime.queryObjects", params);
   }
   /** Issued when new execution context is created. */
   get executionContextCreated() {
@@ -283,7 +286,7 @@ export namespace Runtime {
   }
   /** Represents function call argument. Either remote object id <code>objectId</code>, primitive <code>value</code>, unserializable primitive value or neither of (for undefined) them should be specified. */
   export interface CallArgument {
-    /** Primitive value. */
+    /** Primitive value or serializable javascript object. */
     value?: any;
     /** Primitive value which can not be JSON-stringified. */
     unserializableValue?: UnserializableValue;
@@ -411,7 +414,7 @@ export namespace Runtime {
     generatePreview?: boolean;
     /** Whether execution should be treated as initiated by user in the UI. */
     userGesture?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
   };
   export type EvaluateReturn = {
@@ -435,10 +438,10 @@ export namespace Runtime {
     exceptionDetails?: ExceptionDetails;
   };
   export type CallFunctionOnParameters = {
-    /** Identifier of the object to call function on. */
-    objectId: RemoteObjectId;
     /** Declaration of the function to call. */
     functionDeclaration: string;
+    /** Identifier of the object to call function on. Either objectId or executionContextId should be specified. */
+    objectId?: RemoteObjectId;
     /** Call arguments. All call arguments must belong to the same JavaScript world as the target object. */
     arguments?: CallArgument[];
     /** In silent mode exceptions thrown during evaluation are not reported and do not pause execution. Overrides <code>setPauseOnException</code> state. */
@@ -449,8 +452,12 @@ export namespace Runtime {
     generatePreview?: boolean;
     /** Whether execution should be treated as initiated by user in the UI. */
     userGesture?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
+    /** Specifies execution context which global object will be used to call function on. Either executionContextId or objectId should be specified. */
+    executionContextId?: ExecutionContextId;
+    /** Symbolic group name that can be used to release multiple objects. If objectGroup is not specified and objectId is, objectGroup will be inherited from object. */
+    objectGroup?: string;
   };
   export type CallFunctionOnReturn = {
     /** Call result. */
@@ -518,7 +525,7 @@ export namespace Runtime {
     returnByValue?: boolean;
     /** Whether preview should be generated for the result. */
     generatePreview?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
   };
   export type RunScriptReturn = {
@@ -526,6 +533,14 @@ export namespace Runtime {
     result: RemoteObject;
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
+  };
+  export type QueryObjectsParameters = {
+    /** Identifier of the prototype to return objects for. */
+    prototypeObjectId: RemoteObjectId;
+  };
+  export type QueryObjectsReturn = {
+    /** Array with objects. */
+    objects: RemoteObject;
   };
 }
 /** Debugger domain exposes JavaScript debugging capabilities. It allows setting and removing breakpoints, stepping through execution, exploring stack traces, etc. */
@@ -734,6 +749,8 @@ export namespace Debugger {
     functionLocation?: Location;
     /** Location in the source code. */
     location: Location;
+    /** JavaScript script name or url. */
+    url: string;
     /** Scope chain for this call frame. */
     scopeChain: Scope[];
     /** <code>this</code> object for this call frame. */
@@ -1108,6 +1125,18 @@ export class Profiler {
   public getBestEffortCoverage() {
     return this._client.send<Profiler.GetBestEffortCoverageReturn>("Profiler.getBestEffortCoverage");
   }
+  /** Enable type profile. */
+  public startTypeProfile() {
+    return this._client.send<void>("Profiler.startTypeProfile");
+  }
+  /** Disable type profile. Disabling releases type profile data collected so far. */
+  public stopTypeProfile() {
+    return this._client.send<void>("Profiler.stopTypeProfile");
+  }
+  /** Collect type profile. */
+  public takeTypeProfile() {
+    return this._client.send<Profiler.TakeTypeProfileReturn>("Profiler.takeTypeProfile");
+  }
   /** Sent when new profile recording is started using console.profile() call. */
   get consoleProfileStarted() {
     return this._consoleProfileStarted;
@@ -1197,6 +1226,27 @@ export namespace Profiler {
     /** Functions contained in the script that has coverage data. */
     functions: FunctionCoverage[];
   }
+  /** Describes a type collected during runtime. */
+  export interface TypeObject {
+    /** Name of a type collected with type profiling. */
+    name: string;
+  }
+  /** Source offset and types for a parameter or return value. */
+  export interface TypeProfileEntry {
+    /** Source offset of the parameter or end of function for return values. */
+    offset: number;
+    /** The types for this parameter or return value. */
+    types: TypeObject[];
+  }
+  /** Type profile data collected during runtime for a JavaScript script. */
+  export interface ScriptTypeProfile {
+    /** JavaScript script id. */
+    scriptId: Runtime.ScriptId;
+    /** JavaScript script name or url. */
+    url: string;
+    /** Type profile entries for parameters and return values of the functions in the script. */
+    entries: TypeProfileEntry[];
+  }
   export type ConsoleProfileStartedParameters = {
     id: string;
     /** Location of console.profile(). */
@@ -1225,6 +1275,8 @@ export namespace Profiler {
   export type StartPreciseCoverageParameters = {
     /** Collect accurate call counts beyond simple 'covered' or 'not covered'. */
     callCount?: boolean;
+    /** Collect block-based coverage. */
+    detailed?: boolean;
   };
   export type TakePreciseCoverageReturn = {
     /** Coverage data for the current isolate. */
@@ -1233,6 +1285,10 @@ export namespace Profiler {
   export type GetBestEffortCoverageReturn = {
     /** Coverage data for the current isolate. */
     result: ScriptCoverage[];
+  };
+  export type TakeTypeProfileReturn = {
+    /** Type profile for all scripts since startTypeProfile() was turned on. */
+    result: ScriptTypeProfile[];
   };
 }
 export class HeapProfiler {

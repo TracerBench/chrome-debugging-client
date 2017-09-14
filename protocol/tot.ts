@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Wed Jul 19 2017 13:57:10 GMT-0700 (PDT)
+ * Generated on Thu Sep 14 2017 10:58:48 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -62,6 +62,9 @@ export class Memory {
   public getDOMCounters() {
     return this._client.send<Memory.GetDOMCountersReturn>("Memory.getDOMCounters");
   }
+  public prepareForLeakDetection() {
+    return this._client.send<void>("Memory.prepareForLeakDetection");
+  }
   /** Enable/disable suppressing memory pressure notifications in all processes. */
   public setPressureNotificationsSuppressed(params: Memory.SetPressureNotificationsSuppressedParameters) {
     return this._client.send<void>("Memory.setPressureNotificationsSuppressed", params);
@@ -88,10 +91,63 @@ export namespace Memory {
     level: PressureLevel;
   };
 }
+export class Performance {
+  private _metrics: Performance.MetricsHandler | null = null;
+  private _client: IDebuggingProtocolClient;
+  constructor(client: IDebuggingProtocolClient) {
+    this._client = client;
+  }
+  /** Enable collecting and reporting metrics. */
+  public enable() {
+    return this._client.send<void>("Performance.enable");
+  }
+  /** Disable collecting and reporting metrics. */
+  public disable() {
+    return this._client.send<void>("Performance.disable");
+  }
+  /** Retrieve current values of run-time metrics. */
+  public getMetrics() {
+    return this._client.send<Performance.GetMetricsReturn>("Performance.getMetrics");
+  }
+  /** Current values of the metrics. */
+  get metrics() {
+    return this._metrics;
+  }
+  set metrics(handler) {
+    if (this._metrics) {
+      this._client.removeListener("Performance.metrics", this._metrics);
+    }
+    this._metrics = handler;
+    if (handler) {
+      this._client.on("Performance.metrics", handler);
+    }
+  }
+}
+export namespace Performance {
+  /** Run-time execution metric. */
+  export interface Metric {
+    /** Metric name. */
+    name: string;
+    /** Metric value. */
+    value: number;
+  }
+  export type MetricsParameters = {
+    /** Current values of the metrics. */
+    metrics: Metric[];
+    /** Timestamp title. */
+    title: string;
+  };
+  export type MetricsHandler = (params: MetricsParameters) => void;
+  export type GetMetricsReturn = {
+    /** Current values for run-time metrics. */
+    metrics: Metric[];
+  };
+}
 /** Actions and events related to the inspected page belong to the page domain. */
 export class Page {
   private _domContentEventFired: Page.DomContentEventFiredHandler | null = null;
   private _loadEventFired: Page.LoadEventFiredHandler | null = null;
+  private _lifecycleEvent: Page.LifecycleEventHandler | null = null;
   private _frameAttached: Page.FrameAttachedHandler | null = null;
   private _frameNavigated: Page.FrameNavigatedHandler | null = null;
   private _frameDetached: Page.FrameDetachedHandler | null = null;
@@ -106,7 +162,6 @@ export class Page {
   private _screencastVisibilityChanged: Page.ScreencastVisibilityChangedHandler | null = null;
   private _interstitialShown: Page.InterstitialShownHandler | null = null;
   private _interstitialHidden: Page.InterstitialHiddenHandler | null = null;
-  private _navigationRequested: Page.NavigationRequestedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -142,6 +197,10 @@ export class Page {
   /** Reloads given page optionally ignoring the cache. */
   public reload(params: Page.ReloadParameters) {
     return this._client.send<void>("Page.reload", params);
+  }
+  /** Enable Chrome's experimental ad filter on all sites. */
+  public setAdBlockingEnabled(params: Page.SetAdBlockingEnabledParameters) {
+    return this._client.send<void>("Page.setAdBlockingEnabled", params);
   }
   /** Navigates current page to the given URL. */
   public navigate(params: Page.NavigateParameters) {
@@ -241,14 +300,6 @@ export class Page {
   public requestAppBanner() {
     return this._client.send<void>("Page.requestAppBanner");
   }
-  /** Toggles navigation throttling which allows programatic control over navigation and redirect response. */
-  public setControlNavigations(params: Page.SetControlNavigationsParameters) {
-    return this._client.send<void>("Page.setControlNavigations", params);
-  }
-  /** Should be sent in response to a navigationRequested or a redirectRequested event, telling the browser how to handle the navigation. */
-  public processNavigation(params: Page.ProcessNavigationParameters) {
-    return this._client.send<void>("Page.processNavigation", params);
-  }
   /** Returns metrics relating to the layouting of the page, such as viewport bounds/scale. */
   public getLayoutMetrics() {
     return this._client.send<Page.GetLayoutMetricsReturn>("Page.getLayoutMetrics");
@@ -256,6 +307,14 @@ export class Page {
   /** Creates an isolated world for the given frame. */
   public createIsolatedWorld(params: Page.CreateIsolatedWorldParameters) {
     return this._client.send<Page.CreateIsolatedWorldReturn>("Page.createIsolatedWorld", params);
+  }
+  /** Brings page to front (activates tab). */
+  public bringToFront() {
+    return this._client.send<void>("Page.bringToFront");
+  }
+  /** Set the behavior when downloading a file. */
+  public setDownloadBehavior(params: Page.SetDownloadBehaviorParameters) {
+    return this._client.send<void>("Page.setDownloadBehavior", params);
   }
   get domContentEventFired() {
     return this._domContentEventFired;
@@ -279,6 +338,19 @@ export class Page {
     this._loadEventFired = handler;
     if (handler) {
       this._client.on("Page.loadEventFired", handler);
+    }
+  }
+  /** Fired for top level page lifecycle events such as navigation, load, paint, etc. */
+  get lifecycleEvent() {
+    return this._lifecycleEvent;
+  }
+  set lifecycleEvent(handler) {
+    if (this._lifecycleEvent) {
+      this._client.removeListener("Page.lifecycleEvent", this._lifecycleEvent);
+    }
+    this._lifecycleEvent = handler;
+    if (handler) {
+      this._client.on("Page.lifecycleEvent", handler);
     }
   }
   /** Fired when frame has been attached to its parent. */
@@ -462,19 +534,6 @@ export class Page {
       this._client.on("Page.interstitialHidden", handler);
     }
   }
-  /** Fired when a navigation is started if navigation throttles are enabled.  The navigation will be deferred until processNavigation is called. */
-  get navigationRequested() {
-    return this._navigationRequested;
-  }
-  set navigationRequested(handler) {
-    if (this._navigationRequested) {
-      this._client.removeListener("Page.navigationRequested", this._navigationRequested);
-    }
-    this._navigationRequested = handler;
-    if (handler) {
-      this._client.on("Page.navigationRequested", handler);
-    }
-  }
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
@@ -624,6 +683,11 @@ export namespace Page {
     timestamp: Network.MonotonicTime;
   };
   export type LoadEventFiredHandler = (params: LoadEventFiredParameters) => void;
+  export type LifecycleEventParameters = {
+    name: string;
+    timestamp: Network.MonotonicTime;
+  };
+  export type LifecycleEventHandler = (params: LifecycleEventParameters) => void;
   export type FrameAttachedParameters = {
     /** Id of the frame that has been attached. */
     frameId: FrameId;
@@ -658,6 +722,10 @@ export namespace Page {
     frameId: FrameId;
     /** Delay (in seconds) until the navigation is scheduled to begin. The navigation is not guaranteed to start. */
     delay: number;
+    /** The reason for the navigation. */
+    reason: "formSubmission" | "httpHeaderRefresh" | "scriptInitiated" | "metaTagRefresh" | "pageBlockInterstitial" | "reload";
+    /** The destination URL for the scheduled navigation. */
+    url: string;
   };
   export type FrameScheduledNavigationHandler = (params: FrameScheduledNavigationParameters) => void;
   export type FrameClearedScheduledNavigationParameters = {
@@ -667,15 +735,21 @@ export namespace Page {
   export type FrameClearedScheduledNavigationHandler = (params: FrameClearedScheduledNavigationParameters) => void;
   export type FrameResizedHandler = () => void;
   export type JavascriptDialogOpeningParameters = {
+    /** Frame url. */
+    url: string;
     /** Message that will be displayed by the dialog. */
     message: string;
     /** Dialog type. */
     type: DialogType;
+    /** Default dialog prompt. */
+    defaultPrompt?: string;
   };
   export type JavascriptDialogOpeningHandler = (params: JavascriptDialogOpeningParameters) => void;
   export type JavascriptDialogClosedParameters = {
     /** Whether dialog was confirmed. */
     result: boolean;
+    /** User input in case of prompt. */
+    userInput: string;
   };
   export type JavascriptDialogClosedHandler = (params: JavascriptDialogClosedParameters) => void;
   export type ScreencastFrameParameters = {
@@ -694,16 +768,6 @@ export namespace Page {
   export type ScreencastVisibilityChangedHandler = (params: ScreencastVisibilityChangedParameters) => void;
   export type InterstitialShownHandler = () => void;
   export type InterstitialHiddenHandler = () => void;
-  export type NavigationRequestedParameters = {
-    /** Whether the navigation is taking place in the main frame or in a subframe. */
-    isInMainFrame: boolean;
-    /** Whether the navigation has encountered a server redirect or not. */
-    isRedirect: boolean;
-    navigationId: number;
-    /** URL of requested navigation. */
-    url: string;
-  };
-  export type NavigationRequestedHandler = (params: NavigationRequestedParameters) => void;
   export type AddScriptToEvaluateOnLoadParameters = {
     scriptSource: string;
   };
@@ -733,6 +797,10 @@ export namespace Page {
     ignoreCache?: boolean;
     /** If set, the script will be injected into all frames of the inspected page after reload. */
     scriptToEvaluateOnLoad?: string;
+  };
+  export type SetAdBlockingEnabledParameters = {
+    /** Whether to block ads. */
+    enabled: boolean;
   };
   export type NavigateParameters = {
     /** URL to navigate the page to. */
@@ -813,22 +881,18 @@ export namespace Page {
     deviceScaleFactor: number;
     /** Whether to emulate mobile device. This includes viewport meta tag, overlay scrollbars, text autosizing and more. */
     mobile: boolean;
-    /** Whether a view that exceeds the available browser window area should be scaled down to fit. */
-    fitWindow?: boolean;
-    /** Scale to apply to resulting view image. Ignored in |fitWindow| mode. */
+    /** Scale to apply to resulting view image. */
     scale?: number;
-    /** X offset to shift resulting view image by. Ignored in |fitWindow| mode. */
-    offsetX?: number;
-    /** Y offset to shift resulting view image by. Ignored in |fitWindow| mode. */
-    offsetY?: number;
-    /** Overriding screen width value in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding screen width value in pixels (minimum 0, maximum 10000000). */
     screenWidth?: number;
-    /** Overriding screen height value in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding screen height value in pixels (minimum 0, maximum 10000000). */
     screenHeight?: number;
-    /** Overriding view X position on screen in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding view X position on screen in pixels (minimum 0, maximum 10000000). */
     positionX?: number;
-    /** Overriding view Y position on screen in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding view Y position on screen in pixels (minimum 0, maximum 10000000). */
     positionY?: number;
+    /** Do not set visible view size, rely upon explicit setVisibleSize call. */
+    dontSetVisibleSize?: boolean;
     /** Screen orientation override. */
     screenOrientation?: Emulation.ScreenOrientation;
   };
@@ -927,13 +991,6 @@ export namespace Page {
     /** Manifest content. */
     data?: string;
   };
-  export type SetControlNavigationsParameters = {
-    enabled: boolean;
-  };
-  export type ProcessNavigationParameters = {
-    response: NavigationResponse;
-    navigationId: number;
-  };
   export type GetLayoutMetricsReturn = {
     /** Metrics relating to the layout viewport. */
     layoutViewport: LayoutViewport;
@@ -954,11 +1011,18 @@ export namespace Page {
     /** Execution context of the isolated world. */
     executionContextId: Runtime.ExecutionContextId;
   };
+  export type SetDownloadBehaviorParameters = {
+    /** Whether to allow all or deny all download requests, or use default Chrome behavior if available (otherwise deny). */
+    behavior: "deny" | "allow" | "default";
+    /** The default path to save downloaded files to. This is requred if behavior is set to 'allow' */
+    downloadPath?: string;
+  };
 }
 /** This domain provides various functionality related to drawing atop the inspected page. */
 export class Overlay {
   private _nodeHighlightRequested: Overlay.NodeHighlightRequestedHandler | null = null;
   private _inspectNodeRequested: Overlay.InspectNodeRequestedHandler | null = null;
+  private _screenshotRequested: Overlay.ScreenshotRequestedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -1051,6 +1115,19 @@ export class Overlay {
       this._client.on("Overlay.inspectNodeRequested", handler);
     }
   }
+  /** Fired when user asks to capture screenshot of some area on the page. */
+  get screenshotRequested() {
+    return this._screenshotRequested;
+  }
+  set screenshotRequested(handler) {
+    if (this._screenshotRequested) {
+      this._client.removeListener("Overlay.screenshotRequested", this._screenshotRequested);
+    }
+    this._screenshotRequested = handler;
+    if (handler) {
+      this._client.on("Overlay.screenshotRequested", handler);
+    }
+  }
 }
 export namespace Overlay {
   /** Configuration data for the highlighting of page elements. */
@@ -1078,6 +1155,8 @@ export namespace Overlay {
     shapeMarginColor?: DOM.RGBA;
     /** Selectors to highlight relevant nodes. */
     selectorList?: string;
+    /** The grid layout color (default: transparent). */
+    cssGridColor?: DOM.RGBA;
   }
   export type InspectMode = "searchForNode" | "searchForUAShadowDOM" | "none";
   export type NodeHighlightRequestedParameters = {
@@ -1089,6 +1168,11 @@ export namespace Overlay {
     backendNodeId: DOM.BackendNodeId;
   };
   export type InspectNodeRequestedHandler = (params: InspectNodeRequestedParameters) => void;
+  export type ScreenshotRequestedParameters = {
+    /** Viewport to capture, in CSS. */
+    viewport: Page.Viewport;
+  };
+  export type ScreenshotRequestedHandler = (params: ScreenshotRequestedParameters) => void;
   export type SetShowPaintRectsParameters = {
     /** True for showing paint rectangles */
     result: boolean;
@@ -1175,6 +1259,7 @@ export namespace Overlay {
 /** This domain emulates different environments for the page. */
 export class Emulation {
   private _virtualTimeBudgetExpired: Emulation.VirtualTimeBudgetExpiredHandler | null = null;
+  private _virtualTimePaused: Emulation.VirtualTimePausedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -1195,7 +1280,7 @@ export class Emulation {
   public setPageScaleFactor(params: Emulation.SetPageScaleFactorParameters) {
     return this._client.send<void>("Emulation.setPageScaleFactor", params);
   }
-  /** Deprecated, does nothing. Please use setDeviceMetricsOverride instead. */
+  /** Resizes the frame/viewport of the page. Note that this does not affect the frame's container (e.g. browser window). Can be used to produce screenshots of the specified size. Not supported on Android. */
   public setVisibleSize(params: Emulation.SetVisibleSizeParameters) {
     return this._client.send<void>("Emulation.setVisibleSize", params);
   }
@@ -1211,9 +1296,12 @@ export class Emulation {
   public clearGeolocationOverride() {
     return this._client.send<void>("Emulation.clearGeolocationOverride");
   }
-  /** Toggles mouse event-based touch event emulation. */
+  /** Enables touch on platforms which do not support them. */
   public setTouchEmulationEnabled(params: Emulation.SetTouchEmulationEnabledParameters) {
     return this._client.send<void>("Emulation.setTouchEmulationEnabled", params);
+  }
+  public setEmitTouchEventsForMouse(params: Emulation.SetEmitTouchEventsForMouseParameters) {
+    return this._client.send<void>("Emulation.setEmitTouchEventsForMouse", params);
   }
   /** Emulates the given media for CSS media queries. */
   public setEmulatedMedia(params: Emulation.SetEmulatedMediaParameters) {
@@ -1231,11 +1319,15 @@ export class Emulation {
   public setVirtualTimePolicy(params: Emulation.SetVirtualTimePolicyParameters) {
     return this._client.send<void>("Emulation.setVirtualTimePolicy", params);
   }
+  /** Overrides value returned by the javascript navigator object. */
+  public setNavigatorOverrides(params: Emulation.SetNavigatorOverridesParameters) {
+    return this._client.send<void>("Emulation.setNavigatorOverrides", params);
+  }
   /** Sets or clears an override of the default background color of the frame. This override is used if the content does not specify one. */
   public setDefaultBackgroundColorOverride(params: Emulation.SetDefaultBackgroundColorOverrideParameters) {
     return this._client.send<void>("Emulation.setDefaultBackgroundColorOverride", params);
   }
-  /** Notification sent after the virual time budget for the current VirtualTimePolicy has run out. */
+  /** Notification sent after the virtual time budget for the current VirtualTimePolicy has run out. */
   get virtualTimeBudgetExpired() {
     return this._virtualTimeBudgetExpired;
   }
@@ -1246,6 +1338,19 @@ export class Emulation {
     this._virtualTimeBudgetExpired = handler;
     if (handler) {
       this._client.on("Emulation.virtualTimeBudgetExpired", handler);
+    }
+  }
+  /** Notification sent after the virtual time has paused. */
+  get virtualTimePaused() {
+    return this._virtualTimePaused;
+  }
+  set virtualTimePaused(handler) {
+    if (this._virtualTimePaused) {
+      this._client.removeListener("Emulation.virtualTimePaused", this._virtualTimePaused);
+    }
+    this._virtualTimePaused = handler;
+    if (handler) {
+      this._client.on("Emulation.virtualTimePaused", handler);
     }
   }
 }
@@ -1260,6 +1365,11 @@ export namespace Emulation {
   /** advance: If the scheduler runs out of immediate work, the virtual time base may fast forward to allow the next delayed task (if any) to run; pause: The virtual time base may not advance; pauseIfNetworkFetchesPending: The virtual time base may not advance if there are any pending resource fetches. */
   export type VirtualTimePolicy = "advance" | "pause" | "pauseIfNetworkFetchesPending";
   export type VirtualTimeBudgetExpiredHandler = () => void;
+  export type VirtualTimePausedParameters = {
+    /** The amount of virtual time that has elapsed in milliseconds since virtual time was first enabled. */
+    virtualTimeElapsed: number;
+  };
+  export type VirtualTimePausedHandler = (params: VirtualTimePausedParameters) => void;
   export type SetDeviceMetricsOverrideParameters = {
     /** Overriding width value in pixels (minimum 0, maximum 10000000). 0 disables the override. */
     width: number;
@@ -1269,22 +1379,18 @@ export namespace Emulation {
     deviceScaleFactor: number;
     /** Whether to emulate mobile device. This includes viewport meta tag, overlay scrollbars, text autosizing and more. */
     mobile: boolean;
-    /** Whether a view that exceeds the available browser window area should be scaled down to fit. */
-    fitWindow?: boolean;
-    /** Scale to apply to resulting view image. Ignored in |fitWindow| mode. */
+    /** Scale to apply to resulting view image. */
     scale?: number;
-    /** Not used. */
-    offsetX?: number;
-    /** Not used. */
-    offsetY?: number;
-    /** Overriding screen width value in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding screen width value in pixels (minimum 0, maximum 10000000). */
     screenWidth?: number;
-    /** Overriding screen height value in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding screen height value in pixels (minimum 0, maximum 10000000). */
     screenHeight?: number;
-    /** Overriding view X position on screen in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding view X position on screen in pixels (minimum 0, maximum 10000000). */
     positionX?: number;
-    /** Overriding view Y position on screen in pixels (minimum 0, maximum 10000000). Only used for |mobile==true|. */
+    /** Overriding view Y position on screen in pixels (minimum 0, maximum 10000000). */
     positionY?: number;
+    /** Do not set visible view size, rely upon explicit setVisibleSize call. */
+    dontSetVisibleSize?: boolean;
     /** Screen orientation override. */
     screenOrientation?: ScreenOrientation;
   };
@@ -1313,6 +1419,12 @@ export namespace Emulation {
   export type SetTouchEmulationEnabledParameters = {
     /** Whether the touch event emulation should be enabled. */
     enabled: boolean;
+    /** Maximum touch points supported. Defaults to one. */
+    maxTouchPoints?: number;
+  };
+  export type SetEmitTouchEventsForMouseParameters = {
+    /** Whether touch emulation based on mouse input should be enabled. */
+    enabled: boolean;
     /** Touch/gesture events configuration. Default: current platform. */
     configuration?: "mobile" | "desktop";
   };
@@ -1332,6 +1444,10 @@ export namespace Emulation {
     policy: VirtualTimePolicy;
     /** If set, after this many virtual milliseconds have elapsed virtual time will be paused and a virtualTimeBudgetExpired event is sent. */
     budget?: number;
+  };
+  export type SetNavigatorOverridesParameters = {
+    /** The platform navigator.platform should return. */
+    platform: string;
   };
   export type SetDefaultBackgroundColorOverrideParameters = {
     /** RGBA of the default background color. If not specified, any existing override will be cleared. */
@@ -1353,10 +1469,6 @@ export class Security {
   /** Disables tracking security state changes. */
   public disable() {
     return this._client.send<void>("Security.disable");
-  }
-  /** Displays native dialog with the certificate details. */
-  public showCertificateViewer() {
-    return this._client.send<void>("Security.showCertificateViewer");
   }
   /** Handles a certificate error that fired a certificateError event. */
   public handleCertificateError(params: Security.HandleCertificateErrorParameters) {
@@ -1399,7 +1511,7 @@ export namespace Security {
   /** A description of mixed content (HTTP resources on HTTPS pages), as defined by https://www.w3.org/TR/mixed-content/#categories */
   export type MixedContentType = "blockable" | "optionally-blockable" | "none";
   /** The security level of a page or resource. */
-  export type SecurityState = "unknown" | "neutral" | "insecure" | "warning" | "secure" | "info";
+  export type SecurityState = "unknown" | "neutral" | "insecure" | "secure" | "info";
   /** An explanation of an factor contributing to the security state. */
   export interface SecurityStateExplanation {
     /** Security state representing the severity of the factor being explained. */
@@ -1408,10 +1520,10 @@ export namespace Security {
     summary: string;
     /** Full text explanation of the factor. */
     description: string;
-    /** True if the page has a certificate. */
-    hasCertificate: boolean;
     /** The type of mixed content described by the explanation. */
     mixedContentType: MixedContentType;
+    /** Page certificate. */
+    certificate: string[];
   }
   /** Information about insecure content on the page. */
   export interface InsecureContentStatus {
@@ -1463,6 +1575,37 @@ export namespace Security {
   export type SetOverrideCertificateErrorsParameters = {
     /** If true, certificate errors will be overridden. */
     override: boolean;
+  };
+}
+/** Audits domain allows investigation of page violations and possible improvements. */
+export class Audits {
+  private _client: IDebuggingProtocolClient;
+  constructor(client: IDebuggingProtocolClient) {
+    this._client = client;
+  }
+  /** Returns the response body and size if it were re-encoded with the specified settings. Only applies to images. */
+  public getEncodedResponse(params: Audits.GetEncodedResponseParameters) {
+    return this._client.send<Audits.GetEncodedResponseReturn>("Audits.getEncodedResponse", params);
+  }
+}
+export namespace Audits {
+  export type GetEncodedResponseParameters = {
+    /** Identifier of the network request to get content for. */
+    requestId: Network.RequestId;
+    /** The encoding to use. */
+    encoding: "webp" | "jpeg" | "png";
+    /** The quality of the encoding (0-1). (defaults to 1) */
+    quality?: number;
+    /** Whether to only return the size information (defaults to false). */
+    sizeOnly?: boolean;
+  };
+  export type GetEncodedResponseReturn = {
+    /** The encoded body as a base64 string. Omitted if sizeOnly is true. */
+    body?: string;
+    /** Size before re-encoding. */
+    originalSize: number;
+    /** Size after re-encoding. */
+    encodedSize: number;
   };
 }
 /** Network domain allows tracking network activities of the page. It exposes information about http, file, data and other requests and responses, their headers, bodies, timing, etc. */
@@ -1539,13 +1682,17 @@ export class Network {
   public getAllCookies() {
     return this._client.send<Network.GetAllCookiesReturn>("Network.getAllCookies");
   }
-  /** Deletes browser cookie with given name, domain and path. */
-  public deleteCookie(params: Network.DeleteCookieParameters) {
-    return this._client.send<void>("Network.deleteCookie", params);
+  /** Deletes browser cookies with matching name and url or domain/path pair. */
+  public deleteCookies(params: Network.DeleteCookiesParameters) {
+    return this._client.send<void>("Network.deleteCookies", params);
   }
   /** Sets a cookie with the given cookie data; may overwrite equivalent cookies if they exist. */
   public setCookie(params: Network.SetCookieParameters) {
     return this._client.send<Network.SetCookieReturn>("Network.setCookie", params);
+  }
+  /** Sets given cookies. */
+  public setCookies(params: Network.SetCookiesParameters) {
+    return this._client.send<void>("Network.setCookies", params);
   }
   /** Tells whether emulation of network conditions is supported. */
   public canEmulateNetworkConditions() {
@@ -1571,6 +1718,7 @@ export class Network {
   public getCertificate(params: Network.GetCertificateParameters) {
     return this._client.send<Network.GetCertificateReturn>("Network.getCertificate", params);
   }
+  /** Sets the requests to intercept that match a the provided patterns. */
   public setRequestInterceptionEnabled(params: Network.SetRequestInterceptionEnabledParameters) {
     return this._client.send<void>("Network.setRequestInterceptionEnabled", params);
   }
@@ -1802,7 +1950,7 @@ export namespace Network {
   export type MonotonicTime = number;
   /** Request / response headers as keys / values of JSON object. */
   export type Headers = any;
-  /** Loading priority of a resource request. */
+  /** The underlying connection technology that the browser is supposedly using. */
   export type ConnectionType = "none" | "cellular2g" | "cellular3g" | "cellular4g" | "bluetooth" | "ethernet" | "wifi" | "wimax" | "other";
   /** Represents the cookie's 'SameSite' status: https://tools.ietf.org/html/draft-west-first-party-cookies */
   export type CookieSameSite = "Strict" | "Lax";
@@ -2025,6 +2173,27 @@ export namespace Network {
     /** Cookie SameSite type. */
     sameSite?: CookieSameSite;
   }
+  /** Cookie parameter object */
+  export interface CookieParam {
+    /** Cookie name. */
+    name: string;
+    /** Cookie value. */
+    value: string;
+    /** The request-URI to associate with the setting of the cookie. This value can affect the default domain and path values of the created cookie. */
+    url?: string;
+    /** Cookie domain. */
+    domain?: string;
+    /** Cookie path. */
+    path?: string;
+    /** True if cookie is secure. */
+    secure?: boolean;
+    /** True if cookie is http-only. */
+    httpOnly?: boolean;
+    /** Cookie SameSite type. */
+    sameSite?: CookieSameSite;
+    /** Cookie expiration date, session cookie if not set */
+    expires?: TimeSinceEpoch;
+  }
   /** Authorization challenge for HTTP status code 401 or 407. */
   export interface AuthChallenge {
     /** Source of the authentication challenge. */
@@ -2214,6 +2383,8 @@ export namespace Network {
     request: Request;
     /** How the requested resource will be used. */
     resourceType: Page.ResourceType;
+    /** Whether this is a navigation request, which can abort the navigation completely. */
+    isNavigationRequest: boolean;
     /** HTTP response headers, only sent if a redirect was intercepted. */
     redirectHeaders?: Headers;
     /** HTTP response code, only sent if a redirect was intercepted. */
@@ -2276,35 +2447,43 @@ export namespace Network {
     /** Array of cookie objects. */
     cookies: Cookie[];
   };
-  export type DeleteCookieParameters = {
-    /** Name of the cookie to remove. */
-    cookieName: string;
-    /** URL to match cooke domain and path. */
-    url: string;
+  export type DeleteCookiesParameters = {
+    /** Name of the cookies to remove. */
+    name: string;
+    /** If specified, deletes all the cookies with the given name where domain and path match provided URL. */
+    url?: string;
+    /** If specified, deletes only cookies with the exact domain. */
+    domain?: string;
+    /** If specified, deletes only cookies with the exact path. */
+    path?: string;
   };
   export type SetCookieParameters = {
-    /** The request-URI to associate with the setting of the cookie. This value can affect the default domain and path values of the created cookie. */
-    url: string;
-    /** The name of the cookie. */
+    /** Cookie name. */
     name: string;
-    /** The value of the cookie. */
+    /** Cookie value. */
     value: string;
-    /** If omitted, the cookie becomes a host-only cookie. */
+    /** The request-URI to associate with the setting of the cookie. This value can affect the default domain and path values of the created cookie. */
+    url?: string;
+    /** Cookie domain. */
     domain?: string;
-    /** Defaults to the path portion of the url parameter. */
+    /** Cookie path. */
     path?: string;
-    /** Defaults ot false. */
+    /** True if cookie is secure. */
     secure?: boolean;
-    /** Defaults to false. */
+    /** True if cookie is http-only. */
     httpOnly?: boolean;
-    /** Defaults to browser default behavior. */
+    /** Cookie SameSite type. */
     sameSite?: CookieSameSite;
-    /** If omitted, the cookie becomes a session cookie. */
-    expirationDate?: TimeSinceEpoch;
+    /** Cookie expiration date, session cookie if not set */
+    expires?: TimeSinceEpoch;
   };
   export type SetCookieReturn = {
     /** True if successfully set cookie. */
     success: boolean;
+  };
+  export type SetCookiesParameters = {
+    /** Cookies to be set. */
+    cookies: CookieParam[];
   };
   export type CanEmulateNetworkConditionsReturn = {
     /** True if emulation of network conditions is supported. */
@@ -2313,11 +2492,11 @@ export namespace Network {
   export type EmulateNetworkConditionsParameters = {
     /** True to emulate internet disconnection. */
     offline: boolean;
-    /** Additional latency (ms). */
+    /** Minimum latency from request sent to response headers received (ms). */
     latency: number;
-    /** Maximal aggregated download throughput. */
+    /** Maximal aggregated download throughput (bytes/sec). -1 disables download throttling. */
     downloadThroughput: number;
-    /** Maximal aggregated upload throughput. */
+    /** Maximal aggregated upload throughput (bytes/sec).  -1 disables upload throttling. */
     uploadThroughput: number;
     /** Connection type if known. */
     connectionType?: ConnectionType;
@@ -2344,12 +2523,14 @@ export namespace Network {
     tableNames: string[];
   };
   export type SetRequestInterceptionEnabledParameters = {
-    /** Whether or not HTTP requests should be intercepted and Network.requestIntercepted events sent. */
+    /** Whether requests should be intercepted. If patterns is not set, matches all and resets any previously set patterns. Other parameters are ignored if false. */
     enabled: boolean;
+    /** URLs matching any of these patterns will be forwarded and wait for the corresponding continueInterceptedRequest call. Wildcards ('*' -> zero or more, '?' -> exactly one) are allowed. Escape character is backslash. If omitted equivalent to ['*'] (intercept all). */
+    patterns?: string[];
   };
   export type ContinueInterceptedRequestParameters = {
     interceptionId: InterceptionId;
-    /** If set this causes the request to fail with the given reason. Must not be set in response to an authChallenge. */
+    /** If set this causes the request to fail with the given reason. Passing <code>Aborted</code> for requests marked with <code>isNavigationRequest</code> also cancels the navigation. Must not be set in response to an authChallenge. */
     errorReason?: ErrorReason;
     /** If set the requests completes using with the provided base64 encoded raw response, including HTTP status line and headers etc... Must not be set in response to an authChallenge. */
     rawResponse?: string;
@@ -2625,18 +2806,30 @@ export class CacheStorage {
   public deleteEntry(params: CacheStorage.DeleteEntryParameters) {
     return this._client.send<void>("CacheStorage.deleteEntry", params);
   }
+  /** Fetches cache entry. */
+  public requestCachedResponse(params: CacheStorage.RequestCachedResponseParameters) {
+    return this._client.send<CacheStorage.RequestCachedResponseReturn>("CacheStorage.requestCachedResponse", params);
+  }
 }
 export namespace CacheStorage {
   /** Unique identifier of the Cache object. */
   export type CacheId = string;
   /** Data entry. */
   export interface DataEntry {
-    /** Request url spec. */
-    request: string;
-    /** Response status text. */
-    response: string;
+    /** Request URL. */
+    requestURL: string;
+    /** Request method. */
+    requestMethod: string;
+    /** Request headers */
+    requestHeaders: Header[];
     /** Number of seconds since epoch. */
     responseTime: number;
+    /** HTTP response status code. */
+    responseStatus: number;
+    /** HTTP response status text. */
+    responseStatusText: string;
+    /** Response headers */
+    responseHeaders: Header[];
   }
   /** Cache identifier. */
   export interface Cache {
@@ -2646,6 +2839,15 @@ export namespace CacheStorage {
     securityOrigin: string;
     /** The name of the cache. */
     cacheName: string;
+  }
+  export interface Header {
+    name: string;
+    value: string;
+  }
+  /** Cached response */
+  export interface CachedResponse {
+    /** Entry content, base64-encoded. */
+    body: string;
   }
   export type RequestCacheNamesParameters = {
     /** Security origin. */
@@ -2678,6 +2880,16 @@ export namespace CacheStorage {
     cacheId: CacheId;
     /** URL spec of the request. */
     request: string;
+  };
+  export type RequestCachedResponseParameters = {
+    /** Id of cache that contains the enty. */
+    cacheId: CacheId;
+    /** URL spec of the request. */
+    requestURL: string;
+  };
+  export type RequestCachedResponseReturn = {
+    /** Response read from the cache. */
+    response: CachedResponse;
   };
 }
 /** Query and modify DOM storage. */
@@ -3095,6 +3307,10 @@ export class DOM {
   /** Returns the id of the nearest ancestor that is a relayout boundary. */
   public getRelayoutBoundary(params: DOM.GetRelayoutBoundaryParameters) {
     return this._client.send<DOM.GetRelayoutBoundaryReturn>("DOM.getRelayoutBoundary", params);
+  }
+  /** Describes node given its id, does not require domain to be enabled. Does not start tracking any objects, can be used for automation. */
+  public describeNode(params: DOM.DescribeNodeParameters) {
+    return this._client.send<DOM.DescribeNodeReturn>("DOM.describeNode", params);
   }
   /** Fired when <code>Document</code> has been totally updated. Node ids are no longer valid. */
   get documentUpdated() {
@@ -3598,8 +3814,12 @@ export namespace DOM {
     name: string;
   };
   export type GetOuterHTMLParameters = {
-    /** Id of the node to get markup for. */
-    nodeId: NodeId;
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
   };
   export type GetOuterHTMLReturn = {
     /** Outer HTML markup. */
@@ -3760,6 +3980,22 @@ export namespace DOM {
   export type GetRelayoutBoundaryReturn = {
     /** Relayout boundary node id for the given node. */
     nodeId: NodeId;
+  };
+  export type DescribeNodeParameters = {
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
+    /** The maximum depth at which children should be retrieved, defaults to 1. Use -1 for the entire subtree or provide an integer larger than 0. */
+    depth?: number;
+    /** Whether or not iframes and shadow roots should be traversed when returning the subtree (default is false). */
+    pierce?: boolean;
+  };
+  export type DescribeNodeReturn = {
+    /** Node description. */
+    node: Node;
   };
 }
 /** This domain exposes CSS read/write operations. All CSS objects (stylesheets, rules, and styles) have an associated <code>id</code> used in subsequent operations on the related object. Each object type has a specific <code>id</code> structure, and those are not interchangeable between objects of different kinds. CSS objects can be loaded using the <code>get*ForNode()</code> calls (which accept a DOM node id). A client can also keep track of stylesheets via the <code>styleSheetAdded</code>/<code>styleSheetRemoved</code> events and subsequently load the required stylesheet contents using the <code>getStyleSheet[Text]()</code> methods. */
@@ -4309,6 +4545,12 @@ export namespace CSS {
   export type GetBackgroundColorsReturn = {
     /** The range of background colors behind this element, if it contains any visible text. If no visible text is present, this will be undefined. In the case of a flat background color, this will consist of simply that color. In the case of a gradient, this will consist of each of the color stops. For anything more complicated, this will be an empty array. Images will be ignored (as if the image had failed to load). */
     backgroundColors?: string[];
+    /** The computed font size for this node, as a CSS computed value string (e.g. '12px'). */
+    computedFontSize?: string;
+    /** The computed font weight for this node, as a CSS computed value string (e.g. 'normal' or '100'). */
+    computedFontWeight?: string;
+    /** The computed font size for the document body, as a computed CSS value string (e.g. '16px'). */
+    computedBodyFontSize?: string;
   };
   export type TakeCoverageDeltaReturn = {
     coverage: RuleUsage[];
@@ -4361,11 +4603,13 @@ export namespace DOMSnapshot {
     baseURL?: string;
     /** Only set for documents, contains the document's content language. */
     contentLanguage?: string;
+    /** Only set for documents, contains the document's character set encoding. */
+    documentEncoding?: string;
     /** <code>DocumentType</code> node's publicId. */
     publicId?: string;
     /** <code>DocumentType</code> node's systemId. */
     systemId?: string;
-    /** Frame ID for frame owner elements. */
+    /** Frame ID for frame owner elements and also for the document node. */
     frameId?: Page.FrameId;
     /** The index of a frame owner element's content document in the <code>domNodes</code> array returned by <code>getSnapshot</code>, if any. */
     contentDocumentIndex?: number;
@@ -4430,8 +4674,13 @@ export class IO {
   public close(params: IO.CloseParameters) {
     return this._client.send<void>("IO.close", params);
   }
+  /** Return UUID of Blob object specified by a remote object id. */
+  public resolveBlob(params: IO.ResolveBlobParameters) {
+    return this._client.send<IO.ResolveBlobReturn>("IO.resolveBlob", params);
+  }
 }
 export namespace IO {
+  /** This is either obtained from another method or specifed as <code>blob:&lt;uuid&gt;</code> where <code>&lt;uuid&gt</code> is an UUID of a Blob. */
   export type StreamHandle = string;
   export type ReadParameters = {
     /** Handle of the stream to read. */
@@ -4442,6 +4691,8 @@ export namespace IO {
     size?: number;
   };
   export type ReadReturn = {
+    /** Set if the data is base64-encoded */
+    base64Encoded?: boolean;
     /** Data that were read. */
     data: string;
     /** Set if the end-of-file condition occured while reading. */
@@ -4450,6 +4701,14 @@ export namespace IO {
   export type CloseParameters = {
     /** Handle of the stream to close. */
     handle: StreamHandle;
+  };
+  export type ResolveBlobParameters = {
+    /** Object id of a Blob object wrapper. */
+    objectId: Runtime.RemoteObjectId;
+  };
+  export type ResolveBlobReturn = {
+    /** UUID of the specified Blob. */
+    uuid: string;
   };
 }
 /** DOM debugging allows setting breakpoints on particular DOM operations and events. JavaScript execution will stop on these operations as if there was a regular breakpoint set. */
@@ -4601,7 +4860,7 @@ export class Target {
   public setRemoteLocations(params: Target.SetRemoteLocationsParameters) {
     return this._client.send<void>("Target.setRemoteLocations", params);
   }
-  /** Sends protocol message to the target with given id. */
+  /** Sends protocol message over session with given id. */
   public sendMessageToTarget(params: Target.SendMessageToTargetParameters) {
     return this._client.send<void>("Target.sendMessageToTarget", params);
   }
@@ -4621,7 +4880,7 @@ export class Target {
   public attachToTarget(params: Target.AttachToTargetParameters) {
     return this._client.send<Target.AttachToTargetReturn>("Target.attachToTarget", params);
   }
-  /** Detaches from the target with given id. */
+  /** Detaches session with given id. */
   public detachFromTarget(params: Target.DetachFromTargetParameters) {
     return this._client.send<void>("Target.detachFromTarget", params);
   }
@@ -4693,7 +4952,7 @@ export class Target {
       this._client.on("Target.attachedToTarget", handler);
     }
   }
-  /** Issued when detached from target for any reason (including <code>detachFromTarget</code> command). */
+  /** Issued when detached from target for any reason (including <code>detachFromTarget</code> command). Can be issued multiple times per target if multiple sessions have been attached to it. */
   get detachedFromTarget() {
     return this._detachedFromTarget;
   }
@@ -4706,7 +4965,7 @@ export class Target {
       this._client.on("Target.detachedFromTarget", handler);
     }
   }
-  /** Notifies about new protocol message from attached target. */
+  /** Notifies about a new protocol message received from the session (as reported in <code>attachedToTarget</code> event). */
   get receivedMessageFromTarget() {
     return this._receivedMessageFromTarget;
   }
@@ -4722,6 +4981,8 @@ export class Target {
 }
 export namespace Target {
   export type TargetID = string;
+  /** Unique identifier of attached debugging session. */
+  export type SessionID = string;
   export type BrowserContextID = string;
   export interface TargetInfo {
     targetId: TargetID;
@@ -4748,17 +5009,25 @@ export namespace Target {
   };
   export type TargetDestroyedHandler = (params: TargetDestroyedParameters) => void;
   export type AttachedToTargetParameters = {
+    /** Identifier assigned to the session used to send/receive messages. */
+    sessionId: SessionID;
     targetInfo: TargetInfo;
     waitingForDebugger: boolean;
   };
   export type AttachedToTargetHandler = (params: AttachedToTargetParameters) => void;
   export type DetachedFromTargetParameters = {
-    targetId: TargetID;
+    /** Detached session identifier. */
+    sessionId: SessionID;
+    /** Deprecated. */
+    targetId?: TargetID;
   };
   export type DetachedFromTargetHandler = (params: DetachedFromTargetParameters) => void;
   export type ReceivedMessageFromTargetParameters = {
-    targetId: TargetID;
+    /** Identifier of a session which sends a message. */
+    sessionId: SessionID;
     message: string;
+    /** Deprecated. */
+    targetId?: TargetID;
   };
   export type ReceivedMessageFromTargetHandler = (params: ReceivedMessageFromTargetParameters) => void;
   export type SetDiscoverTargetsParameters = {
@@ -4780,8 +5049,11 @@ export namespace Target {
     locations: RemoteLocation[];
   };
   export type SendMessageToTargetParameters = {
-    targetId: TargetID;
     message: string;
+    /** Identifier of the session. */
+    sessionId?: SessionID;
+    /** Deprecated. */
+    targetId?: TargetID;
   };
   export type GetTargetInfoParameters = {
     targetId: TargetID;
@@ -4802,11 +5074,14 @@ export namespace Target {
     targetId: TargetID;
   };
   export type AttachToTargetReturn = {
-    /** Whether attach succeeded. */
-    success: boolean;
+    /** Id assigned to the session. */
+    sessionId: SessionID;
   };
   export type DetachFromTargetParameters = {
-    targetId: TargetID;
+    /** Session to detach. */
+    sessionId?: SessionID;
+    /** Deprecated. */
+    targetId?: TargetID;
   };
   export type CreateBrowserContextReturn = {
     /** The id of the context created. */
@@ -5032,15 +5307,13 @@ export class Input {
 }
 export namespace Input {
   export interface TouchPoint {
-    /** State of the touch point. */
-    state: "touchPressed" | "touchReleased" | "touchMoved" | "touchStationary" | "touchCancelled";
-    /** X coordinate of the event relative to the main frame's viewport. */
+    /** X coordinate of the event relative to the main frame's viewport in CSS pixels. */
     x: number;
-    /** Y coordinate of the event relative to the main frame's viewport. 0 refers to the top of the viewport and Y increases as it proceeds towards the bottom of the viewport. */
+    /** Y coordinate of the event relative to the main frame's viewport in CSS pixels. 0 refers to the top of the viewport and Y increases as it proceeds towards the bottom of the viewport. */
     y: number;
-    /** X radius of the touch area (default: 1). */
+    /** X radius of the touch area (default: 1.0). */
     radiusX?: number;
-    /** Y radius of the touch area (default: 1). */
+    /** Y radius of the touch area (default: 1.0). */
     radiusY?: number;
     /** Rotation angle (default: 0.0). */
     rotationAngle?: number;
@@ -5086,7 +5359,7 @@ export namespace Input {
   };
   export type DispatchMouseEventParameters = {
     /** Type of the mouse event. */
-    type: "mousePressed" | "mouseReleased" | "mouseMoved";
+    type: "mousePressed" | "mouseReleased" | "mouseMoved" | "mouseWheel";
     /** X coordinate of the event relative to the main frame's viewport in CSS pixels. */
     x: number;
     /** Y coordinate of the event relative to the main frame's viewport in CSS pixels. 0 refers to the top of the viewport and Y increases as it proceeds towards the bottom of the viewport. */
@@ -5099,11 +5372,15 @@ export namespace Input {
     button?: "none" | "left" | "middle" | "right";
     /** Number of times the mouse button was clicked (default: 0). */
     clickCount?: number;
+    /** X delta in CSS pixels for mouse wheel event (default: 0). */
+    deltaX?: number;
+    /** Y delta in CSS pixels for mouse wheel event (default: 0). */
+    deltaY?: number;
   };
   export type DispatchTouchEventParameters = {
-    /** Type of the touch event. */
-    type: "touchStart" | "touchEnd" | "touchMove";
-    /** Touch points. */
+    /** Type of the touch event. TouchEnd and TouchCancel must not contain any touch points, while TouchStart and TouchMove must contains at least one. */
+    type: "touchStart" | "touchEnd" | "touchMove" | "touchCancel";
+    /** Active touch points on the touch device. One event per any changed point (compared to previous touch event in a sequence) is generated, emulating pressing/moving/releasing points one by one. */
     touchPoints: TouchPoint[];
     /** Bit field representing pressed modifier keys. Alt=1, Ctrl=2, Meta/Command=4, Shift=8 (default: 0). */
     modifiers?: number;
@@ -5260,6 +5537,17 @@ export namespace LayerTree {
     /** Reason for rectangle to force scrolling on the main thread */
     type: "RepaintsOnScroll" | "TouchEventHandler" | "WheelEventHandler";
   }
+  /** Sticky position constraints. */
+  export interface StickyPositionConstraint {
+    /** Layout rectangle of the sticky element before being shifted */
+    stickyBoxRect: DOM.Rect;
+    /** Layout rectangle of the containing block of the sticky element */
+    containingBlockRect: DOM.Rect;
+    /** The nearest sticky layer that shifts the sticky box */
+    nearestLayerShiftingStickyBox?: LayerId;
+    /** The nearest sticky layer that shifts the containing block */
+    nearestLayerShiftingContainingBlock?: LayerId;
+  }
   /** Serialized fragment of layer picture along with its offset within the layer. */
   export interface PictureTile {
     /** Offset from owning layer left boundary */
@@ -5301,6 +5589,8 @@ export namespace LayerTree {
     invisible?: boolean;
     /** Rectangles scrolling on main thread only. */
     scrollRects?: ScrollRect[];
+    /** Sticky position constraint information */
+    stickyPositionConstraint?: StickyPositionConstraint;
   }
   /** Array of timings, one per paint step. */
   export type PaintProfile = number[];
@@ -5816,9 +6106,9 @@ export namespace Accessibility {
     sources?: AXValueSource[];
   }
   /** States which apply to every AX node. */
-  export type AXGlobalStates = "disabled" | "hidden" | "hiddenRoot" | "invalid" | "keyshortcuts" | "roledescription";
+  export type AXGlobalStates = "busy" | "disabled" | "hidden" | "hiddenRoot" | "invalid" | "keyshortcuts" | "roledescription";
   /** Attributes which apply to nodes in live regions. */
-  export type AXLiveRegionAttributes = "live" | "atomic" | "relevant" | "busy" | "root";
+  export type AXLiveRegionAttributes = "live" | "atomic" | "relevant" | "root";
   /** Attributes which apply to widgets. */
   export type AXWidgetAttributes = "autocomplete" | "haspopup" | "level" | "multiselectable" | "orientation" | "multiline" | "readonly" | "required" | "valuemin" | "valuemax" | "valuetext";
   /** States which apply to widgets. */
@@ -5860,6 +6150,8 @@ export namespace Accessibility {
   };
 }
 export class Storage {
+  private _cacheStorageListUpdated: Storage.CacheStorageListUpdatedHandler | null = null;
+  private _cacheStorageContentUpdated: Storage.CacheStorageContentUpdatedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -5872,6 +6164,40 @@ export class Storage {
   public getUsageAndQuota(params: Storage.GetUsageAndQuotaParameters) {
     return this._client.send<Storage.GetUsageAndQuotaReturn>("Storage.getUsageAndQuota", params);
   }
+  /** Registers origin to be notified when an update occurs to its cache storage list. */
+  public trackCacheStorageForOrigin(params: Storage.TrackCacheStorageForOriginParameters) {
+    return this._client.send<void>("Storage.trackCacheStorageForOrigin", params);
+  }
+  /** Unregisters origin from receiving notifications for cache storage. */
+  public untrackCacheStorageForOrigin(params: Storage.UntrackCacheStorageForOriginParameters) {
+    return this._client.send<void>("Storage.untrackCacheStorageForOrigin", params);
+  }
+  /** A cache has been added/deleted. */
+  get cacheStorageListUpdated() {
+    return this._cacheStorageListUpdated;
+  }
+  set cacheStorageListUpdated(handler) {
+    if (this._cacheStorageListUpdated) {
+      this._client.removeListener("Storage.cacheStorageListUpdated", this._cacheStorageListUpdated);
+    }
+    this._cacheStorageListUpdated = handler;
+    if (handler) {
+      this._client.on("Storage.cacheStorageListUpdated", handler);
+    }
+  }
+  /** A cache's contents have been modified. */
+  get cacheStorageContentUpdated() {
+    return this._cacheStorageContentUpdated;
+  }
+  set cacheStorageContentUpdated(handler) {
+    if (this._cacheStorageContentUpdated) {
+      this._client.removeListener("Storage.cacheStorageContentUpdated", this._cacheStorageContentUpdated);
+    }
+    this._cacheStorageContentUpdated = handler;
+    if (handler) {
+      this._client.on("Storage.cacheStorageContentUpdated", handler);
+    }
+  }
 }
 export namespace Storage {
   /** Enum of possible storage types. */
@@ -5883,6 +6209,18 @@ export namespace Storage {
     /** Storage usage (bytes). */
     usage: number;
   }
+  export type CacheStorageListUpdatedParameters = {
+    /** Origin to update. */
+    origin: string;
+  };
+  export type CacheStorageListUpdatedHandler = (params: CacheStorageListUpdatedParameters) => void;
+  export type CacheStorageContentUpdatedParameters = {
+    /** Origin to update. */
+    origin: string;
+    /** Name of cache in origin. */
+    cacheName: string;
+  };
+  export type CacheStorageContentUpdatedHandler = (params: CacheStorageContentUpdatedParameters) => void;
   export type ClearDataForOriginParameters = {
     /** Security origin. */
     origin: string;
@@ -5900,6 +6238,14 @@ export namespace Storage {
     quota: number;
     /** Storage usage per type (bytes). */
     usageBreakdown: UsageForType[];
+  };
+  export type TrackCacheStorageForOriginParameters = {
+    /** Security origin. */
+    origin: string;
+  };
+  export type UntrackCacheStorageForOriginParameters = {
+    /** Security origin. */
+    origin: string;
   };
 }
 /** Provides access to log entries. */
@@ -6083,6 +6429,10 @@ export class Browser {
   public getWindowForTarget(params: Browser.GetWindowForTargetParameters) {
     return this._client.send<Browser.GetWindowForTargetReturn>("Browser.getWindowForTarget", params);
   }
+  /** Returns version information. */
+  public getVersion() {
+    return this._client.send<Browser.GetVersionReturn>("Browser.getVersion");
+  }
   /** Set position and/or size of the browser window. */
   public setWindowBounds(params: Browser.SetWindowBoundsParameters) {
     return this._client.send<void>("Browser.setWindowBounds", params);
@@ -6118,6 +6468,18 @@ export namespace Browser {
     windowId: WindowID;
     /** Bounds information of the window. When window state is 'minimized', the restored window position and size are returned. */
     bounds: Bounds;
+  };
+  export type GetVersionReturn = {
+    /** Protocol version. */
+    protocolVersion: string;
+    /** Product name. */
+    product: string;
+    /** Product revision. */
+    revision: string;
+    /** User-Agent. */
+    userAgent: string;
+    /** V8 version. */
+    jsVersion: string;
   };
   export type SetWindowBoundsParameters = {
     /** Browser window id. */
@@ -6221,6 +6583,9 @@ export class Runtime {
   /** Runs script with given id in a given context. */
   public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
+  }
+  public queryObjects(params: Runtime.QueryObjectsParameters) {
+    return this._client.send<Runtime.QueryObjectsReturn>("Runtime.queryObjects", params);
   }
   /** Issued when new execution context is created. */
   get executionContextCreated() {
@@ -6413,7 +6778,7 @@ export namespace Runtime {
   }
   /** Represents function call argument. Either remote object id <code>objectId</code>, primitive <code>value</code>, unserializable primitive value or neither of (for undefined) them should be specified. */
   export interface CallArgument {
-    /** Primitive value. */
+    /** Primitive value or serializable javascript object. */
     value?: any;
     /** Primitive value which can not be JSON-stringified. */
     unserializableValue?: UnserializableValue;
@@ -6541,7 +6906,7 @@ export namespace Runtime {
     generatePreview?: boolean;
     /** Whether execution should be treated as initiated by user in the UI. */
     userGesture?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
   };
   export type EvaluateReturn = {
@@ -6565,10 +6930,10 @@ export namespace Runtime {
     exceptionDetails?: ExceptionDetails;
   };
   export type CallFunctionOnParameters = {
-    /** Identifier of the object to call function on. */
-    objectId: RemoteObjectId;
     /** Declaration of the function to call. */
     functionDeclaration: string;
+    /** Identifier of the object to call function on. Either objectId or executionContextId should be specified. */
+    objectId?: RemoteObjectId;
     /** Call arguments. All call arguments must belong to the same JavaScript world as the target object. */
     arguments?: CallArgument[];
     /** In silent mode exceptions thrown during evaluation are not reported and do not pause execution. Overrides <code>setPauseOnException</code> state. */
@@ -6579,8 +6944,12 @@ export namespace Runtime {
     generatePreview?: boolean;
     /** Whether execution should be treated as initiated by user in the UI. */
     userGesture?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
+    /** Specifies execution context which global object will be used to call function on. Either executionContextId or objectId should be specified. */
+    executionContextId?: ExecutionContextId;
+    /** Symbolic group name that can be used to release multiple objects. If objectGroup is not specified and objectId is, objectGroup will be inherited from object. */
+    objectGroup?: string;
   };
   export type CallFunctionOnReturn = {
     /** Call result. */
@@ -6648,7 +7017,7 @@ export namespace Runtime {
     returnByValue?: boolean;
     /** Whether preview should be generated for the result. */
     generatePreview?: boolean;
-    /** Whether execution should wait for promise to be resolved. If the result of evaluation is not a Promise, it's considered to be an error. */
+    /** Whether execution should <code>await</code> for resulting value and return once awaited promise is resolved. */
     awaitPromise?: boolean;
   };
   export type RunScriptReturn = {
@@ -6656,6 +7025,14 @@ export namespace Runtime {
     result: RemoteObject;
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
+  };
+  export type QueryObjectsParameters = {
+    /** Identifier of the prototype to return objects for. */
+    prototypeObjectId: RemoteObjectId;
+  };
+  export type QueryObjectsReturn = {
+    /** Array with objects. */
+    objects: RemoteObject;
   };
 }
 /** Debugger domain exposes JavaScript debugging capabilities. It allows setting and removing breakpoints, stepping through execution, exploring stack traces, etc. */
@@ -6864,6 +7241,8 @@ export namespace Debugger {
     functionLocation?: Location;
     /** Location in the source code. */
     location: Location;
+    /** JavaScript script name or url. */
+    url: string;
     /** Scope chain for this call frame. */
     scopeChain: Scope[];
     /** <code>this</code> object for this call frame. */
@@ -7238,6 +7617,18 @@ export class Profiler {
   public getBestEffortCoverage() {
     return this._client.send<Profiler.GetBestEffortCoverageReturn>("Profiler.getBestEffortCoverage");
   }
+  /** Enable type profile. */
+  public startTypeProfile() {
+    return this._client.send<void>("Profiler.startTypeProfile");
+  }
+  /** Disable type profile. Disabling releases type profile data collected so far. */
+  public stopTypeProfile() {
+    return this._client.send<void>("Profiler.stopTypeProfile");
+  }
+  /** Collect type profile. */
+  public takeTypeProfile() {
+    return this._client.send<Profiler.TakeTypeProfileReturn>("Profiler.takeTypeProfile");
+  }
   /** Sent when new profile recording is started using console.profile() call. */
   get consoleProfileStarted() {
     return this._consoleProfileStarted;
@@ -7327,6 +7718,27 @@ export namespace Profiler {
     /** Functions contained in the script that has coverage data. */
     functions: FunctionCoverage[];
   }
+  /** Describes a type collected during runtime. */
+  export interface TypeObject {
+    /** Name of a type collected with type profiling. */
+    name: string;
+  }
+  /** Source offset and types for a parameter or return value. */
+  export interface TypeProfileEntry {
+    /** Source offset of the parameter or end of function for return values. */
+    offset: number;
+    /** The types for this parameter or return value. */
+    types: TypeObject[];
+  }
+  /** Type profile data collected during runtime for a JavaScript script. */
+  export interface ScriptTypeProfile {
+    /** JavaScript script id. */
+    scriptId: Runtime.ScriptId;
+    /** JavaScript script name or url. */
+    url: string;
+    /** Type profile entries for parameters and return values of the functions in the script. */
+    entries: TypeProfileEntry[];
+  }
   export type ConsoleProfileStartedParameters = {
     id: string;
     /** Location of console.profile(). */
@@ -7355,6 +7767,8 @@ export namespace Profiler {
   export type StartPreciseCoverageParameters = {
     /** Collect accurate call counts beyond simple 'covered' or 'not covered'. */
     callCount?: boolean;
+    /** Collect block-based coverage. */
+    detailed?: boolean;
   };
   export type TakePreciseCoverageReturn = {
     /** Coverage data for the current isolate. */
@@ -7363,6 +7777,10 @@ export namespace Profiler {
   export type GetBestEffortCoverageReturn = {
     /** Coverage data for the current isolate. */
     result: ScriptCoverage[];
+  };
+  export type TakeTypeProfileReturn = {
+    /** Type profile for all scripts since startTypeProfile() was turned on. */
+    result: ScriptTypeProfile[];
   };
 }
 export class HeapProfiler {

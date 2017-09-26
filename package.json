@@ -25,6 +25,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run rebuild",
+    "prepare": "npm run rebuild",
     "compile-protocol-gen": "tsc -p scripts/tsconfig.json",
     "protocol-gen": "npm run compile-protocol-gen && node dist/scripts/generate-protocol.js",
     "rebuild": "rm -rf dist && tsc",

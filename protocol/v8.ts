@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.2 Domains
- * Generated on Thu Sep 14 2017 10:58:48 GMT-0700 (PDT)
+ * Generated on Thu Nov 16 2017 16:10:19 GMT-0700 (Mountain Standard Time)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -94,6 +94,10 @@ export class Runtime {
   }
   public queryObjects(params: Runtime.QueryObjectsParameters) {
     return this._client.send<Runtime.QueryObjectsReturn>("Runtime.queryObjects", params);
+  }
+  /** Returns all let, const and class variables from global scope. */
+  public globalLexicalScopeNames(params: Runtime.GlobalLexicalScopeNamesParameters) {
+    return this._client.send<Runtime.GlobalLexicalScopeNamesReturn>("Runtime.globalLexicalScopeNames", params);
   }
   /** Issued when new execution context is created. */
   get executionContextCreated() {
@@ -353,6 +357,7 @@ export namespace Runtime {
     /** Creation frame of the Promise which produced the next synchronous trace when resolved, if available. */
     promiseCreationFrame?: CallFrame;
   }
+  export type AsyncTaskId = string;
   export type ExecutionContextCreatedParameters = {
     /** A newly created execution context. */
     context: ExecutionContextDescription;
@@ -373,7 +378,7 @@ export namespace Runtime {
   export type ExceptionRevokedParameters = {
     /** Reason describing why exception was revoked. */
     reason: string;
-    /** The id of revoked exception, as reported in <code>exceptionUnhandled</code>. */
+    /** The id of revoked exception, as reported in <code>exceptionThrown</code>. */
     exceptionId: number;
   };
   export type ExceptionRevokedHandler = (params: ExceptionRevokedParameters) => void;
@@ -542,6 +547,13 @@ export namespace Runtime {
     /** Array with objects. */
     objects: RemoteObject;
   };
+  export type GlobalLexicalScopeNamesParameters = {
+    /** Specifies in which execution context to lookup global scope variables. */
+    executionContextId?: ExecutionContextId;
+  };
+  export type GlobalLexicalScopeNamesReturn = {
+    names: string[];
+  };
 }
 /** Debugger domain exposes JavaScript debugging capabilities. It allows setting and removing breakpoints, stepping through execution, exploring stack traces, etc. */
 export class Debugger {
@@ -590,13 +602,16 @@ export class Debugger {
   public continueToLocation(params: Debugger.ContinueToLocationParameters) {
     return this._client.send<void>("Debugger.continueToLocation", params);
   }
+  public pauseOnAsyncTask(params: Debugger.PauseOnAsyncTaskParameters) {
+    return this._client.send<void>("Debugger.pauseOnAsyncTask", params);
+  }
   /** Steps over the statement. */
   public stepOver() {
     return this._client.send<void>("Debugger.stepOver");
   }
   /** Steps into the function call. */
-  public stepInto() {
-    return this._client.send<void>("Debugger.stepInto");
+  public stepInto(params: Debugger.StepIntoParameters) {
+    return this._client.send<void>("Debugger.stepInto", params);
   }
   /** Steps out of the function call. */
   public stepOut() {
@@ -606,7 +621,7 @@ export class Debugger {
   public pause() {
     return this._client.send<void>("Debugger.pause");
   }
-  /** Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
+  /** This method is deprecated - use Debugger.stepInto with breakOnAsyncCall and Debugger.pauseOnAsyncTask instead. Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
   public scheduleStepIntoAsync() {
     return this._client.send<void>("Debugger.scheduleStepIntoAsync");
   }
@@ -641,6 +656,10 @@ export class Debugger {
   /** Changes value of variable in a callframe. Object-based scopes are not supported and must be mutated manually. */
   public setVariableValue(params: Debugger.SetVariableValueParameters) {
     return this._client.send<void>("Debugger.setVariableValue", params);
+  }
+  /** Changes return value in top frame. Available only at return break position. */
+  public setReturnValue(params: Debugger.SetReturnValueParameters) {
+    return this._client.send<void>("Debugger.setReturnValue", params);
   }
   /** Enables or disables async call stacks tracking. */
   public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters) {
@@ -868,6 +887,8 @@ export namespace Debugger {
     hitBreakpoints?: string[];
     /** Async stack trace, if any. */
     asyncStackTrace?: Runtime.StackTrace;
+    /** Scheduled async task id. */
+    scheduledAsyncTaskId?: Runtime.AsyncTaskId;
   };
   export type PausedHandler = (params: PausedParameters) => void;
   export type ResumedHandler = () => void;
@@ -886,6 +907,8 @@ export namespace Debugger {
     url?: string;
     /** Regex pattern for the URLs of the resources to set breakpoints on. Either <code>url</code> or <code>urlRegex</code> must be specified. */
     urlRegex?: string;
+    /** Script hash of the resources to set breakpoint on. */
+    scriptHash?: string;
     /** Offset in the line to set breakpoint at. */
     columnNumber?: number;
     /** Expression to use as a breakpoint condition. When specified, debugger will only stop on the breakpoint if this expression evaluates to true. */
@@ -928,6 +951,14 @@ export namespace Debugger {
     /** Location to continue to. */
     location: Location;
     targetCallFrames?: "any" | "current";
+  };
+  export type PauseOnAsyncTaskParameters = {
+    /** Debugger will pause when given async task is started. */
+    asyncTaskId: Runtime.AsyncTaskId;
+  };
+  export type StepIntoParameters = {
+    /** Debugger will issue additional Debugger.paused notification if any async task is scheduled before next pause. */
+    breakOnAsyncCall?: boolean;
   };
   export type SearchInContentParameters = {
     /** Id of the script to search in. */
@@ -1016,6 +1047,10 @@ export namespace Debugger {
     newValue: Runtime.CallArgument;
     /** Id of callframe that holds variable. */
     callFrameId: CallFrameId;
+  };
+  export type SetReturnValueParameters = {
+    /** New return value. */
+    newValue: Runtime.CallArgument;
   };
   export type SetAsyncCallStackDepthParameters = {
     /** Maximum depth of async call stacks. Setting to <code>0</code> will effectively disable collecting async call stacks (default). */
@@ -1335,6 +1370,9 @@ export class HeapProfiler {
   public stopSampling() {
     return this._client.send<HeapProfiler.StopSamplingReturn>("HeapProfiler.stopSampling");
   }
+  public getSamplingProfile() {
+    return this._client.send<HeapProfiler.GetSamplingProfileReturn>("HeapProfiler.getSamplingProfile");
+  }
   get addHeapSnapshotChunk() {
     return this._addHeapSnapshotChunk;
   }
@@ -1473,6 +1511,10 @@ export namespace HeapProfiler {
   };
   export type StopSamplingReturn = {
     /** Recorded sampling heap profile. */
+    profile: SamplingHeapProfile;
+  };
+  export type GetSamplingProfileReturn = {
+    /** Return the sampling profile being collected. */
     profile: SamplingHeapProfile;
   };
 }

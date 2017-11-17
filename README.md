@@ -25,8 +25,9 @@ import { HeapProfiler } from "chrome-debugging-client/dist/protocol/tot";
 createSession(async (session) => {
   // spawns a chrome instance with a tmp user data
   // and the debugger open to an ephemeral port
-  const process = await session.spawn("canary", {
-    additionalArguments: ['--headless'],
+  const process = await session.spawnBrowser('exact', {
+    executablePath: '/usr/bin/google-chrome-beta',
+    additionalArguments: ['--headless', '--disable-gpu', '--hide-scrollbars', '--mute-audio'],
     windowSize: { width: 640, height: 320 }
   });
 

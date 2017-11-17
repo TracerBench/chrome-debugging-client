@@ -24,7 +24,6 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run rebuild",
     "prepare": "npm run rebuild",
     "compile-protocol-gen": "tsc -p scripts/tsconfig.json",
     "protocol-gen": "npm run compile-protocol-gen && node dist/scripts/generate-protocol.js",
@@ -40,13 +39,13 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@types/node": "^7.0.5",
-    "@types/rimraf": "^0.0.28",
+    "@types/node": "^8.0.53",
+    "@types/rimraf": "^2.0.2",
     "@types/tape": "^4.2.29",
-    "@types/ws": "^0.0.38",
+    "@types/ws": "^3.2.0",
     "mktemp": "^0.4.0",
     "rimraf": "^2.5.1",
-    "ws": "^1.0.1"
+    "ws": "^3.2.0"
   },
   "devDependencies": {
     "faucet": "0.0.1",

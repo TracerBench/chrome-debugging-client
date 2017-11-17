@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Thu Sep 14 2017 10:58:48 GMT-0700 (PDT)
+ * Generated on Thu Nov 16 2017 23:33:45 GMT-0800 (PST)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -162,6 +162,7 @@ export class Page {
   private _screencastVisibilityChanged: Page.ScreencastVisibilityChangedHandler | null = null;
   private _interstitialShown: Page.InterstitialShownHandler | null = null;
   private _interstitialHidden: Page.InterstitialHiddenHandler | null = null;
+  private _windowOpen: Page.WindowOpenHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -193,6 +194,10 @@ export class Page {
   /** Controls whether browser will open a new inspector window for connected pages. */
   public setAutoAttachToCreatedPages(params: Page.SetAutoAttachToCreatedPagesParameters) {
     return this._client.send<void>("Page.setAutoAttachToCreatedPages", params);
+  }
+  /** Controls whether page will emit lifecycle events. */
+  public setLifecycleEventsEnabled(params: Page.SetLifecycleEventsEnabledParameters) {
+    return this._client.send<void>("Page.setLifecycleEventsEnabled", params);
   }
   /** Reloads given page optionally ignoring the cache. */
   public reload(params: Page.ReloadParameters) {
@@ -229,6 +234,10 @@ export class Page {
   /** Returns present frame / resource tree structure. */
   public getResourceTree() {
     return this._client.send<Page.GetResourceTreeReturn>("Page.getResourceTree");
+  }
+  /** Returns present frame tree structure. */
+  public getFrameTree() {
+    return this._client.send<Page.GetFrameTreeReturn>("Page.getFrameTree");
   }
   /** Returns content of the given resource. */
   public getResourceContent(params: Page.GetResourceContentParameters) {
@@ -534,6 +543,19 @@ export class Page {
       this._client.on("Page.interstitialHidden", handler);
     }
   }
+  /** Fired when a new window is going to be opened, via window.open(), link click, form submission, etc. */
+  get windowOpen() {
+    return this._windowOpen;
+  }
+  set windowOpen(handler) {
+    if (this._windowOpen) {
+      this._client.removeListener("Page.windowOpen", this._windowOpen);
+    }
+    this._windowOpen = handler;
+    if (handler) {
+      this._client.on("Page.windowOpen", handler);
+    }
+  }
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
@@ -585,6 +607,13 @@ export namespace Page {
     /** Information about frame resources. */
     resources: FrameResource[];
   }
+  /** Information about the Frame hierarchy. */
+  export interface FrameTree {
+    /** Frame information for this tree item. */
+    frame: Frame;
+    /** Child frames. */
+    childFrames?: FrameTree[];
+  }
   /** Unique script identifier. */
   export type ScriptIdentifier = string;
   /** Transition type. */
@@ -632,8 +661,6 @@ export namespace Page {
     /** Error column. */
     column: number;
   }
-  /** Proceed: allow the navigation; Cancel: cancel the navigation; CancelAndIgnore: cancels the navigation and makes the requester of the navigation acts like the request was never made. */
-  export type NavigationResponse = "Proceed" | "Cancel" | "CancelAndIgnore";
   /** Layout viewport position and dimensions. */
   export interface LayoutViewport {
     /** Horizontal offset relative to the document (CSS pixels). */
@@ -684,6 +711,10 @@ export namespace Page {
   };
   export type LoadEventFiredHandler = (params: LoadEventFiredParameters) => void;
   export type LifecycleEventParameters = {
+    /** Id of the frame. */
+    frameId: FrameId;
+    /** Loader identifier. Empty string if the request is fetched from worker. */
+    loaderId: Network.LoaderId;
     name: string;
     timestamp: Network.MonotonicTime;
   };
@@ -723,7 +754,7 @@ export namespace Page {
     /** Delay (in seconds) until the navigation is scheduled to begin. The navigation is not guaranteed to start. */
     delay: number;
     /** The reason for the navigation. */
-    reason: "formSubmission" | "httpHeaderRefresh" | "scriptInitiated" | "metaTagRefresh" | "pageBlockInterstitial" | "reload";
+    reason: "formSubmissionGet" | "formSubmissionPost" | "httpHeaderRefresh" | "scriptInitiated" | "metaTagRefresh" | "pageBlockInterstitial" | "reload";
     /** The destination URL for the scheduled navigation. */
     url: string;
   };
@@ -768,6 +799,17 @@ export namespace Page {
   export type ScreencastVisibilityChangedHandler = (params: ScreencastVisibilityChangedParameters) => void;
   export type InterstitialShownHandler = () => void;
   export type InterstitialHiddenHandler = () => void;
+  export type WindowOpenParameters = {
+    /** The URL for the new window. */
+    url: string;
+    /** Window name. */
+    windowName: string;
+    /** An array of enabled window features. */
+    windowFeatures: string[];
+    /** Whether or not it was triggered by user gesture. */
+    userGesture: boolean;
+  };
+  export type WindowOpenHandler = (params: WindowOpenParameters) => void;
   export type AddScriptToEvaluateOnLoadParameters = {
     scriptSource: string;
   };
@@ -792,6 +834,10 @@ export namespace Page {
     /** If true, browser will open a new inspector window for every page created from this one. */
     autoAttach: boolean;
   };
+  export type SetLifecycleEventsEnabledParameters = {
+    /** If true, starts emitting lifecycle events. */
+    enabled: boolean;
+  };
   export type ReloadParameters = {
     /** If true, browser cache is ignored (as if the user pressed Shift+refresh). */
     ignoreCache?: boolean;
@@ -811,8 +857,10 @@ export namespace Page {
     transitionType?: TransitionType;
   };
   export type NavigateReturn = {
-    /** Frame id that will be navigated. */
+    /** Frame id that has navigated (or failed to navigate) */
     frameId: FrameId;
+    /** User friendly error message, present if and only if navigation has failed. */
+    errorText?: string;
   };
   export type GetNavigationHistoryReturn = {
     /** Index of the current navigation history entry. */
@@ -837,6 +885,10 @@ export namespace Page {
   export type GetResourceTreeReturn = {
     /** Present frame / resource tree structure. */
     frameTree: FrameResourceTree;
+  };
+  export type GetFrameTreeReturn = {
+    /** Present frame tree structure. */
+    frameTree: FrameTree;
   };
   export type GetResourceContentParameters = {
     /** Frame id to get resource for. */
@@ -895,6 +947,8 @@ export namespace Page {
     dontSetVisibleSize?: boolean;
     /** Screen orientation override. */
     screenOrientation?: Emulation.ScreenOrientation;
+    /** The viewport dimensions and scale. If not set, the override is cleared. */
+    viewport?: Viewport;
   };
   export type SetGeolocationOverrideParameters = {
     /** Mock latitude */
@@ -1259,6 +1313,7 @@ export namespace Overlay {
 /** This domain emulates different environments for the page. */
 export class Emulation {
   private _virtualTimeBudgetExpired: Emulation.VirtualTimeBudgetExpiredHandler | null = null;
+  private _virtualTimeAdvanced: Emulation.VirtualTimeAdvancedHandler | null = null;
   private _virtualTimePaused: Emulation.VirtualTimePausedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
@@ -1340,6 +1395,19 @@ export class Emulation {
       this._client.on("Emulation.virtualTimeBudgetExpired", handler);
     }
   }
+  /** Notification sent after the virtual time has advanced. */
+  get virtualTimeAdvanced() {
+    return this._virtualTimeAdvanced;
+  }
+  set virtualTimeAdvanced(handler) {
+    if (this._virtualTimeAdvanced) {
+      this._client.removeListener("Emulation.virtualTimeAdvanced", this._virtualTimeAdvanced);
+    }
+    this._virtualTimeAdvanced = handler;
+    if (handler) {
+      this._client.on("Emulation.virtualTimeAdvanced", handler);
+    }
+  }
   /** Notification sent after the virtual time has paused. */
   get virtualTimePaused() {
     return this._virtualTimePaused;
@@ -1365,6 +1433,11 @@ export namespace Emulation {
   /** advance: If the scheduler runs out of immediate work, the virtual time base may fast forward to allow the next delayed task (if any) to run; pause: The virtual time base may not advance; pauseIfNetworkFetchesPending: The virtual time base may not advance if there are any pending resource fetches. */
   export type VirtualTimePolicy = "advance" | "pause" | "pauseIfNetworkFetchesPending";
   export type VirtualTimeBudgetExpiredHandler = () => void;
+  export type VirtualTimeAdvancedParameters = {
+    /** The amount of virtual time that has elapsed in milliseconds since virtual time was first enabled. */
+    virtualTimeElapsed: number;
+  };
+  export type VirtualTimeAdvancedHandler = (params: VirtualTimeAdvancedParameters) => void;
   export type VirtualTimePausedParameters = {
     /** The amount of virtual time that has elapsed in milliseconds since virtual time was first enabled. */
     virtualTimeElapsed: number;
@@ -1393,6 +1466,8 @@ export namespace Emulation {
     dontSetVisibleSize?: boolean;
     /** Screen orientation override. */
     screenOrientation?: ScreenOrientation;
+    /** If set, the visible area of the page will be overridden to this viewport. This viewport change is not observed by the page, e.g. viewport-relative elements do not change positions. */
+    viewport?: Page.Viewport;
   };
   export type SetPageScaleFactorParameters = {
     /** Page scale factor. */
@@ -1444,6 +1519,8 @@ export namespace Emulation {
     policy: VirtualTimePolicy;
     /** If set, after this many virtual milliseconds have elapsed virtual time will be paused and a virtualTimeBudgetExpired event is sent. */
     budget?: number;
+    /** If set this specifies the maximum number of tasks that can be run before virtual is forced forwards to prevent deadlock. */
+    maxVirtualTimeTaskStarvationCount?: number;
   };
   export type SetNavigatorOverridesParameters = {
     /** The platform navigator.platform should return. */
@@ -1718,13 +1795,17 @@ export class Network {
   public getCertificate(params: Network.GetCertificateParameters) {
     return this._client.send<Network.GetCertificateReturn>("Network.getCertificate", params);
   }
-  /** Sets the requests to intercept that match a the provided patterns. */
-  public setRequestInterceptionEnabled(params: Network.SetRequestInterceptionEnabledParameters) {
-    return this._client.send<void>("Network.setRequestInterceptionEnabled", params);
+  /** Sets the requests to intercept that match a the provided patterns and optionally resource types. */
+  public setRequestInterception(params: Network.SetRequestInterceptionParameters) {
+    return this._client.send<void>("Network.setRequestInterception", params);
   }
   /** Response to Network.requestIntercepted which either modifies the request to continue with any modifications, or blocks it, or completes it with the provided response bytes. If a network fetch occurs as a result which encounters a redirect an additional Network.requestIntercepted event will be sent with the same InterceptionId. */
   public continueInterceptedRequest(params: Network.ContinueInterceptedRequestParameters) {
     return this._client.send<void>("Network.continueInterceptedRequest", params);
+  }
+  /** Returns content served for the given currently intercepted request. */
+  public getResponseBodyForInterception(params: Network.GetResponseBodyForInterceptionParameters) {
+    return this._client.send<Network.GetResponseBodyForInterceptionReturn>("Network.getResponseBodyForInterception", params);
   }
   /** Fired when resource loading priority is changed */
   get resourceChangedPriority() {
@@ -2214,6 +2295,17 @@ export namespace Network {
     /** The password to provide, possibly empty. Should only be set if response is ProvideCredentials. */
     password?: string;
   }
+  /** Stages of the interception to begin intercepting. Request will intercept before the request is sent. Response will intercept after the response is received. */
+  export type InterceptionStage = "Request" | "HeadersReceived";
+  /** Request pattern for interception. */
+  export interface RequestPattern {
+    /** Wildcards ('*' -> zero or more, '?' -> exactly one) are allowed. Escape character is backslash. Omitting is equivalent to "*". */
+    urlPattern?: string;
+    /** If set, only requests for matching resource types will be intercepted. */
+    resourceType?: Page.ResourceType;
+    /** Stage at wich to begin intercepting requests. Default is Request. */
+    interceptionStage?: InterceptionStage;
+  }
   export type ResourceChangedPriorityParameters = {
     /** Request identifier. */
     requestId: RequestId;
@@ -2226,7 +2318,7 @@ export namespace Network {
   export type RequestWillBeSentParameters = {
     /** Request identifier. */
     requestId: RequestId;
-    /** Loader identifier. Empty string if the request is fetched form worker. */
+    /** Loader identifier. Empty string if the request is fetched from worker. */
     loaderId: LoaderId;
     /** URL of the document this request is loaded for. */
     documentURL: string;
@@ -2254,7 +2346,7 @@ export namespace Network {
   export type ResponseReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
-    /** Loader identifier. Empty string if the request is fetched form worker. */
+    /** Loader identifier. Empty string if the request is fetched from worker. */
     loaderId: LoaderId;
     /** Timestamp. */
     timestamp: MonotonicTime;
@@ -2381,18 +2473,22 @@ export namespace Network {
     /** Each request the page makes will have a unique id, however if any redirects are encountered while processing that fetch, they will be reported with the same id as the original fetch. Likewise if HTTP authentication is needed then the same fetch id will be used. */
     interceptionId: InterceptionId;
     request: Request;
+    /** The id of the frame that initiated the request. */
+    frameId: Page.FrameId;
     /** How the requested resource will be used. */
     resourceType: Page.ResourceType;
     /** Whether this is a navigation request, which can abort the navigation completely. */
     isNavigationRequest: boolean;
-    /** HTTP response headers, only sent if a redirect was intercepted. */
-    redirectHeaders?: Headers;
-    /** HTTP response code, only sent if a redirect was intercepted. */
-    redirectStatusCode?: number;
     /** Redirect location, only sent if a redirect was intercepted. */
     redirectUrl?: string;
     /** Details of the Authorization Challenge encountered. If this is set then continueInterceptedRequest must contain an authChallengeResponse. */
     authChallenge?: AuthChallenge;
+    /** Response error if intercepted at response stage or if redirect occurred while intercepting request. */
+    responseErrorReason?: ErrorReason;
+    /** Response code if intercepted at response stage or if redirect occurred while intercepting request or auth retry occurred. */
+    responseStatusCode?: number;
+    /** Response headers if intercepted at the response stage or if redirect occurred while intercepting request or auth retry occurred. */
+    responseHeaders?: Headers;
   };
   export type RequestInterceptedHandler = (params: RequestInterceptedParameters) => void;
   export type EnableParameters = {
@@ -2522,11 +2618,9 @@ export namespace Network {
   export type GetCertificateReturn = {
     tableNames: string[];
   };
-  export type SetRequestInterceptionEnabledParameters = {
-    /** Whether requests should be intercepted. If patterns is not set, matches all and resets any previously set patterns. Other parameters are ignored if false. */
-    enabled: boolean;
-    /** URLs matching any of these patterns will be forwarded and wait for the corresponding continueInterceptedRequest call. Wildcards ('*' -> zero or more, '?' -> exactly one) are allowed. Escape character is backslash. If omitted equivalent to ['*'] (intercept all). */
-    patterns?: string[];
+  export type SetRequestInterceptionParameters = {
+    /** Requests matching any of these patterns will be forwarded and wait for the corresponding continueInterceptedRequest call. */
+    patterns: RequestPattern[];
   };
   export type ContinueInterceptedRequestParameters = {
     interceptionId: InterceptionId;
@@ -2544,6 +2638,16 @@ export namespace Network {
     headers?: Headers;
     /** Response to a requestIntercepted with an authChallenge. Must not be set otherwise. */
     authChallengeResponse?: AuthChallengeResponse;
+  };
+  export type GetResponseBodyForInterceptionParameters = {
+    /** Identifier for the intercepted request to get body for. */
+    interceptionId: InterceptionId;
+  };
+  export type GetResponseBodyForInterceptionReturn = {
+    /** Response body. */
+    body: string;
+    /** True, if content was sent as base64. */
+    base64Encoded: boolean;
   };
 }
 export class Database {
@@ -3224,7 +3328,7 @@ export class DOM {
   public performSearch(params: DOM.PerformSearchParameters) {
     return this._client.send<DOM.PerformSearchReturn>("DOM.performSearch", params);
   }
-  /** Returns search results from given <code>fromIndex</code> to given <code>toIndex</code> from the sarch with the given identifier. */
+  /** Returns search results from given <code>fromIndex</code> to given <code>toIndex</code> from the search with the given identifier. */
   public getSearchResults(params: DOM.GetSearchResultsParameters) {
     return this._client.send<DOM.GetSearchResultsReturn>("DOM.getSearchResults", params);
   }
@@ -3296,7 +3400,7 @@ export class DOM {
   public setFileInputFiles(params: DOM.SetFileInputFilesParameters) {
     return this._client.send<void>("DOM.setFileInputFiles", params);
   }
-  /** Returns boxes for the currently selected nodes. */
+  /** Returns boxes for the given node. */
   public getBoxModel(params: DOM.GetBoxModelParameters) {
     return this._client.send<DOM.GetBoxModelReturn>("DOM.getBoxModel", params);
   }
@@ -4382,15 +4486,6 @@ export namespace CSS {
     /** New style text. */
     text: string;
   }
-  /** Details of post layout rendered text positions. The exact layout should not be regarded as stable and may change between versions. */
-  export interface InlineTextBox {
-    /** The absolute position bounding box. */
-    boundingBox: DOM.Rect;
-    /** The starting index in characters, for this post layout textbox substring. */
-    startCharacterIndex: number;
-    /** The number of characters in this post layout textbox substring. */
-    numCharacters: number;
-  }
   export type MediaQueryResultChangedHandler = () => void;
   export type FontsUpdatedHandler = () => void;
   export type StyleSheetChangedParameters = {
@@ -4622,6 +4717,15 @@ export namespace DOMSnapshot {
     /** Whether this DOM node responds to mouse clicks. This includes nodes that have had click event listeners attached via JavaScript as well as anchor tags that naturally navigate when clicked. */
     isClickable?: boolean;
   }
+  /** Details of post layout rendered text positions. The exact layout should not be regarded as stable and may change between versions. */
+  export interface InlineTextBox {
+    /** The absolute position bounding box. */
+    boundingBox: DOM.Rect;
+    /** The starting index in characters, for this post layout textbox substring. */
+    startCharacterIndex: number;
+    /** The number of characters in this post layout textbox substring. */
+    numCharacters: number;
+  }
   /** Details of an element in the DOM tree with a LayoutObject. */
   export interface LayoutTreeNode {
     /** The index of the related DOM node in the <code>domNodes</code> array returned by <code>getSnapshot</code>. */
@@ -4631,7 +4735,7 @@ export namespace DOMSnapshot {
     /** Contents of the LayoutText, if any. */
     layoutText?: string;
     /** The post-layout inline text nodes, if any. */
-    inlineTextNodes?: CSS.InlineTextBox[];
+    inlineTextNodes?: InlineTextBox[];
     /** Index into the <code>computedStyles</code> array returned by <code>getSnapshot</code>. */
     styleIndex?: number;
   }
@@ -4991,6 +5095,8 @@ export namespace Target {
     url: string;
     /** Whether the target has an attached client. */
     attached: boolean;
+    /** Opener target Id */
+    openerId?: TargetID;
   }
   export interface RemoteLocation {
     host: string;
@@ -5102,6 +5208,8 @@ export namespace Target {
     height?: number;
     /** The browser context to create the page in (headless chrome only). */
     browserContextId?: BrowserContextID;
+    /** Whether BeginFrames for this target will be controlled via DevTools (headless chrome only, not supported on MacOS yet, false by default). */
+    enableBeginFrameControl?: boolean;
   };
   export type CreateTargetReturn = {
     /** The id of the page opened. */
@@ -5110,6 +5218,86 @@ export namespace Target {
   export type GetTargetsReturn = {
     /** The list of targets. */
     targetInfos: TargetInfo[];
+  };
+}
+/** This domain provides experimental commands only supported in headless mode. */
+export class HeadlessExperimental {
+  private _needsBeginFramesChanged: HeadlessExperimental.NeedsBeginFramesChangedHandler | null = null;
+  private _mainFrameReadyForScreenshots: HeadlessExperimental.MainFrameReadyForScreenshotsHandler | null = null;
+  private _client: IDebuggingProtocolClient;
+  constructor(client: IDebuggingProtocolClient) {
+    this._client = client;
+  }
+  /** Enables headless events for the target. */
+  public enable() {
+    return this._client.send<void>("HeadlessExperimental.enable");
+  }
+  /** Disables headless events for the target. */
+  public disable() {
+    return this._client.send<void>("HeadlessExperimental.disable");
+  }
+  /** Sends a BeginFrame to the target and returns when the frame was completed. Optionally captures a screenshot from the resulting frame. Requires that the target was created with enabled BeginFrameControl. */
+  public beginFrame(params: HeadlessExperimental.BeginFrameParameters) {
+    return this._client.send<HeadlessExperimental.BeginFrameReturn>("HeadlessExperimental.beginFrame", params);
+  }
+  /** Issued when the target starts or stops needing BeginFrames. */
+  get needsBeginFramesChanged() {
+    return this._needsBeginFramesChanged;
+  }
+  set needsBeginFramesChanged(handler) {
+    if (this._needsBeginFramesChanged) {
+      this._client.removeListener("HeadlessExperimental.needsBeginFramesChanged", this._needsBeginFramesChanged);
+    }
+    this._needsBeginFramesChanged = handler;
+    if (handler) {
+      this._client.on("HeadlessExperimental.needsBeginFramesChanged", handler);
+    }
+  }
+  /** Issued when the main frame has first submitted a frame to the browser. May only be fired while a BeginFrame is in flight. Before this event, screenshotting requests may fail. */
+  get mainFrameReadyForScreenshots() {
+    return this._mainFrameReadyForScreenshots;
+  }
+  set mainFrameReadyForScreenshots(handler) {
+    if (this._mainFrameReadyForScreenshots) {
+      this._client.removeListener("HeadlessExperimental.mainFrameReadyForScreenshots", this._mainFrameReadyForScreenshots);
+    }
+    this._mainFrameReadyForScreenshots = handler;
+    if (handler) {
+      this._client.on("HeadlessExperimental.mainFrameReadyForScreenshots", handler);
+    }
+  }
+}
+export namespace HeadlessExperimental {
+  /** Encoding options for a screenshot. */
+  export interface ScreenshotParams {
+    /** Image compression format (defaults to png). */
+    format?: "jpeg" | "png";
+    /** Compression quality from range [0..100] (jpeg only). */
+    quality?: number;
+  }
+  export type NeedsBeginFramesChangedParameters = {
+    /** True if BeginFrames are needed, false otherwise. */
+    needsBeginFrames: boolean;
+  };
+  export type NeedsBeginFramesChangedHandler = (params: NeedsBeginFramesChangedParameters) => void;
+  export type MainFrameReadyForScreenshotsHandler = () => void;
+  export type BeginFrameParameters = {
+    /** Timestamp of this BeginFrame (milliseconds since epoch). If not set, the current time will be used. */
+    frameTime?: Runtime.Timestamp;
+    /** Deadline of this BeginFrame (milliseconds since epoch). If not set, the deadline will be calculated from the frameTime and interval. */
+    deadline?: Runtime.Timestamp;
+    /** The interval between BeginFrames that is reported to the compositor, in milliseconds. Defaults to a 60 frames/second interval, i.e. about 16.666 milliseconds. */
+    interval?: number;
+    /** If set, a screenshot of the frame will be captured and returned in the response. Otherwise, no screenshot will be captured. */
+    screenshot?: ScreenshotParams;
+  };
+  export type BeginFrameReturn = {
+    /** Whether the BeginFrame resulted in damage and, thus, a new frame was committed to the display. */
+    hasDamage: boolean;
+    /** Whether the main frame submitted a new display frame in response to this BeginFrame. */
+    mainFrameContentUpdated: boolean;
+    /** Base64-encoded image data of the screenshot, if one was requested and successfully taken. */
+    screenshotData?: string;
   };
 }
 export class ServiceWorker {
@@ -5140,6 +5328,9 @@ export class ServiceWorker {
   }
   public stopWorker(params: ServiceWorker.StopWorkerParameters) {
     return this._client.send<void>("ServiceWorker.stopWorker", params);
+  }
+  public stopAllWorkers() {
+    return this._client.send<void>("ServiceWorker.stopAllWorkers");
   }
   public inspectWorker(params: ServiceWorker.InspectWorkerParameters) {
     return this._client.send<void>("ServiceWorker.inspectWorker", params);
@@ -5356,6 +5547,8 @@ export namespace Input {
     isKeypad?: boolean;
     /** Whether the event was a system key event (default: false). */
     isSystemKey?: boolean;
+    /** Whether the event was from the left or right side of the keyboard. 1=Left, 2=Right (default: 0). */
+    location?: number;
   };
   export type DispatchMouseEventParameters = {
     /** Type of the mouse event. */
@@ -5932,10 +6125,10 @@ export namespace Animation {
     startTime: number;
     /** <code>Animation</code>'s current time. */
     currentTime: number;
-    /** <code>Animation</code>'s source animation node. */
-    source: AnimationEffect;
     /** Animation type of <code>Animation</code>. */
     type: "CSSTransition" | "CSSAnimation" | "WebAnimation";
+    /** <code>Animation</code>'s source animation node. */
+    source?: AnimationEffect;
     /** A unique ID for <code>Animation</code> representing the sources that triggered this CSS animation/transition. */
     cssId?: string;
   }
@@ -5956,7 +6149,7 @@ export namespace Animation {
     /** <code>AnimationEffect</code>'s fill mode. */
     fill: string;
     /** <code>AnimationEffect</code>'s target node. */
-    backendNodeId: DOM.BackendNodeId;
+    backendNodeId?: DOM.BackendNodeId;
     /** <code>AnimationEffect</code>'s keyframes. */
     keyframesRule?: KeyframesRule;
     /** <code>AnimationEffect</code>'s timing function. */
@@ -6152,6 +6345,8 @@ export namespace Accessibility {
 export class Storage {
   private _cacheStorageListUpdated: Storage.CacheStorageListUpdatedHandler | null = null;
   private _cacheStorageContentUpdated: Storage.CacheStorageContentUpdatedHandler | null = null;
+  private _indexedDBListUpdated: Storage.IndexedDBListUpdatedHandler | null = null;
+  private _indexedDBContentUpdated: Storage.IndexedDBContentUpdatedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -6171,6 +6366,14 @@ export class Storage {
   /** Unregisters origin from receiving notifications for cache storage. */
   public untrackCacheStorageForOrigin(params: Storage.UntrackCacheStorageForOriginParameters) {
     return this._client.send<void>("Storage.untrackCacheStorageForOrigin", params);
+  }
+  /** Registers origin to be notified when an update occurs to its IndexedDB. */
+  public trackIndexedDBForOrigin(params: Storage.TrackIndexedDBForOriginParameters) {
+    return this._client.send<void>("Storage.trackIndexedDBForOrigin", params);
+  }
+  /** Unregisters origin from receiving notifications for IndexedDB. */
+  public untrackIndexedDBForOrigin(params: Storage.UntrackIndexedDBForOriginParameters) {
+    return this._client.send<void>("Storage.untrackIndexedDBForOrigin", params);
   }
   /** A cache has been added/deleted. */
   get cacheStorageListUpdated() {
@@ -6198,6 +6401,32 @@ export class Storage {
       this._client.on("Storage.cacheStorageContentUpdated", handler);
     }
   }
+  /** The origin's IndexedDB database list has been modified. */
+  get indexedDBListUpdated() {
+    return this._indexedDBListUpdated;
+  }
+  set indexedDBListUpdated(handler) {
+    if (this._indexedDBListUpdated) {
+      this._client.removeListener("Storage.indexedDBListUpdated", this._indexedDBListUpdated);
+    }
+    this._indexedDBListUpdated = handler;
+    if (handler) {
+      this._client.on("Storage.indexedDBListUpdated", handler);
+    }
+  }
+  /** The origin's IndexedDB object store has been modified. */
+  get indexedDBContentUpdated() {
+    return this._indexedDBContentUpdated;
+  }
+  set indexedDBContentUpdated(handler) {
+    if (this._indexedDBContentUpdated) {
+      this._client.removeListener("Storage.indexedDBContentUpdated", this._indexedDBContentUpdated);
+    }
+    this._indexedDBContentUpdated = handler;
+    if (handler) {
+      this._client.on("Storage.indexedDBContentUpdated", handler);
+    }
+  }
 }
 export namespace Storage {
   /** Enum of possible storage types. */
@@ -6221,6 +6450,20 @@ export namespace Storage {
     cacheName: string;
   };
   export type CacheStorageContentUpdatedHandler = (params: CacheStorageContentUpdatedParameters) => void;
+  export type IndexedDBListUpdatedParameters = {
+    /** Origin to update. */
+    origin: string;
+  };
+  export type IndexedDBListUpdatedHandler = (params: IndexedDBListUpdatedParameters) => void;
+  export type IndexedDBContentUpdatedParameters = {
+    /** Origin to update. */
+    origin: string;
+    /** Database to update. */
+    databaseName: string;
+    /** ObjectStore to update. */
+    objectStoreName: string;
+  };
+  export type IndexedDBContentUpdatedHandler = (params: IndexedDBContentUpdatedParameters) => void;
   export type ClearDataForOriginParameters = {
     /** Security origin. */
     origin: string;
@@ -6244,6 +6487,14 @@ export namespace Storage {
     origin: string;
   };
   export type UntrackCacheStorageForOriginParameters = {
+    /** Security origin. */
+    origin: string;
+  };
+  export type TrackIndexedDBForOriginParameters = {
+    /** Security origin. */
+    origin: string;
+  };
+  export type UntrackIndexedDBForOriginParameters = {
     /** Security origin. */
     origin: string;
   };
@@ -6293,7 +6544,7 @@ export namespace Log {
   /** Log entry. */
   export interface LogEntry {
     /** Log entry source. */
-    source: "xml" | "javascript" | "network" | "storage" | "appcache" | "rendering" | "security" | "deprecation" | "worker" | "violation" | "intervention" | "other";
+    source: "xml" | "javascript" | "network" | "storage" | "appcache" | "rendering" | "security" | "deprecation" | "worker" | "violation" | "intervention" | "recommendation" | "other";
     /** Log entry severity. */
     level: "verbose" | "info" | "warning" | "error";
     /** Logged text. */
@@ -6310,6 +6561,8 @@ export namespace Log {
     networkRequestId?: Network.RequestId;
     /** Identifier of the worker associated with this entry. */
     workerId?: string;
+    /** Call arguments. */
+    args?: Runtime.RemoteObject[];
   }
   /** Violation configuration setting. */
   export interface ViolationSetting {
@@ -6424,6 +6677,10 @@ export class Browser {
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
+  }
+  /** Close browser gracefully. */
+  public close() {
+    return this._client.send<void>("Browser.close");
   }
   /** Get the browser window that contains the devtools target. */
   public getWindowForTarget(params: Browser.GetWindowForTargetParameters) {
@@ -6586,6 +6843,10 @@ export class Runtime {
   }
   public queryObjects(params: Runtime.QueryObjectsParameters) {
     return this._client.send<Runtime.QueryObjectsReturn>("Runtime.queryObjects", params);
+  }
+  /** Returns all let, const and class variables from global scope. */
+  public globalLexicalScopeNames(params: Runtime.GlobalLexicalScopeNamesParameters) {
+    return this._client.send<Runtime.GlobalLexicalScopeNamesReturn>("Runtime.globalLexicalScopeNames", params);
   }
   /** Issued when new execution context is created. */
   get executionContextCreated() {
@@ -6845,6 +7106,7 @@ export namespace Runtime {
     /** Creation frame of the Promise which produced the next synchronous trace when resolved, if available. */
     promiseCreationFrame?: CallFrame;
   }
+  export type AsyncTaskId = string;
   export type ExecutionContextCreatedParameters = {
     /** A newly created execution context. */
     context: ExecutionContextDescription;
@@ -6865,7 +7127,7 @@ export namespace Runtime {
   export type ExceptionRevokedParameters = {
     /** Reason describing why exception was revoked. */
     reason: string;
-    /** The id of revoked exception, as reported in <code>exceptionUnhandled</code>. */
+    /** The id of revoked exception, as reported in <code>exceptionThrown</code>. */
     exceptionId: number;
   };
   export type ExceptionRevokedHandler = (params: ExceptionRevokedParameters) => void;
@@ -7034,6 +7296,13 @@ export namespace Runtime {
     /** Array with objects. */
     objects: RemoteObject;
   };
+  export type GlobalLexicalScopeNamesParameters = {
+    /** Specifies in which execution context to lookup global scope variables. */
+    executionContextId?: ExecutionContextId;
+  };
+  export type GlobalLexicalScopeNamesReturn = {
+    names: string[];
+  };
 }
 /** Debugger domain exposes JavaScript debugging capabilities. It allows setting and removing breakpoints, stepping through execution, exploring stack traces, etc. */
 export class Debugger {
@@ -7082,13 +7351,16 @@ export class Debugger {
   public continueToLocation(params: Debugger.ContinueToLocationParameters) {
     return this._client.send<void>("Debugger.continueToLocation", params);
   }
+  public pauseOnAsyncTask(params: Debugger.PauseOnAsyncTaskParameters) {
+    return this._client.send<void>("Debugger.pauseOnAsyncTask", params);
+  }
   /** Steps over the statement. */
   public stepOver() {
     return this._client.send<void>("Debugger.stepOver");
   }
   /** Steps into the function call. */
-  public stepInto() {
-    return this._client.send<void>("Debugger.stepInto");
+  public stepInto(params: Debugger.StepIntoParameters) {
+    return this._client.send<void>("Debugger.stepInto", params);
   }
   /** Steps out of the function call. */
   public stepOut() {
@@ -7098,7 +7370,7 @@ export class Debugger {
   public pause() {
     return this._client.send<void>("Debugger.pause");
   }
-  /** Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
+  /** This method is deprecated - use Debugger.stepInto with breakOnAsyncCall and Debugger.pauseOnAsyncTask instead. Steps into next scheduled async task if any is scheduled before next pause. Returns success when async task is actually scheduled, returns error if no task were scheduled or another scheduleStepIntoAsync was called. */
   public scheduleStepIntoAsync() {
     return this._client.send<void>("Debugger.scheduleStepIntoAsync");
   }
@@ -7133,6 +7405,10 @@ export class Debugger {
   /** Changes value of variable in a callframe. Object-based scopes are not supported and must be mutated manually. */
   public setVariableValue(params: Debugger.SetVariableValueParameters) {
     return this._client.send<void>("Debugger.setVariableValue", params);
+  }
+  /** Changes return value in top frame. Available only at return break position. */
+  public setReturnValue(params: Debugger.SetReturnValueParameters) {
+    return this._client.send<void>("Debugger.setReturnValue", params);
   }
   /** Enables or disables async call stacks tracking. */
   public setAsyncCallStackDepth(params: Debugger.SetAsyncCallStackDepthParameters) {
@@ -7360,6 +7636,8 @@ export namespace Debugger {
     hitBreakpoints?: string[];
     /** Async stack trace, if any. */
     asyncStackTrace?: Runtime.StackTrace;
+    /** Scheduled async task id. */
+    scheduledAsyncTaskId?: Runtime.AsyncTaskId;
   };
   export type PausedHandler = (params: PausedParameters) => void;
   export type ResumedHandler = () => void;
@@ -7378,6 +7656,8 @@ export namespace Debugger {
     url?: string;
     /** Regex pattern for the URLs of the resources to set breakpoints on. Either <code>url</code> or <code>urlRegex</code> must be specified. */
     urlRegex?: string;
+    /** Script hash of the resources to set breakpoint on. */
+    scriptHash?: string;
     /** Offset in the line to set breakpoint at. */
     columnNumber?: number;
     /** Expression to use as a breakpoint condition. When specified, debugger will only stop on the breakpoint if this expression evaluates to true. */
@@ -7420,6 +7700,14 @@ export namespace Debugger {
     /** Location to continue to. */
     location: Location;
     targetCallFrames?: "any" | "current";
+  };
+  export type PauseOnAsyncTaskParameters = {
+    /** Debugger will pause when given async task is started. */
+    asyncTaskId: Runtime.AsyncTaskId;
+  };
+  export type StepIntoParameters = {
+    /** Debugger will issue additional Debugger.paused notification if any async task is scheduled before next pause. */
+    breakOnAsyncCall?: boolean;
   };
   export type SearchInContentParameters = {
     /** Id of the script to search in. */
@@ -7508,6 +7796,10 @@ export namespace Debugger {
     newValue: Runtime.CallArgument;
     /** Id of callframe that holds variable. */
     callFrameId: CallFrameId;
+  };
+  export type SetReturnValueParameters = {
+    /** New return value. */
+    newValue: Runtime.CallArgument;
   };
   export type SetAsyncCallStackDepthParameters = {
     /** Maximum depth of async call stacks. Setting to <code>0</code> will effectively disable collecting async call stacks (default). */
@@ -7827,6 +8119,9 @@ export class HeapProfiler {
   public stopSampling() {
     return this._client.send<HeapProfiler.StopSamplingReturn>("HeapProfiler.stopSampling");
   }
+  public getSamplingProfile() {
+    return this._client.send<HeapProfiler.GetSamplingProfileReturn>("HeapProfiler.getSamplingProfile");
+  }
   get addHeapSnapshotChunk() {
     return this._addHeapSnapshotChunk;
   }
@@ -7965,6 +8260,10 @@ export namespace HeapProfiler {
   };
   export type StopSamplingReturn = {
     /** Recorded sampling heap profile. */
+    profile: SamplingHeapProfile;
+  };
+  export type GetSamplingProfileReturn = {
+    /** Return the sampling profile being collected. */
     profile: SamplingHeapProfile;
   };
 }

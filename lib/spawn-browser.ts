@@ -101,9 +101,9 @@ function getArguments(dataDir: string, isContentShell: boolean, options?: ISpawn
 class BrowserProcess implements IBrowserProcess {
   public remoteDebuggingPort: number = 0;
   public dataDir: string;
+  public pid: number;
 
   private process: ChildProcess;
-  private pid: number;
   private lastError: Error;
   private hasExited: boolean = false;
 

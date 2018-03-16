@@ -1,4 +1,5 @@
-import { ChildProcess, spawn } from "child_process";
+import { ChildProcess } from "child_process";
+import execa from 'execa';
 import * as fs from "fs";
 import * as path from "path";
 import { delay } from "./delay";
@@ -108,8 +109,8 @@ class BrowserProcess implements IBrowserProcess {
   private hasExited: boolean = false;
 
   constructor(executablePath: string, args: string[]) {
-    const process = spawn(executablePath, args);
-    process.on("error", (err) => this.lastError = err);
+    const process = execa(executablePath, args);
+    process.on("error", (err: Error) => this.lastError = err);
     process.on("exit", () => this.hasExited = true);
     this.process = process;
     this.pid = process.pid;

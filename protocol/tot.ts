@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Mon Dec 11 2017 15:06:39 GMT-0800 (PST)
+ * Generated on Sat Mar 17 2018 16:21:03 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -486,6 +486,19 @@ export class Browser {
   public getVersion() {
     return this._client.send<Browser.GetVersionReturn>("Browser.getVersion");
   }
+  /** Returns the command line switches for the browser process if, and only if
+--enable-automation is on the commandline. */
+  public getBrowserCommandLine() {
+    return this._client.send<Browser.GetBrowserCommandLineReturn>("Browser.getBrowserCommandLine");
+  }
+  /** Get Chrome histograms. */
+  public getHistograms(params: Browser.GetHistogramsParameters) {
+    return this._client.send<Browser.GetHistogramsReturn>("Browser.getHistograms", params);
+  }
+  /** Get a Chrome histogram by name. */
+  public getHistogram(params: Browser.GetHistogramParameters) {
+    return this._client.send<Browser.GetHistogramReturn>("Browser.getHistogram", params);
+  }
   /** Get position and size of the browser window. */
   public getWindowBounds(params: Browser.GetWindowBoundsParameters) {
     return this._client.send<Browser.GetWindowBoundsReturn>("Browser.getWindowBounds", params);
@@ -516,6 +529,26 @@ export namespace Browser {
     /** The window state. Default to normal. */
     windowState?: WindowState;
   }
+  /** Chrome histogram bucket. */
+  export interface Bucket {
+    /** Minimum value (inclusive). */
+    low: number;
+    /** Maximum value (exclusive). */
+    high: number;
+    /** Number of samples. */
+    count: number;
+  }
+  /** Chrome histogram. */
+  export interface Histogram {
+    /** Name. */
+    name: string;
+    /** Sum of sample values. */
+    sum: number;
+    /** Total number of samples. */
+    count: number;
+    /** Buckets. */
+    buckets: Bucket[];
+  }
   export type GetVersionReturn = {
     /** Protocol version. */
     protocolVersion: string;
@@ -527,6 +560,28 @@ export namespace Browser {
     userAgent: string;
     /** V8 version. */
     jsVersion: string;
+  };
+  export type GetBrowserCommandLineReturn = {
+    /** Commandline parameters */
+    arguments: string[];
+  };
+  export type GetHistogramsParameters = {
+    /** Requested substring in name. Only histograms which have query as a
+substring in their name are extracted. An empty or absent query returns
+all histograms. */
+    query?: string;
+  };
+  export type GetHistogramsReturn = {
+    /** Histograms. */
+    histograms: Histogram[];
+  };
+  export type GetHistogramParameters = {
+    /** Requested histogram name. */
+    name: string;
+  };
+  export type GetHistogramReturn = {
+    /** Histogram. */
+    histogram: Histogram;
   };
   export type GetWindowBoundsParameters = {
     /** Browser window id. */
@@ -657,7 +712,8 @@ property */
   public startRuleUsageTracking() {
     return this._client.send<void>("CSS.startRuleUsageTracking");
   }
-  /** The list of rules with an indication of whether these were used */
+  /** Stop tracking rule usage and return the list of rules that were used since last call to
+`takeCoverageDelta` (or since start of coverage instrumentation) */
   public stopRuleUsageTracking() {
     return this._client.send<CSS.StopRuleUsageTrackingReturn>("CSS.stopRuleUsageTracking");
   }
@@ -666,7 +722,8 @@ instrumentation) */
   public takeCoverageDelta() {
     return this._client.send<CSS.TakeCoverageDeltaReturn>("CSS.takeCoverageDelta");
   }
-  /** Fires whenever a web font gets loaded. */
+  /** Fires whenever a web font is updated.  A non-empty font parameter indicates a successfully loaded
+web font */
   get fontsUpdated() {
     return this._fontsUpdated;
   }
@@ -937,6 +994,25 @@ available). */
     /** Amount of glyphs that were rendered with this font. */
     glyphCount: number;
   }
+  /** Properties of a web font: https://www.w3.org/TR/2008/REC-CSS2-20080411/fonts.html#font-descriptions */
+  export interface FontFace {
+    /** The font-family. */
+    fontFamily: string;
+    /** The font-style. */
+    fontStyle: string;
+    /** The font-variant. */
+    fontVariant: string;
+    /** The font-weight. */
+    fontWeight: string;
+    /** The font-stretch. */
+    fontStretch: string;
+    /** The unicode-range. */
+    unicodeRange: string;
+    /** The src. */
+    src: string;
+    /** The resolved platform font family */
+    platformFontFamily: string;
+  }
   /** CSS keyframes rule representation. */
   export interface CSSKeyframesRule {
     /** Animation name. */
@@ -965,7 +1041,11 @@ stylesheet rules) this rule came from. */
     /** New style text. */
     text: string;
   }
-  export type FontsUpdatedHandler = () => void;
+  export type FontsUpdatedParameters = {
+    /** The web font that has loaded. */
+    font?: FontFace;
+  };
+  export type FontsUpdatedHandler = (params: FontsUpdatedParameters) => void;
   export type MediaQueryResultChangedHandler = () => void;
   export type StyleSheetAddedParameters = {
     /** Added stylesheet metainfo. */
@@ -1437,6 +1517,10 @@ $x functions). */
   /** Undoes the last performed action. */
   public undo() {
     return this._client.send<void>("DOM.undo");
+  }
+  /** Returns iframe node that owns iframe with the given domain. */
+  public getFrameOwner(params: DOM.GetFrameOwnerParameters) {
+    return this._client.send<DOM.GetFrameOwnerReturn>("DOM.getFrameOwner", params);
   }
   /** Fired when `Element`'s attribute is modified. */
   get attributeModified() {
@@ -2140,6 +2224,12 @@ successfully. */
     /** Outer HTML markup to set. */
     outerHTML: string;
   };
+  export type GetFrameOwnerParameters = {
+    frameId: Page.FrameId;
+  };
+  export type GetFrameOwnerReturn = {
+    nodeId: NodeId;
+  };
 }
 /** DOM debugging allows setting breakpoints on particular DOM operations and events. JavaScript
 execution will stop on these operations as if there was a regular breakpoint set. */
@@ -2336,19 +2426,27 @@ any. */
     templateContentIndex?: number;
     /** Type of a pseudo element node. */
     pseudoType?: DOM.PseudoType;
+    /** Shadow root type. */
+    shadowRootType?: DOM.ShadowRootType;
     /** Whether this DOM node responds to mouse clicks. This includes nodes that have had click
 event listeners attached via JavaScript as well as anchor tags that naturally navigate when
 clicked. */
     isClickable?: boolean;
+    /** Details of the node's event listeners, if any. */
+    eventListeners?: DOMDebugger.EventListener[];
+    /** The selected url for nodes with a srcset attribute. */
+    currentSourceURL?: string;
   }
   /** Details of post layout rendered text positions. The exact layout should not be regarded as
 stable and may change between versions. */
   export interface InlineTextBox {
     /** The absolute position bounding box. */
     boundingBox: DOM.Rect;
-    /** The starting index in characters, for this post layout textbox substring. */
+    /** The starting index in characters, for this post layout textbox substring. Characters that
+would be represented as a surrogate pair in UTF-16 have length 2. */
     startCharacterIndex: number;
-    /** The number of characters in this post layout textbox substring. */
+    /** The number of characters in this post layout textbox substring. Characters that would be
+represented as a surrogate pair in UTF-16 have length 2. */
     numCharacters: number;
   }
   /** Details of an element in the DOM tree with a LayoutObject. */
@@ -2363,6 +2461,10 @@ stable and may change between versions. */
     inlineTextNodes?: InlineTextBox[];
     /** Index into the `computedStyles` array returned by `getSnapshot`. */
     styleIndex?: number;
+    /** Global paint order index, which is determined by the stacking order of the nodes. Nodes
+that are painted together will have the same index. Only provided if includePaintOrder in
+getSnapshot was true. */
+    paintOrder?: number;
   }
   /** A subset of the full ComputedStyle as defined by the request whitelist. */
   export interface ComputedStyle {
@@ -2379,6 +2481,10 @@ stable and may change between versions. */
   export type GetSnapshotParameters = {
     /** Whitelist of computed styles to return. */
     computedStyleWhitelist: string[];
+    /** Whether or not to retrieve details of DOM listeners (default false). */
+    includeEventListeners?: boolean;
+    /** Whether to determine and include the paint order index of LayoutTreeNodes (default false). */
+    includePaintOrder?: boolean;
   };
   export type GetSnapshotReturn = {
     /** The nodes in the DOM tree. The DOMNode at index 0 corresponds to the root document. */
@@ -2847,6 +2953,9 @@ virtualTimeBudgetExpired event is sent. */
     /** If set this specifies the maximum number of tasks that can be run before virtual is forced
 forwards to prevent deadlock. */
     maxVirtualTimeTaskStarvationCount?: number;
+    /** If set the virtual time policy change should be deferred until any frame starts navigating.
+Note any previous deferred policy change is superseded. */
+    waitForNavigation?: boolean;
   };
   export type SetVirtualTimePolicyReturn = {
     /** Absolute timestamp at which virtual time was first enabled (milliseconds since epoch). */
@@ -2861,7 +2970,6 @@ forwards to prevent deadlock. */
 }
 /** This domain provides experimental commands only supported in headless mode. */
 export class HeadlessExperimental {
-  private _mainFrameReadyForScreenshots: HeadlessExperimental.MainFrameReadyForScreenshotsHandler | null = null;
   private _needsBeginFramesChanged: HeadlessExperimental.NeedsBeginFramesChangedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
@@ -2869,9 +2977,15 @@ export class HeadlessExperimental {
   }
   /** Sends a BeginFrame to the target and returns when the frame was completed. Optionally captures a
 screenshot from the resulting frame. Requires that the target was created with enabled
-BeginFrameControl. */
+BeginFrameControl. Designed for use with --run-all-compositor-stages-before-draw, see also
+https://goo.gl/3zHXhB for more background. */
   public beginFrame(params: HeadlessExperimental.BeginFrameParameters) {
     return this._client.send<HeadlessExperimental.BeginFrameReturn>("HeadlessExperimental.beginFrame", params);
+  }
+  /** Puts the browser into deterministic mode.  Only effective for subsequently created web contents.
+Only supported in headless mode.  Once set there's no way of leaving deterministic mode. */
+  public enterDeterministicMode(params: HeadlessExperimental.EnterDeterministicModeParameters) {
+    return this._client.send<void>("HeadlessExperimental.enterDeterministicMode", params);
   }
   /** Disables headless events for the target. */
   public disable() {
@@ -2880,20 +2994,6 @@ BeginFrameControl. */
   /** Enables headless events for the target. */
   public enable() {
     return this._client.send<void>("HeadlessExperimental.enable");
-  }
-  /** Issued when the main frame has first submitted a frame to the browser. May only be fired while a
-BeginFrame is in flight. Before this event, screenshotting requests may fail. */
-  get mainFrameReadyForScreenshots() {
-    return this._mainFrameReadyForScreenshots;
-  }
-  set mainFrameReadyForScreenshots(handler) {
-    if (this._mainFrameReadyForScreenshots) {
-      this._client.removeListener("HeadlessExperimental.mainFrameReadyForScreenshots", this._mainFrameReadyForScreenshots);
-    }
-    this._mainFrameReadyForScreenshots = handler;
-    if (handler) {
-      this._client.on("HeadlessExperimental.mainFrameReadyForScreenshots", handler);
-    }
   }
   /** Issued when the target starts or stops needing BeginFrames. */
   get needsBeginFramesChanged() {
@@ -2917,7 +3017,6 @@ export namespace HeadlessExperimental {
     /** Compression quality from range [0..100] (jpeg only). */
     quality?: number;
   }
-  export type MainFrameReadyForScreenshotsHandler = () => void;
   export type NeedsBeginFramesChangedParameters = {
     /** True if BeginFrames are needed, false otherwise. */
     needsBeginFrames: boolean;
@@ -2933,18 +3032,25 @@ calculated from the frameTime and interval. */
     /** The interval between BeginFrames that is reported to the compositor, in milliseconds.
 Defaults to a 60 frames/second interval, i.e. about 16.666 milliseconds. */
     interval?: number;
+    /** Whether updates should not be committed and drawn onto the display. False by default. If
+true, only side effects of the BeginFrame will be run, such as layout and animations, but
+any visual updates may not be visible on the display or in screenshots. */
+    noDisplayUpdates?: boolean;
     /** If set, a screenshot of the frame will be captured and returned in the response. Otherwise,
-no screenshot will be captured. */
+no screenshot will be captured. Note that capturing a screenshot can fail, for example,
+during renderer initialization. In such a case, no screenshot data will be returned. */
     screenshot?: ScreenshotParams;
   };
   export type BeginFrameReturn = {
     /** Whether the BeginFrame resulted in damage and, thus, a new frame was committed to the
-display. */
+display. Reported for diagnostic uses, may be removed in the future. */
     hasDamage: boolean;
-    /** Whether the main frame submitted a new display frame in response to this BeginFrame. */
-    mainFrameContentUpdated: boolean;
     /** Base64-encoded image data of the screenshot, if one was requested and successfully taken. */
     screenshotData?: string;
+  };
+  export type EnterDeterministicModeParameters = {
+    /** Number of seconds since the Epoch */
+    initialDate?: number;
   };
 }
 /** Input/Output operations for streams produced by DevTools. */
@@ -3311,10 +3417,10 @@ one by one. */
     x: number;
     /** Y coordinate of the mouse pointer in DIP. */
     y: number;
-    /** Time at which the event occurred. */
-    timestamp: TimeSinceEpoch;
     /** Mouse button. */
     button: "none" | "left" | "middle" | "right";
+    /** Time at which the event occurred (default: current time). */
+    timestamp?: TimeSinceEpoch;
     /** X delta in DIP for mouse wheel event (default: 0). */
     deltaX?: number;
     /** Y delta in DIP for mouse wheel event (default: 0). */
@@ -3388,6 +3494,7 @@ for the preferred input type). */
 export class Inspector {
   private _detached: Inspector.DetachedHandler | null = null;
   private _targetCrashed: Inspector.TargetCrashedHandler | null = null;
+  private _targetReloadedAfterCrash: Inspector.TargetReloadedAfterCrashHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -3426,6 +3533,19 @@ export class Inspector {
       this._client.on("Inspector.targetCrashed", handler);
     }
   }
+  /** Fired when debugging target has reloaded after crash */
+  get targetReloadedAfterCrash() {
+    return this._targetReloadedAfterCrash;
+  }
+  set targetReloadedAfterCrash(handler) {
+    if (this._targetReloadedAfterCrash) {
+      this._client.removeListener("Inspector.targetReloadedAfterCrash", this._targetReloadedAfterCrash);
+    }
+    this._targetReloadedAfterCrash = handler;
+    if (handler) {
+      this._client.on("Inspector.targetReloadedAfterCrash", handler);
+    }
+  }
 }
 export namespace Inspector {
   export type DetachedParameters = {
@@ -3434,6 +3554,7 @@ export namespace Inspector {
   };
   export type DetachedHandler = (params: DetachedParameters) => void;
   export type TargetCrashedHandler = () => void;
+  export type TargetReloadedAfterCrashHandler = () => void;
 }
 export class LayerTree {
   private _layerPainted: LayerTree.LayerPaintedHandler | null = null;
@@ -3751,10 +3872,46 @@ export class Memory {
   public simulatePressureNotification(params: Memory.SimulatePressureNotificationParameters) {
     return this._client.send<void>("Memory.simulatePressureNotification", params);
   }
+  /** Start collecting native memory profile. */
+  public startSampling(params: Memory.StartSamplingParameters) {
+    return this._client.send<void>("Memory.startSampling", params);
+  }
+  /** Stop collecting native memory profile. */
+  public stopSampling() {
+    return this._client.send<void>("Memory.stopSampling");
+  }
+  /** Retrieve native memory allocations profile
+collected since renderer process startup. */
+  public getAllTimeSamplingProfile() {
+    return this._client.send<Memory.GetAllTimeSamplingProfileReturn>("Memory.getAllTimeSamplingProfile");
+  }
+  /** Retrieve native memory allocations profile
+collected since browser process startup. */
+  public getBrowserSamplingProfile() {
+    return this._client.send<Memory.GetBrowserSamplingProfileReturn>("Memory.getBrowserSamplingProfile");
+  }
+  /** Retrieve native memory allocations profile collected since last
+`startSampling` call. */
+  public getSamplingProfile() {
+    return this._client.send<Memory.GetSamplingProfileReturn>("Memory.getSamplingProfile");
+  }
 }
 export namespace Memory {
   /** Memory pressure level. */
   export type PressureLevel = "moderate" | "critical";
+  /** Heap profile sample. */
+  export interface SamplingProfileNode {
+    /** Size of the sampled allocation. */
+    size: number;
+    /** Total bytes attributed to this sample. */
+    total: number;
+    /** Execution stack at the point of allocation. */
+    stack: string[];
+  }
+  /** Array of heap profile samples. */
+  export interface SamplingProfile {
+    samples: SamplingProfileNode[];
+  }
   export type GetDOMCountersReturn = {
     documents: number;
     nodes: number;
@@ -3767,6 +3924,21 @@ export namespace Memory {
   export type SimulatePressureNotificationParameters = {
     /** Memory pressure level of the notification. */
     level: PressureLevel;
+  };
+  export type StartSamplingParameters = {
+    /** Average number of bytes between samples. */
+    samplingInterval?: number;
+    /** Do not randomize intervals between samples. */
+    suppressRandomness?: boolean;
+  };
+  export type GetAllTimeSamplingProfileReturn = {
+    profile: SamplingProfile;
+  };
+  export type GetBrowserSamplingProfileReturn = {
+    profile: SamplingProfile;
+  };
+  export type GetSamplingProfileReturn = {
+    profile: SamplingProfile;
   };
 }
 /** Network domain allows tracking network activities of the page. It exposes information about http,
@@ -3852,6 +4024,10 @@ detailed cookie information in the `cookies` field. */
   /** Returns content served for the given request. */
   public getResponseBody(params: Network.GetResponseBodyParameters) {
     return this._client.send<Network.GetResponseBodyReturn>("Network.getResponseBody", params);
+  }
+  /** Returns post data sent with the request. Returns an error when no data was sent with the request. */
+  public getRequestPostData(params: Network.GetRequestPostDataParameters) {
+    return this._client.send<Network.GetRequestPostDataReturn>("Network.getRequestPostData", params);
   }
   /** Returns content served for the given currently intercepted request. */
   public getResponseBodyForInterception(params: Network.GetResponseBodyForInterceptionParameters) {
@@ -4181,6 +4357,8 @@ milliseconds relatively to this requestTime. */
     headers: Headers;
     /** HTTP POST request data. */
     postData?: string;
+    /** True when the request has POST data. Note that postData might still be omitted when this flag is true when the data is too long. */
+    hasPostData?: boolean;
     /** The mixed content type of the request. */
     mixedContentType?: Security.MixedContentType;
     /** Priority of the resource request at the time request is sent. */
@@ -4459,6 +4637,8 @@ backslash. Omitting is equivalent to "*". */
     timestamp: MonotonicTime;
     /** Total number of bytes received for this request. */
     encodedDataLength: number;
+    /** Set when response was blocked due to being cross-site document response. */
+    blockedCrossSiteDocument?: boolean;
   };
   export type LoadingFinishedHandler = (params: LoadingFinishedParameters) => void;
   export type RequestInterceptedParameters = {
@@ -4515,6 +4695,8 @@ intercepting request or auth retry occurred. */
     type?: Page.ResourceType;
     /** Frame identifier. */
     frameId?: Page.FrameId;
+    /** Whether the request is initiated by a user gesture. Defaults to false. */
+    hasUserGesture?: boolean;
   };
   export type RequestWillBeSentHandler = (params: RequestWillBeSentParameters) => void;
   export type ResourceChangedPriorityParameters = {
@@ -4667,6 +4849,8 @@ provided URL. */
     maxTotalBufferSize?: number;
     /** Per-resource buffer size in bytes to use when preserving network payloads (XHRs, etc). */
     maxResourceBufferSize?: number;
+    /** Longest post body size (in bytes) that would be included in requestWillBeSent notification */
+    maxPostDataSize?: number;
   };
   export type GetAllCookiesReturn = {
     /** Array of cookie objects. */
@@ -4696,6 +4880,14 @@ provided URL. */
     body: string;
     /** True, if content was sent as base64. */
     base64Encoded: boolean;
+  };
+  export type GetRequestPostDataParameters = {
+    /** Identifier of the network request to get content for. */
+    requestId: RequestId;
+  };
+  export type GetRequestPostDataReturn = {
+    /** Base64-encoded request body. */
+    postData: string;
   };
   export type GetResponseBodyForInterceptionParameters = {
     /** Identifier for the intercepted request to get body for. */
@@ -5167,10 +5359,6 @@ information in the `cookies` field. */
   public setAdBlockingEnabled(params: Page.SetAdBlockingEnabledParameters) {
     return this._client.send<void>("Page.setAdBlockingEnabled", params);
   }
-  /** Controls whether browser will open a new inspector window for connected pages. */
-  public setAutoAttachToCreatedPages(params: Page.SetAutoAttachToCreatedPagesParameters) {
-    return this._client.send<void>("Page.setAutoAttachToCreatedPages", params);
-  }
   /** Overrides the values of device screen dimensions (window.screen.width, window.screen.height,
 window.innerWidth, window.innerHeight, and "device-width"/"device-height"-related CSS media
 query results). */
@@ -5209,6 +5397,10 @@ unavailable. */
   /** Force the page stop all navigations and pending resource fetches. */
   public stopLoading() {
     return this._client.send<void>("Page.stopLoading");
+  }
+  /** Crashes renderer on the IO thread, generates minidumps. */
+  public crash() {
+    return this._client.send<void>("Page.crash");
   }
   /** Stops sending each frame in the `screencastFrame`. */
   public stopScreencast() {
@@ -5809,6 +6001,8 @@ dialog. */
     referrer?: string;
     /** Intended transition type. */
     transitionType?: TransitionType;
+    /** Frame id to navigate, if not specified navigates the top frame. */
+    frameId?: FrameId;
   };
   export type NavigateReturn = {
     /** Frame id that has navigated (or failed to navigate) */
@@ -5849,6 +6043,21 @@ print all pages. */
     /** Whether to silently ignore invalid but successfully parsed page ranges, such as '3-2'.
 Defaults to false. */
     ignoreInvalidPageRanges?: boolean;
+    /** HTML template for the print header. Should be valid HTML markup with following
+classes used to inject printing values into them:
+- date - formatted print date
+- title - document title
+- url - document location
+- pageNumber - current page number
+- totalPages - total pages in the document
+
+For example, <span class=title></span> would generate span containing the title. */
+    headerTemplate?: string;
+    /** HTML template for the print footer. Should use the same format as the `headerTemplate`. */
+    footerTemplate?: string;
+    /** Whether or not to prefer page size as defined by css. Defaults to false,
+in which case the content will be scaled to fit the paper size. */
+    preferCSSPageSize?: boolean;
   };
   export type PrintToPDFReturn = {
     /** Base64-encoded pdf data. */
@@ -5857,7 +6066,8 @@ Defaults to false. */
   export type ReloadParameters = {
     /** If true, browser cache is ignored (as if the user pressed Shift+refresh). */
     ignoreCache?: boolean;
-    /** If set, the script will be injected into all frames of the inspected page after reload. */
+    /** If set, the script will be injected into all frames of the inspected page after reload.
+Argument will be ignored if reloading dataURL origin. */
     scriptToEvaluateOnLoad?: string;
   };
   export type RemoveScriptToEvaluateOnLoadParameters = {
@@ -5889,10 +6099,6 @@ Defaults to false. */
   export type SetAdBlockingEnabledParameters = {
     /** Whether to block ads. */
     enabled: boolean;
-  };
-  export type SetAutoAttachToCreatedPagesParameters = {
-    /** If true, browser will open a new inspector window for every page created from this one. */
-    autoAttach: boolean;
   };
   export type SetDeviceMetricsOverrideParameters = {
     /** Overriding width value in pixels (minimum 0, maximum 10000000). 0 disables the override. */
@@ -6041,6 +6247,10 @@ export class Security {
   public enable() {
     return this._client.send<void>("Security.enable");
   }
+  /** Enable/disable whether all certificate errors should be ignored. */
+  public setIgnoreCertificateErrors(params: Security.SetIgnoreCertificateErrorsParameters) {
+    return this._client.send<void>("Security.setIgnoreCertificateErrors", params);
+  }
   /** Handles a certificate error that fired a certificateError event. */
   public handleCertificateError(params: Security.HandleCertificateErrorParameters) {
     return this._client.send<void>("Security.handleCertificateError", params);
@@ -6052,7 +6262,8 @@ be handled by the DevTools client and should be answered with handleCertificateE
   }
   /** There is a certificate error. If overriding certificate errors is enabled, then it should be
 handled with the handleCertificateError command. Note: this event does not fire if the
-certificate error has been allowed internally. */
+certificate error has been allowed internally. Only one client per target should override
+certificate errors at the same time. */
   get certificateError() {
     return this._certificateError;
   }
@@ -6091,6 +6302,8 @@ https://www.w3.org/TR/mixed-content/#categories */
   export interface SecurityStateExplanation {
     /** Security state representing the severity of the factor being explained. */
     securityState: SecurityState;
+    /** Title describing the type of factor. */
+    title: string;
     /** Short phrase describing the type of factor. */
     summary: string;
     /** Full text explanation of the factor. */
@@ -6145,6 +6358,10 @@ request and cancel will cancel the request. */
     summary?: string;
   };
   export type SecurityStateChangedHandler = (params: SecurityStateChangedParameters) => void;
+  export type SetIgnoreCertificateErrorsParameters = {
+    /** If true, all certificate errors will be ignored. */
+    ignore: boolean;
+  };
   export type HandleCertificateErrorParameters = {
     /** The ID of the event. */
     eventId: number;
@@ -6573,9 +6790,6 @@ one. */
   public sendMessageToTarget(params: Target.SendMessageToTargetParameters) {
     return this._client.send<void>("Target.sendMessageToTarget", params);
   }
-  public setAttachToFrames(params: Target.SetAttachToFramesParameters) {
-    return this._client.send<void>("Target.setAttachToFrames", params);
-  }
   /** Controls whether to automatically attach to new targets which are considered to be related to
 this one. When turned on, attaches to all existing related targets as well. When turned off,
 automatically detaches from all currently attached targets. */
@@ -6792,10 +7006,6 @@ not supported on MacOS yet, false by default). */
     sessionId?: SessionID;
     /** Deprecated. */
     targetId?: TargetID;
-  };
-  export type SetAttachToFramesParameters = {
-    /** Whether to attach to frames. */
-    value: boolean;
   };
   export type SetAutoAttachParameters = {
     /** Whether to auto-attach to related targets. */
@@ -8209,12 +8419,13 @@ export namespace Runtime {
   export type ScriptId = string;
   /** Unique object identifier. */
   export type RemoteObjectId = string;
-  /** Primitive value which cannot be JSON-stringified. */
-  export type UnserializableValue = "Infinity" | "NaN" | "-Infinity" | "-0";
+  /** Primitive value which cannot be JSON-stringified. Includes values `-0`, `NaN`, `Infinity`,
+`-Infinity`, and bigint literals. */
+  export type UnserializableValue = string;
   /** Mirror object referencing original JavaScript object. */
   export interface RemoteObject {
     /** Object type. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "bigint";
     /** Object subtype hint. Specified for `object` type values only. */
     subtype?: "array" | "null" | "node" | "regexp" | "date" | "map" | "set" | "weakmap" | "weakset" | "iterator" | "generator" | "error" | "proxy" | "promise" | "typedarray";
     /** Object class (constructor) name. Specified for `object` type values only. */
@@ -8242,7 +8453,7 @@ property. */
   /** Object containing abbreviated remote object value. */
   export interface ObjectPreview {
     /** Object type. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "bigint";
     /** Object subtype hint. Specified for `object` type values only. */
     subtype?: "array" | "null" | "node" | "regexp" | "date" | "map" | "set" | "weakmap" | "weakset" | "iterator" | "generator" | "error";
     /** String representation of the object. */
@@ -8258,7 +8469,7 @@ property. */
     /** Property name. */
     name: string;
     /** Object type. Accessor means that the property itself is an accessor property. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "accessor";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "accessor" | "bigint";
     /** User-friendly property value string. */
     value?: string;
     /** Nested value preview. */
@@ -8520,6 +8731,8 @@ evaluation will be performed in the context of the inspected page. */
     /** Whether execution should `await` for resulting value and return once awaited promise is
 resolved. */
     awaitPromise?: boolean;
+    /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
+    throwOnSideEffect?: boolean;
   };
   export type EvaluateReturn = {
     /** Evaluation result. */
@@ -8557,6 +8770,8 @@ returned either. */
   export type QueryObjectsParameters = {
     /** Identifier of the prototype to return objects for. */
     prototypeObjectId: RemoteObjectId;
+    /** Symbolic group name that can be used to release the results. */
+    objectGroup?: string;
   };
   export type QueryObjectsReturn = {
     /** Array with objects. */

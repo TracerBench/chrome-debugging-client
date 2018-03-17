@@ -27,16 +27,22 @@ interface IErrorResponseMessage {
   };
 }
 
-interface IMessage extends IEventMessage, ISuccessResponseMessage, IErrorResponseMessage {}
+interface IMessage
+  extends IEventMessage,
+    ISuccessResponseMessage,
+    IErrorResponseMessage {}
 
-interface ICommandResponseMessage extends ISuccessResponseMessage, IErrorResponseMessage {}
+interface ICommandResponseMessage
+  extends ISuccessResponseMessage,
+    IErrorResponseMessage {}
 
 export default function createDebuggingProtocolClient(): IDebuggingProtocolClient {
   return new DebuggingProtocol();
 }
 
 /* tslint:disable:max-classes-per-file */
-class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient {
+class DebuggingProtocol extends EventEmitter
+  implements IDebuggingProtocolClient {
   public socket: IWebSocketConnection;
   private seq = 0;
   private pendingRequests = new Map<number, ICommandRequest>();
@@ -48,7 +54,7 @@ class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient
   public send(method: string, params?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const id = this.seq++;
-      this.socket.send(JSON.stringify({id, method, params}));
+      this.socket.send(JSON.stringify({ id, method, params }));
       this.pendingRequests.set(id, { id, method, params, resolve, reject });
     }).then((res: ICommandResponseMessage) => {
       if (res.error) {
@@ -89,7 +95,7 @@ class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient
 
   private clearPending(err: Error) {
     if (this.pendingRequests.size) {
-      this.pendingRequests.forEach((req) => {
+      this.pendingRequests.forEach(req => {
         req.reject(err);
       });
       this.pendingRequests.clear();
@@ -99,10 +105,7 @@ class DebuggingProtocol extends EventEmitter implements IDebuggingProtocolClient
 
 class ProtocolError extends Error {
   public code: number;
-  constructor(err: {
-    code: number;
-    message: string;
-  }) {
+  constructor(err: { code: number; message: string }) {
     super(err.message);
     this.code = err.code;
   }

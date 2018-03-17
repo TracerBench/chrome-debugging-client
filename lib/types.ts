@@ -2,9 +2,14 @@
  * The session is a factory for the various debugging tools/clients that disposes them at the end.
  */
 export interface ISession extends IDisposable {
-  spawnBrowser(browserType: string, options?: IResolveOptions & ISpawnOptions): Promise<IBrowserProcess>;
+  spawnBrowser(
+    browserType: string,
+    options?: IResolveOptions & ISpawnOptions,
+  ): Promise<IBrowserProcess>;
   createAPIClient(host: string, port: number): IAPIClient;
-  openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient>;
+  openDebuggingProtocol(
+    webSocketDebuggerUrl: string,
+  ): Promise<IDebuggingProtocolClient>;
 }
 
 export interface IAPIClient {
@@ -27,13 +32,15 @@ export interface ITabResponse {
 }
 
 export interface IVersionResponse {
-  "Browser": string;
+  Browser: string;
   "Protocol-Version": string;
   "User-Agent": string;
   "WebKit-Version": string;
 }
 
-export interface IDebuggingProtocolClient extends IEventNotifier, IWebSocketDelegate {
+export interface IDebuggingProtocolClient
+  extends IEventNotifier,
+    IWebSocketDelegate {
   send<T>(command: string, params?: any): Promise<T>;
   send(command: string, params?: any): Promise<any>;
 }
@@ -57,7 +64,10 @@ export interface IHTTPClient {
 }
 
 export interface IWebSocketOpener {
-  open(url: string, delegate: IWebSocketDelegate): Promise<IWebSocketConnection>;
+  open(
+    url: string,
+    delegate: IWebSocketDelegate,
+  ): Promise<IWebSocketConnection>;
 }
 
 export interface IWebSocketConnection extends IDisposable {

@@ -16,7 +16,9 @@ import {
   ISpawnOptions,
 } from "./types";
 
-export async function createSession<T>(cb: (session: ISession) => PromiseLike<T> | T): Promise<T> {
+export async function createSession<T>(
+  cb: (session: ISession) => PromiseLike<T> | T,
+): Promise<T> {
   const session = new Session();
   try {
     return await cb(session);
@@ -25,7 +27,10 @@ export async function createSession<T>(cb: (session: ISession) => PromiseLike<T>
   }
 }
 
-export async function createSessions<T>(count: number, cb: (sessions: ISession[]) => PromiseLike<T> | T): Promise<T> {
+export async function createSessions<T>(
+  count: number,
+  cb: (sessions: ISession[]) => PromiseLike<T> | T,
+): Promise<T> {
   const disposables = new Disposables();
   const sessions: ISession[] = [];
   try {
@@ -43,12 +48,19 @@ export async function createSessions<T>(count: number, cb: (sessions: ISession[]
 class Session implements IDisposable {
   private disposables = new Disposables();
 
-  public async spawnBrowser(browserType: string, options?: IResolveOptions & ISpawnOptions): Promise<IBrowserProcess> {
+  public async spawnBrowser(
+    browserType: string,
+    options?: IResolveOptions & ISpawnOptions,
+  ): Promise<IBrowserProcess> {
     const browser = resolveBrowser(browserType, options);
     const tmpDir = await createTmpDir();
     this.disposables.add(tmpDir);
     const process = await spawnBrowser(
-      browser.executablePath, tmpDir.path, browser.isContentShell, options);
+      browser.executablePath,
+      tmpDir.path,
+      browser.isContentShell,
+      options,
+    );
     this.disposables.add(process);
     return process;
   }
@@ -57,9 +69,14 @@ class Session implements IDisposable {
     return createAPIClient(createHTTPClient(host, port));
   }
 
-  public async openDebuggingProtocol(webSocketDebuggerUrl: string): Promise<IDebuggingProtocolClient> {
+  public async openDebuggingProtocol(
+    webSocketDebuggerUrl: string,
+  ): Promise<IDebuggingProtocolClient> {
     const debuggingProtocol = createDebuggingProtocolClient();
-    const connection = await openWebSocket(webSocketDebuggerUrl, debuggingProtocol);
+    const connection = await openWebSocket(
+      webSocketDebuggerUrl,
+      debuggingProtocol,
+    );
     this.disposables.add(connection);
     return debuggingProtocol;
   }

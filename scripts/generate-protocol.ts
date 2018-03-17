@@ -23,7 +23,7 @@ generate(
 /* tslint:disable:no-console */
 function generate(host: string, path: string, file: string) {
   console.log(`fetching ${path}`);
-  https.get({ host, path }, (res) => {
+  https.get({ host, path }, res => {
     const chunks: Buffer[] = [];
     res.on("data", (chunk: Buffer) => {
       chunks.push(chunk);

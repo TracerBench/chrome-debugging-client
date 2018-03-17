@@ -37,9 +37,14 @@ export interface IDoc {
 }
 
 export type TypeRefOrDescriptor = ITypeRef | Descriptor;
-export type Descriptor = IObjectDescriptor | IArrayDescriptor | IEnumDescriptor |
-                         StringDescriptor | INumberDescriptor | IBooleanDescriptor |
-                         IAnyDescriptor;
+export type Descriptor =
+  | IObjectDescriptor
+  | IArrayDescriptor
+  | IEnumDescriptor
+  | StringDescriptor
+  | INumberDescriptor
+  | IBooleanDescriptor
+  | IAnyDescriptor;
 export type StringDescriptor = IStringDescriptor | IEnumDescriptor;
 
 export type Type = TypeRefOrDescriptor & {
@@ -92,7 +97,9 @@ export function isTypeRef(desc: TypeRefOrDescriptor): desc is ITypeRef {
   return "$ref" in desc;
 }
 
-export function isObjectDescriptor(desc: Descriptor): desc is IObjectDescriptor {
+export function isObjectDescriptor(
+  desc: Descriptor,
+): desc is IObjectDescriptor {
   return "object" === desc.type;
 }
 
@@ -104,10 +111,14 @@ export function isStringDescriptor(desc: Descriptor): desc is StringDescriptor {
   return "string" === desc.type;
 }
 
-export function isEnumDescriptor(desc: StringDescriptor): desc is IEnumDescriptor {
+export function isEnumDescriptor(
+  desc: StringDescriptor,
+): desc is IEnumDescriptor {
   return "enum" in desc;
 }
 
-export function isNumberDescriptor(desc: Descriptor): desc is INumberDescriptor {
+export function isNumberDescriptor(
+  desc: Descriptor,
+): desc is INumberDescriptor {
   return "number" === desc.type || "integer" === desc.type;
 }

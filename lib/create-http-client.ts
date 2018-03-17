@@ -2,7 +2,10 @@ import { ClientRequest, get, IncomingMessage } from "http";
 import { eventPromise } from "./event-promise";
 import { IHTTPClient } from "./types";
 
-export default function createHTTPClient(host: string, port: number): IHTTPClient {
+export default function createHTTPClient(
+  host: string,
+  port: number,
+): IHTTPClient {
   return new HTTPClient(host, port);
 }
 
@@ -35,7 +38,7 @@ async function getResponse(request: ClientRequest): Promise<IncomingMessage> {
 async function readResponseBody(response: IncomingMessage): Promise<string> {
   let body = "";
   response.setEncoding("utf8");
-  response.on("data", (chunk) => {
+  response.on("data", chunk => {
     body += chunk;
   });
   await eventPromise(response, "end", "error");

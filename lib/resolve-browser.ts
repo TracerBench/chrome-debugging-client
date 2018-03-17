@@ -18,17 +18,23 @@ const APP_NAMES = {
 
 const platform = (() => {
   switch (os.platform()) {
-    case "darwin": return "darwin";
-    case "win32": return "win32";
+    case "darwin":
+      return "darwin";
+    case "win32":
+      return "win32";
     case "linux":
-    default: return "linux";
+    default:
+      return "linux";
   }
 })();
 
 const chromiumAppName = APP_NAMES[platform].chromium;
 const contentShellAppName = APP_NAMES[platform].content_shell;
 
-export default function resolveBrowser(browserType: string, options?: IResolveOptions): IExecutableInfo {
+export default function resolveBrowser(
+  browserType: string,
+  options?: IResolveOptions,
+): IExecutableInfo {
   if (!options) {
     options = {};
   }
@@ -49,7 +55,7 @@ export default function resolveBrowser(browserType: string, options?: IResolveOp
       break;
   }
   if (!executablePath) {
-  throw new Error(`failed to resolve browser for type ${browserType}`);
+    throw new Error(`failed to resolve browser for type ${browserType}`);
   }
   return {
     executablePath,
@@ -57,8 +63,12 @@ export default function resolveBrowser(browserType: string, options?: IResolveOp
   };
 }
 
-function resolveChromiumBuild(browserType: string, options: IResolveOptions): string | undefined {
-  const chromiumSrcDir = options.chromiumSrcDir || `${os.homedir()}/chromium/src`;
+function resolveChromiumBuild(
+  browserType: string,
+  options: IResolveOptions,
+): string | undefined {
+  const chromiumSrcDir =
+    options.chromiumSrcDir || `${os.homedir()}/chromium/src`;
   switch (browserType) {
     case "release":
       return `${chromiumSrcDir}/out/Release/${chromiumAppName}`;

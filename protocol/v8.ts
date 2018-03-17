@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.3 Domains
- * Generated on Mon Dec 11 2017 15:06:38 GMT-0800 (PST)
+ * Generated on Sat Mar 17 2018 16:21:03 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -1210,12 +1210,13 @@ export namespace Runtime {
   export type ScriptId = string;
   /** Unique object identifier. */
   export type RemoteObjectId = string;
-  /** Primitive value which cannot be JSON-stringified. */
-  export type UnserializableValue = "Infinity" | "NaN" | "-Infinity" | "-0";
+  /** Primitive value which cannot be JSON-stringified. Includes values `-0`, `NaN`, `Infinity`,
+`-Infinity`, and bigint literals. */
+  export type UnserializableValue = string;
   /** Mirror object referencing original JavaScript object. */
   export interface RemoteObject {
     /** Object type. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "bigint";
     /** Object subtype hint. Specified for `object` type values only. */
     subtype?: "array" | "null" | "node" | "regexp" | "date" | "map" | "set" | "weakmap" | "weakset" | "iterator" | "generator" | "error" | "proxy" | "promise" | "typedarray";
     /** Object class (constructor) name. Specified for `object` type values only. */
@@ -1243,7 +1244,7 @@ property. */
   /** Object containing abbreviated remote object value. */
   export interface ObjectPreview {
     /** Object type. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "bigint";
     /** Object subtype hint. Specified for `object` type values only. */
     subtype?: "array" | "null" | "node" | "regexp" | "date" | "map" | "set" | "weakmap" | "weakset" | "iterator" | "generator" | "error";
     /** String representation of the object. */
@@ -1259,7 +1260,7 @@ property. */
     /** Property name. */
     name: string;
     /** Object type. Accessor means that the property itself is an accessor property. */
-    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "accessor";
+    type: "object" | "function" | "undefined" | "string" | "number" | "boolean" | "symbol" | "accessor" | "bigint";
     /** User-friendly property value string. */
     value?: string;
     /** Nested value preview. */
@@ -1521,6 +1522,8 @@ evaluation will be performed in the context of the inspected page. */
     /** Whether execution should `await` for resulting value and return once awaited promise is
 resolved. */
     awaitPromise?: boolean;
+    /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
+    throwOnSideEffect?: boolean;
   };
   export type EvaluateReturn = {
     /** Evaluation result. */
@@ -1558,6 +1561,8 @@ returned either. */
   export type QueryObjectsParameters = {
     /** Identifier of the prototype to return objects for. */
     prototypeObjectId: RemoteObjectId;
+    /** Symbolic group name that can be used to release the results. */
+    objectGroup?: string;
   };
   export type QueryObjectsReturn = {
     /** Array with objects. */

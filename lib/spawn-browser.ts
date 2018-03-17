@@ -1,4 +1,5 @@
-import { ChildProcess, spawn } from "child_process";
+import { ChildProcess } from "child_process";
+import * as execa from "execa";
 import * as fs from "fs";
 import * as path from "path";
 import { delay } from "./delay";
@@ -6,8 +7,12 @@ import { IBrowserProcess, ISpawnOptions } from "./types";
 
 const PORT_FILENAME = "DevToolsActivePort";
 
-export default async function spawnBrowser(executablePath: string, dataDir: string,
-                                           isContentShell: boolean, options?: ISpawnOptions): Promise<IBrowserProcess> {
+export default async function spawnBrowser(
+  executablePath: string,
+  dataDir: string,
+  isContentShell: boolean,
+  options?: ISpawnOptions,
+): Promise<IBrowserProcess> {
   const portFile = path.join(dataDir, PORT_FILENAME);
   // delete port file before launching
   await tryDeleteFile(portFile);
@@ -36,12 +41,16 @@ export default async function spawnBrowser(executablePath: string, dataDir: stri
   }
 }
 
-function getArguments(dataDir: string, isContentShell: boolean, options?: ISpawnOptions): string[] {
-  const windowSize = options && options.windowSize || {
+function getArguments(
+  dataDir: string,
+  isContentShell: boolean,
+  options?: ISpawnOptions,
+): string[] {
+  const windowSize = (options && options.windowSize) || {
     height: 736,
     width: 414,
   };
-  const additionalArguments = options && options.additionalArguments || [];
+  const additionalArguments = (options && options.additionalArguments) || [];
   const args = [
     // base switches
     "--disable-breakpad",
@@ -67,7 +76,9 @@ function getArguments(dataDir: string, isContentShell: boolean, options?: ISpawn
   if (isContentShell) {
     return args.concat([
       `--data-path=${dataDir}`,
-      `--content-shell-host-window-size=${windowSize.width}x${windowSize.height}`,
+      `--content-shell-host-window-size=${windowSize.width}x${
+        windowSize.height
+      }`,
       "about:blank",
     ]);
   }
@@ -108,15 +119,15 @@ class BrowserProcess implements IBrowserProcess {
   private hasExited: boolean = false;
 
   constructor(executablePath: string, args: string[]) {
-    const process = spawn(executablePath, args);
-    process.on("error", (err) => this.lastError = err);
-    process.on("exit", () => this.hasExited = true);
+    const process = execa(executablePath, args);
+    process.on("error", (err: Error) => (this.lastError = err));
+    process.on("exit", () => (this.hasExited = true));
     this.process = process;
     this.pid = process.pid;
   }
 
   public dispose(): Promise<void> {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       if (this.hasExited) {
         resolve();
       } else {
@@ -126,13 +137,15 @@ class BrowserProcess implements IBrowserProcess {
         setTimeout(resolve, 2000);
         setTimeout(() => this.process.kill("SIGKILL"), 2000);
       }
-    }).then(() => {
-      this.process.removeAllListeners();
-    }).catch((err) => {
-      /* tslint:disable:no-console */
-      console.error(err);
-      /* tslint:enable:no-console */
-    });
+    })
+      .then(() => {
+        this.process.removeAllListeners();
+      })
+      .catch(err => {
+        /* tslint:disable:no-console */
+        console.error(err);
+        /* tslint:enable:no-console */
+      });
   }
 
   public validate() {
@@ -146,11 +159,11 @@ class BrowserProcess implements IBrowserProcess {
 }
 
 function tryDeleteFile(filename: string): Promise<void> {
-  return new Promise<void>((resolve) => fs.unlink(filename, () => resolve()));
+  return new Promise<void>(resolve => fs.unlink(filename, () => resolve()));
 }
 
 function tryReadPort(filename: string): Promise<number> {
-  return new Promise<number>((resolve) => {
+  return new Promise<number>(resolve => {
     fs.readFile(filename, "utf8", (err, data) => {
       if (err) {
         resolve(0);

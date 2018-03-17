@@ -1,4 +1,9 @@
-import { IAPIClient, IHTTPClient, ITabResponse, IVersionResponse } from "./types";
+import {
+  IAPIClient,
+  IHTTPClient,
+  ITabResponse,
+  IVersionResponse,
+} from "./types";
 
 export default function createAPIClient(httpClient: IHTTPClient): IAPIClient {
   return new APIClient(httpClient);

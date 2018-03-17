@@ -1,6 +1,10 @@
 import { IEventNotifier } from "./types";
 
-export function eventPromise<T>(emitter: IEventNotifier, resolveEvent: string, rejectEvent: string): Promise<T> {
+export function eventPromise<T>(
+  emitter: IEventNotifier,
+  resolveEvent: string,
+  rejectEvent: string,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const resolveHandler = (evt: T) => {
       resolve(evt);

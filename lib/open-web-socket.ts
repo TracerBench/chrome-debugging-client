@@ -2,7 +2,10 @@ import * as WebSocket from "ws";
 import { eventPromise } from "./event-promise";
 import { IWebSocketConnection, IWebSocketDelegate } from "./types";
 
-export default async function openWebSocket(url: string, delegate: IWebSocketDelegate): Promise<IWebSocketConnection> {
+export default async function openWebSocket(
+  url: string,
+  delegate: IWebSocketDelegate,
+): Promise<IWebSocketConnection> {
   const ws = new WebSocket(url);
   await eventPromise(ws, "open", "error");
 
@@ -17,7 +20,7 @@ export default async function openWebSocket(url: string, delegate: IWebSocketDel
     ws.removeListener("error", onError);
   }
 
-  const closed = new Promise((resolveClose) => {
+  const closed = new Promise(resolveClose => {
     const onClose = () => {
       ws.removeListener("close", onClose);
       resolveClose();
@@ -43,5 +46,5 @@ export default async function openWebSocket(url: string, delegate: IWebSocketDel
     ws.send(data);
   }
 
-  return delegate.socket = { send, close, dispose };
+  return (delegate.socket = { send, close, dispose });
 }

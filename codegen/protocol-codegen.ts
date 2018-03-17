@@ -35,25 +35,25 @@ export default class ProtocolCodegen {
 
     const domains = new Set<string>();
 
-    each(protocol.domains, (domain) => {
+    each(protocol.domains, domain => {
       this.gatherRefs(domain);
       domains.add(domain.domain);
     });
 
-    each(protocol.domains, (domain) => {
+    each(protocol.domains, domain => {
       const { domain: domainName, events, commands, types } = domain;
       this.appendComment(domain);
       this.appendDomainClass(domainName, () => {
-        each(events, (event) => {
+        each(events, event => {
           this.appendEventMember(event, domainName);
         });
         this.appendClientMember();
         this.appendDomainConstructor();
-        each(commands, (command) => {
+        each(commands, command => {
           this.appendComment(command);
           this.appendCommandMethod(command, domainName);
         });
-        each(events, (event) => {
+        each(events, event => {
           this.appendComment(event);
           this.appendEventAccessors(event, domainName);
         });
@@ -61,7 +61,7 @@ export default class ProtocolCodegen {
 
       this.generateDomainTypeNamespace(domainName, () => {
         const refs = this.getRefs(domainName);
-        each(types, (type) => {
+        each(types, type => {
           refs.set(type.id, true);
           this.appendComment(type);
           this.appendType(type);
@@ -69,11 +69,11 @@ export default class ProtocolCodegen {
 
         this.generatorMissingRefs(domainName, refs);
 
-        each(events, (event) => {
+        each(events, event => {
           this.appendEventParametersType(event);
           this.appendEventHandlerType(event);
         });
-        each(commands, (command) => {
+        each(commands, command => {
           this.appendCommandTypes(command);
         });
       });
@@ -93,7 +93,10 @@ export default class ProtocolCodegen {
     return code;
   }
 
-  protected generatorMissingRefs(domainName: string, refs: Map<string, boolean>) {
+  protected generatorMissingRefs(
+    domainName: string,
+    refs: Map<string, boolean>,
+  ) {
     refs.forEach((value, key) => {
       if (!value) {
         /* tslint:disable:no-console */
@@ -116,11 +119,11 @@ export default class ProtocolCodegen {
   protected gatherRefs(domain: Protocol.IDomain) {
     const refs = this.getRefs(domain.domain);
 
-    each(domain.types, (type) => {
+    each(domain.types, type => {
       this.gatherRefsFromDesc(type, refs);
     });
 
-    each(domain.commands, (command) => {
+    each(domain.commands, command => {
       if (command.parameters) {
         this.gatherRefsFromDescs(command.parameters, refs);
       }
@@ -129,7 +132,7 @@ export default class ProtocolCodegen {
       }
     });
 
-    each(domain.events, (event) => {
+    each(domain.events, event => {
       if (event.parameters) {
         this.gatherRefsFromDescs(event.parameters, refs);
       }
@@ -138,18 +141,27 @@ export default class ProtocolCodegen {
     this.refs.set(domain.domain, refs);
   }
 
-  protected gatherRefsFromDescs(descs: Protocol.TypeRefOrDescriptor[], refs: Map<string, boolean>) {
+  protected gatherRefsFromDescs(
+    descs: Protocol.TypeRefOrDescriptor[],
+    refs: Map<string, boolean>,
+  ) {
     for (const desc of descs) {
       this.gatherRefsFromDesc(desc, refs);
     }
   }
 
-  protected gatherRefsFromDesc(desc: Protocol.TypeRefOrDescriptor, refs: Map<string, boolean>) {
+  protected gatherRefsFromDesc(
+    desc: Protocol.TypeRefOrDescriptor,
+    refs: Map<string, boolean>,
+  ) {
     if (Protocol.isTypeRef(desc)) {
       const ref = desc.$ref;
       const period = ref.indexOf(".");
       if (period !== -1) {
-        this.getRefs(ref.substring(0, period)).set(ref.substring(period + 1), false);
+        this.getRefs(ref.substring(0, period)).set(
+          ref.substring(period + 1),
+          false,
+        );
       } else {
         refs.set(ref, false);
       }
@@ -175,7 +187,9 @@ export default class ProtocolCodegen {
   }
 
   protected appendClientImport() {
-    this.append(`import { IDebuggingProtocolClient } from "${this.clientModuleName}";`);
+    this.append(
+      `import { IDebuggingProtocolClient } from "${this.clientModuleName}";`,
+    );
   }
 
   protected appendDomainClass(domainName: string, cb: () => void) {
@@ -192,7 +206,12 @@ export default class ProtocolCodegen {
 
   protected appendEventMember(event: Protocol.IEvent, domainName: string) {
     const name = event.name;
-    this.append(`private _${name}: ${this.handlerTypeName(name, domainName)} | null = null;`);
+    this.append(
+      `private _${name}: ${this.handlerTypeName(
+        name,
+        domainName,
+      )} | null = null;`,
+    );
   }
 
   protected appendClientMember() {
@@ -207,15 +226,24 @@ export default class ProtocolCodegen {
     this.append("}");
   }
 
-  protected appendCommandMethod(command: Protocol.ICommand, domainName: string) {
+  protected appendCommandMethod(
+    command: Protocol.ICommand,
+    domainName: string,
+  ) {
     const name = command.name;
-    const params = command.parameters ? `params: ${this.parametersTypeName(name, domainName)}` : "";
+    const params = command.parameters
+      ? `params: ${this.parametersTypeName(name, domainName)}`
+      : "";
     const paramsArg = command.parameters ? ", params" : "";
-    const returnType = command.returns ? this.returnTypeName(name, domainName) : "void";
+    const returnType = command.returns
+      ? this.returnTypeName(name, domainName)
+      : "void";
 
     this.append(`public ${name}(${params}) {`);
     this.block(() => {
-      this.append(`return this._client.send<${returnType}>("${domainName}.${name}"${paramsArg});`);
+      this.append(
+        `return this._client.send<${returnType}>("${domainName}.${name}"${paramsArg});`,
+      );
     });
     this.append("}");
   }
@@ -231,7 +259,9 @@ export default class ProtocolCodegen {
     this.block(() => {
       this.append(`if (this._${name}) {`);
       this.block(() => {
-        this.append(`this._client.removeListener("${domainName}.${name}", this._${name});`);
+        this.append(
+          `this._client.removeListener("${domainName}.${name}", this._${name});`,
+        );
       });
       this.append("}");
       this.append(`this._${name} = handler;`);
@@ -252,7 +282,7 @@ export default class ProtocolCodegen {
       if (properties && properties.length > 0) {
         this.append(`export interface ${type.id} {`);
         this.block(() => {
-          each(properties, (prop) => this.generateProperty(prop));
+          each(properties, prop => this.generateProperty(prop));
         });
         this.append("}");
       } else {
@@ -265,13 +295,20 @@ export default class ProtocolCodegen {
 
   protected appendEventParametersType(event: Protocol.IEvent) {
     if (event.parameters) {
-      this.generateObjectTypeAlias(`${this.parametersTypeName(event.name)}`, event.parameters);
+      this.generateObjectTypeAlias(
+        `${this.parametersTypeName(event.name)}`,
+        event.parameters,
+      );
     }
   }
 
   protected appendEventHandlerType(event: Protocol.IEvent) {
-    const params = event.parameters ? `params: ${this.parametersTypeName(event.name)}` : "";
-    this.append(`export type ${this.handlerTypeName(event.name)} = (${params}) => void;`);
+    const params = event.parameters
+      ? `params: ${this.parametersTypeName(event.name)}`
+      : "";
+    this.append(
+      `export type ${this.handlerTypeName(event.name)} = (${params}) => void;`,
+    );
   }
 
   protected block(cb: () => void) {
@@ -299,7 +336,10 @@ export default class ProtocolCodegen {
   protected appendCommandTypes(command: Protocol.ICommand) {
     const name = command.name;
     if (command.parameters) {
-      this.generateObjectTypeAlias(this.parametersTypeName(name), command.parameters);
+      this.generateObjectTypeAlias(
+        this.parametersTypeName(name),
+        command.parameters,
+      );
     }
     if (command.returns) {
       this.generateObjectTypeAlias(this.returnTypeName(name), command.returns);
@@ -318,11 +358,14 @@ export default class ProtocolCodegen {
     return buildTypeName(name, "Handler", domainName);
   }
 
-  protected generateObjectTypeAlias(name: string, props: Protocol.NamedDescriptor[]) {
+  protected generateObjectTypeAlias(
+    name: string,
+    props: Protocol.NamedDescriptor[],
+  ) {
     if (props && props.length) {
       this.append(`export type ${name} = {`);
       this.block(() => {
-        props.forEach((prop) => this.generateProperty(prop));
+        props.forEach(prop => this.generateProperty(prop));
       });
       this.append("};");
     } else {
@@ -334,7 +377,10 @@ export default class ProtocolCodegen {
     return `${desc.name}${desc.optional ? "?" : ""}: ${this.typeString(desc)};`;
   }
 
-  protected typeString(desc: Protocol.TypeRefOrDescriptor, isArray?: boolean): string {
+  protected typeString(
+    desc: Protocol.TypeRefOrDescriptor,
+    isArray?: boolean,
+  ): string {
     let typeName: string;
     let simple = true;
     if (Protocol.isTypeRef(desc)) {
@@ -343,7 +389,8 @@ export default class ProtocolCodegen {
       const { properties } = desc;
       if (properties && properties.length) {
         simple = false;
-        typeName = "{ " + properties.map((p) => this.namedTypeString(p)).join(" ") + " }";
+        typeName =
+          "{ " + properties.map(p => this.namedTypeString(p)).join(" ") + " }";
       } else {
         typeName = "any";
       }
@@ -352,7 +399,7 @@ export default class ProtocolCodegen {
     } else if (Protocol.isStringDescriptor(desc)) {
       if (Protocol.isEnumDescriptor(desc)) {
         simple = false;
-        typeName = desc.enum.map((str) => JSON.stringify(str)).join(" | ");
+        typeName = desc.enum.map(str => JSON.stringify(str)).join(" | ");
       } else {
         typeName = "string";
       }
@@ -361,7 +408,9 @@ export default class ProtocolCodegen {
     } else {
       typeName = desc.type;
     }
-    return isArray ? simple ? `${typeName}[]` : `Array<${typeName}>` : typeName;
+    return isArray
+      ? simple ? `${typeName}[]` : `Array<${typeName}>`
+      : typeName;
   }
 }
 
@@ -374,7 +423,8 @@ function each<T>(arr: T[] | undefined, cb: (arg: T) => void) {
 }
 
 function buildTypeName(name: string, suffix: string, domainName?: string) {
-  let typeName = name.substring(0, 1).toUpperCase() + name.substring(1) + suffix;
+  let typeName =
+    name.substring(0, 1).toUpperCase() + name.substring(1) + suffix;
   if (domainName) {
     typeName = `${domainName}.${typeName}`;
   }

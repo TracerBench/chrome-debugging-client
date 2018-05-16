@@ -35,7 +35,7 @@
   "author": "Kris Selden <kris.selden@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/krisselden/chrome-debugging-client.git"
+    "url": "https://github.com/devtrace/chrome-debugging-client.git"
   },
   "license": "Apache-2.0",
   "dependencies": {

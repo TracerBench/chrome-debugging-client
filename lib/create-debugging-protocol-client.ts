@@ -19,12 +19,15 @@ interface ISuccessResponseMessage {
   result: any;
 }
 
+interface IResponseError {
+  code: number;
+  message: string;
+  data?: string;
+};
+
 interface IErrorResponseMessage {
   id: number;
-  error: {
-    code: number;
-    message: string;
-  };
+  error: IResponseError;
 }
 
 interface IMessage
@@ -105,8 +108,9 @@ class DebuggingProtocol extends EventEmitter
 
 class ProtocolError extends Error {
   public code: number;
-  constructor(err: { code: number; message: string }) {
-    super(err.message);
+  constructor(err: IResponseError) {
+    const msg = err.data ? `${err.message}:${err.data}` : err.message;
+    super(msg);
     this.code = err.code;
   }
 }

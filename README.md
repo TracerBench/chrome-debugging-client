@@ -1,6 +1,6 @@
 chrome-debugging-client
 =======================
-[![Build Status](https://travis-ci.org/krisselden/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/krisselden/chrome-debugging-client)
+[![Build Status](https://travis-ci.org/devtrace/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/devtrace/chrome-debugging-client)
 
 An async/await friendly Chrome debugging client with TypeScript support,
 designed with automation in mind.

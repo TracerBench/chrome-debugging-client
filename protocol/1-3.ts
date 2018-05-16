@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sat Mar 17 2018 16:21:03 GMT-0700 (PDT)
+ * Generated on Wed May 16 2018 09:39:55 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -914,7 +914,7 @@ export namespace IO {
     /** Handle of the stream to read. */
     handle: StreamHandle;
     /** Seek to the specified offset before reading (if not specificed, proceed with offset
-following the last read). */
+following the last read). Some types of streams may only support sequential reads. */
     offset?: number;
     /** Maximum number of bytes to read (left upon the agent discretion if not specified). */
     size?: number;
@@ -1411,7 +1411,7 @@ export namespace Network {
   /** Unique intercepted request identifier. */
   export type InterceptionId = string;
   /** Network level fetch failure reason. */
-  export type ErrorReason = "Failed" | "Aborted" | "TimedOut" | "AccessDenied" | "ConnectionClosed" | "ConnectionReset" | "ConnectionRefused" | "ConnectionAborted" | "ConnectionFailed" | "NameNotResolved" | "InternetDisconnected" | "AddressUnreachable";
+  export type ErrorReason = "Failed" | "Aborted" | "TimedOut" | "AccessDenied" | "ConnectionClosed" | "ConnectionReset" | "ConnectionRefused" | "ConnectionAborted" | "ConnectionFailed" | "NameNotResolved" | "InternetDisconnected" | "AddressUnreachable" | "BlockedByClient" | "BlockedByResponse";
   /** UTC time in seconds, counted from January 1, 1970. */
   export type TimeSinceEpoch = number;
   /** Monotonically increasing time in seconds since an arbitrary point in the past. */
@@ -1527,9 +1527,13 @@ milliseconds relatively to this requestTime. */
     validTo: TimeSinceEpoch;
     /** List of signed certificate timestamps (SCTs). */
     signedCertificateTimestampList: SignedCertificateTimestamp[];
+    /** Whether the request complied with Certificate Transparency policy */
+    certificateTransparencyCompliance: CertificateTransparencyCompliance;
   }
+  /** Whether the request complied with Certificate Transparency policy. */
+  export type CertificateTransparencyCompliance = "unknown" | "not-compliant" | "compliant";
   /** The reason why request was blocked. */
-  export type BlockedReason = "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "other";
+  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type";
   /** HTTP response data. */
   export interface Response {
     /** Response URL. This URL can be different from CachedResource.url in case of redirect. */
@@ -2164,7 +2168,7 @@ etc. */
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
-  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "Other";
+  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Other";
   /** Unique frame identifier. */
   export type FrameId = string;
   /** Information about the Frame on the page. */
@@ -2303,6 +2307,10 @@ export namespace Page {
     message: string;
     /** Dialog type. */
     type: DialogType;
+    /** True iff browser is capable showing or acting on the given dialog. When browser has no
+dialog handler for given target, calling alert while Page domain is engaged will stall
+the page execution. Execution can be resumed via calling Page.handleJavaScriptDialog. */
+    hasBrowserHandler: boolean;
     /** Default dialog prompt. */
     defaultPrompt?: string;
   };
@@ -2448,13 +2456,13 @@ Defaults to false. */
     ignoreInvalidPageRanges?: boolean;
     /** HTML template for the print header. Should be valid HTML markup with following
 classes used to inject printing values into them:
-- date - formatted print date
-- title - document title
-- url - document location
-- pageNumber - current page number
-- totalPages - total pages in the document
+- `date`: formatted print date
+- `title`: document title
+- `url`: document location
+- `pageNumber`: current page number
+- `totalPages`: total pages in the document
 
-For example, <span class=title></span> would generate span containing the title. */
+For example, `<span class=title></span>` would generate span containing the title. */
     headerTemplate?: string;
     /** HTML template for the print footer. Should use the same format as the `headerTemplate`. */
     footerTemplate?: string;
@@ -2735,6 +2743,7 @@ export namespace Target {
     attached: boolean;
     /** Opener target Id */
     openerId?: TargetID;
+    browserContextId?: BrowserContextID;
   }
   export type BrowserContextID = any;
   export type ReceivedMessageFromTargetParameters = {
@@ -2780,7 +2789,7 @@ export namespace Target {
     width?: number;
     /** Frame height in DIP (headless chrome only). */
     height?: number;
-    /** The browser context to create the page in (headless chrome only). */
+    /** The browser context to create the page in. */
     browserContextId?: BrowserContextID;
     /** Whether BeginFrames for this target will be controlled via DevTools (headless chrome only,
 not supported on MacOS yet, false by default). */
@@ -3168,6 +3177,8 @@ execution. Overrides `setPauseOnException` state. */
     generatePreview?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: Runtime.TimeDelta;
   };
   export type EvaluateOnCallFrameReturn = {
     /** Object wrapper for the evaluation result. */
@@ -3770,6 +3781,8 @@ execution. */
   }
   /** Number of milliseconds since epoch. */
   export type Timestamp = number;
+  /** Number of milliseconds. */
+  export type TimeDelta = number;
   /** Stack entry for runtime errors and assertions. */
   export interface CallFrame {
     /** JavaScript function name. */
@@ -3934,6 +3947,8 @@ resolved. */
     awaitPromise?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: TimeDelta;
   };
   export type EvaluateReturn = {
     /** Evaluation result. */

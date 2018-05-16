@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.3 Domains
- * Generated on Sat Mar 17 2018 16:21:03 GMT-0700 (PDT)
+ * Generated on Wed May 16 2018 09:39:55 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -159,6 +159,12 @@ command is issued, all existing parsed scripts will have breakpoints resolved an
 `breakpointResolved` events issued. This logical breakpoint will survive page reloads. */
   public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters) {
     return this._client.send<Debugger.SetBreakpointByUrlReturn>("Debugger.setBreakpointByUrl", params);
+  }
+  /** Sets JavaScript breakpoint before each call to the given function.
+If another function was created from the same source as a given one,
+calling it will also trigger the breakpoint. */
+  public setBreakpointOnFunctionCall(params: Debugger.SetBreakpointOnFunctionCallParameters) {
+    return this._client.send<Debugger.SetBreakpointOnFunctionCallReturn>("Debugger.setBreakpointOnFunctionCall", params);
   }
   /** Activates / deactivates all breakpoints on the page. */
   public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters) {
@@ -452,6 +458,8 @@ execution. Overrides `setPauseOnException` state. */
     generatePreview?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: Runtime.TimeDelta;
   };
   export type EvaluateOnCallFrameReturn = {
     /** Object wrapper for the evaluation result. */
@@ -567,6 +575,17 @@ breakpoint if this expression evaluates to true. */
     breakpointId: BreakpointId;
     /** List of the locations this breakpoint resolved into upon addition. */
     locations: Location[];
+  };
+  export type SetBreakpointOnFunctionCallParameters = {
+    /** Function object id. */
+    objectId: Runtime.RemoteObjectId;
+    /** Expression to use as a breakpoint condition. When specified, debugger will
+stop on the breakpoint if this expression evaluates to true. */
+    condition?: string;
+  };
+  export type SetBreakpointOnFunctionCallReturn = {
+    /** Id of the created breakpoint for further reference. */
+    breakpointId: BreakpointId;
   };
   export type SetBreakpointsActiveParameters = {
     /** New value for breakpoints active state. */
@@ -1081,6 +1100,15 @@ context. */
   public evaluate(params: Runtime.EvaluateParameters) {
     return this._client.send<Runtime.EvaluateReturn>("Runtime.evaluate", params);
   }
+  /** Returns the isolate id. */
+  public getIsolateId() {
+    return this._client.send<Runtime.GetIsolateIdReturn>("Runtime.getIsolateId");
+  }
+  /** Returns the JavaScript heap usage.
+It is the total usage of the corresponding isolate not scoped to a particular Runtime. */
+  public getHeapUsage() {
+    return this._client.send<Runtime.GetHeapUsageReturn>("Runtime.getHeapUsage");
+  }
   /** Returns properties of a given object. Object group of the result is inherited from the target
 object. */
   public getProperties(params: Runtime.GetPropertiesParameters) {
@@ -1111,6 +1139,11 @@ object. */
   }
   public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
+  }
+  /** Terminate current or next JavaScript execution.
+Will cancel the termination when the outer-most script execution ends. */
+  public terminateExecution() {
+    return this._client.send<void>("Runtime.terminateExecution");
   }
   /** Issued when console API was called. */
   get consoleAPICalled() {
@@ -1356,6 +1389,8 @@ execution. */
   }
   /** Number of milliseconds since epoch. */
   export type Timestamp = number;
+  /** Number of milliseconds. */
+  export type TimeDelta = number;
   /** Stack entry for runtime errors and assertions. */
   export interface CallFrame {
     /** JavaScript function name. */
@@ -1524,12 +1559,24 @@ resolved. */
     awaitPromise?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: TimeDelta;
   };
   export type EvaluateReturn = {
     /** Evaluation result. */
     result: RemoteObject;
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
+  };
+  export type GetIsolateIdReturn = {
+    /** The isolate id. */
+    id: string;
+  };
+  export type GetHeapUsageReturn = {
+    /** Used heap size in bytes. */
+    usedSize: number;
+    /** Allocated heap size in bytes. */
+    totalSize: number;
   };
   export type GetPropertiesParameters = {
     /** Identifier of the object to return properties for. */

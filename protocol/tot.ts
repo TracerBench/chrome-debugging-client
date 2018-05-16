@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Sat Mar 17 2018 16:21:03 GMT-0700 (PDT)
+ * Generated on Wed May 16 2018 09:39:55 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -74,7 +74,7 @@ node, from 'live' to 'root' - attributes which apply to nodes in live regions, f
 'autocomplete' to 'valuetext' - attributes which apply to widgets, from 'checked' to 'selected'
 - states which apply to widgets, from 'activedescendant' to 'owns' - relationships between
 elements other than parent/child/sibling. */
-  export type AXPropertyName = "busy" | "disabled" | "hidden" | "hiddenRoot" | "invalid" | "keyshortcuts" | "roledescription" | "live" | "atomic" | "relevant" | "root" | "autocomplete" | "haspopup" | "level" | "multiselectable" | "orientation" | "multiline" | "readonly" | "required" | "valuemin" | "valuemax" | "valuetext" | "checked" | "expanded" | "modal" | "pressed" | "selected" | "activedescendant" | "controls" | "describedby" | "details" | "errormessage" | "flowto" | "labelledby" | "owns";
+  export type AXPropertyName = "busy" | "disabled" | "hidden" | "hiddenRoot" | "invalid" | "keyshortcuts" | "roledescription" | "live" | "atomic" | "relevant" | "root" | "autocomplete" | "hasPopup" | "level" | "multiselectable" | "orientation" | "multiline" | "readonly" | "required" | "valuemin" | "valuemax" | "valuetext" | "checked" | "expanded" | "modal" | "pressed" | "selected" | "activedescendant" | "controls" | "describedby" | "details" | "errormessage" | "flowto" | "labelledby" | "owns";
   /** A node in the accessibility tree. */
   export interface AXNode {
     /** Unique identifier for this node. */
@@ -99,8 +99,12 @@ elements other than parent/child/sibling. */
     backendDOMNodeId?: DOM.BackendNodeId;
   }
   export type GetPartialAXTreeParameters = {
-    /** ID of node to get the partial accessibility tree for. */
-    nodeId: DOM.NodeId;
+    /** Identifier of the node to get the partial accessibility tree for. */
+    nodeId?: DOM.NodeId;
+    /** Identifier of the backend node to get the partial accessibility tree for. */
+    backendNodeId?: DOM.BackendNodeId;
+    /** JavaScript object id of the node wrapper to get the partial accessibility tree for. */
+    objectId?: Runtime.RemoteObjectId;
     /** Whether to fetch this nodes ancestors, siblings and children. Defaults to true. */
     fetchRelatives?: boolean;
   };
@@ -679,7 +683,7 @@ node. */
   public getPlatformFontsForNode(params: CSS.GetPlatformFontsForNodeParameters) {
     return this._client.send<CSS.GetPlatformFontsForNodeReturn>("CSS.getPlatformFontsForNode", params);
   }
-  /** Returns the current textual content and the URL for a stylesheet. */
+  /** Returns the current textual content for a stylesheet. */
   public getStyleSheetText(params: CSS.GetStyleSheetTextParameters) {
     return this._client.send<CSS.GetStyleSheetTextReturn>("CSS.getStyleSheetText", params);
   }
@@ -2485,6 +2489,8 @@ getSnapshot was true. */
     includeEventListeners?: boolean;
     /** Whether to determine and include the paint order index of LayoutTreeNodes (default false). */
     includePaintOrder?: boolean;
+    /** Whether to include UA shadow tree in the snapshot (default false). */
+    includeUserAgentShadowTree?: boolean;
   };
   export type GetSnapshotReturn = {
     /** The nodes in the DOM tree. The DOMNode at index 0 corresponds to the root document. */
@@ -2956,10 +2962,14 @@ forwards to prevent deadlock. */
     /** If set the virtual time policy change should be deferred until any frame starts navigating.
 Note any previous deferred policy change is superseded. */
     waitForNavigation?: boolean;
+    /** If set, base::Time::Now will be overriden to initially return this value. */
+    initialVirtualTime?: Network.TimeSinceEpoch;
   };
   export type SetVirtualTimePolicyReturn = {
     /** Absolute timestamp at which virtual time was first enabled (milliseconds since epoch). */
     virtualTimeBase: Runtime.Timestamp;
+    /** Absolute timestamp at which virtual time was first enabled (up time in milliseconds). */
+    virtualTimeTicksBase: number;
   };
   export type SetVisibleSizeParameters = {
     /** Frame width (DIP). */
@@ -2981,11 +2991,6 @@ BeginFrameControl. Designed for use with --run-all-compositor-stages-before-draw
 https://goo.gl/3zHXhB for more background. */
   public beginFrame(params: HeadlessExperimental.BeginFrameParameters) {
     return this._client.send<HeadlessExperimental.BeginFrameReturn>("HeadlessExperimental.beginFrame", params);
-  }
-  /** Puts the browser into deterministic mode.  Only effective for subsequently created web contents.
-Only supported in headless mode.  Once set there's no way of leaving deterministic mode. */
-  public enterDeterministicMode(params: HeadlessExperimental.EnterDeterministicModeParameters) {
-    return this._client.send<void>("HeadlessExperimental.enterDeterministicMode", params);
   }
   /** Disables headless events for the target. */
   public disable() {
@@ -3024,11 +3029,17 @@ export namespace HeadlessExperimental {
   export type NeedsBeginFramesChangedHandler = (params: NeedsBeginFramesChangedParameters) => void;
   export type BeginFrameParameters = {
     /** Timestamp of this BeginFrame (milliseconds since epoch). If not set, the current time will
-be used. */
+be used unless frameTicks is specified. */
     frameTime?: Runtime.Timestamp;
+    /** Timestamp of this BeginFrame in Renderer TimeTicks (milliseconds of uptime). If not set,
+the current time will be used unless frameTime is specified. */
+    frameTimeTicks?: number;
     /** Deadline of this BeginFrame (milliseconds since epoch). If not set, the deadline will be
-calculated from the frameTime and interval. */
+calculated from the frameTime and interval unless deadlineTicks is specified. */
     deadline?: Runtime.Timestamp;
+    /** Deadline of this BeginFrame in Renderer TimeTicks  (milliseconds of uptime). If not set,
+the deadline will be calculated from the frameTime and interval unless deadline is specified. */
+    deadlineTicks?: number;
     /** The interval between BeginFrames that is reported to the compositor, in milliseconds.
 Defaults to a 60 frames/second interval, i.e. about 16.666 milliseconds. */
     interval?: number;
@@ -3047,10 +3058,6 @@ display. Reported for diagnostic uses, may be removed in the future. */
     hasDamage: boolean;
     /** Base64-encoded image data of the screenshot, if one was requested and successfully taken. */
     screenshotData?: string;
-  };
-  export type EnterDeterministicModeParameters = {
-    /** Number of seconds since the Epoch */
-    initialDate?: number;
   };
 }
 /** Input/Output operations for streams produced by DevTools. */
@@ -3084,7 +3091,7 @@ export namespace IO {
     /** Handle of the stream to read. */
     handle: StreamHandle;
     /** Seek to the specified offset before reading (if not specificed, proceed with offset
-following the last read). */
+following the last read). Some types of streams may only support sequential reads. */
     offset?: number;
     /** Maximum number of bytes to read (left upon the agent discretion if not specified). */
     size?: number;
@@ -3952,6 +3959,7 @@ export class Network {
   private _requestServedFromCache: Network.RequestServedFromCacheHandler | null = null;
   private _requestWillBeSent: Network.RequestWillBeSentHandler | null = null;
   private _resourceChangedPriority: Network.ResourceChangedPriorityHandler | null = null;
+  private _signedExchangeReceived: Network.SignedExchangeReceivedHandler | null = null;
   private _responseReceived: Network.ResponseReceivedHandler | null = null;
   private _webSocketClosed: Network.WebSocketClosedHandler | null = null;
   private _webSocketCreated: Network.WebSocketCreatedHandler | null = null;
@@ -4032,6 +4040,13 @@ detailed cookie information in the `cookies` field. */
   /** Returns content served for the given currently intercepted request. */
   public getResponseBodyForInterception(params: Network.GetResponseBodyForInterceptionParameters) {
     return this._client.send<Network.GetResponseBodyForInterceptionReturn>("Network.getResponseBodyForInterception", params);
+  }
+  /** Returns a handle to the stream representing the response body. Note that after this command,
+the intercepted request can't be continued as is -- you either need to cancel it or to provide
+the response body. The stream only supports sequential read, IO.read will fail if the position
+is specified. */
+  public takeResponseBodyForInterceptionAsStream(params: Network.TakeResponseBodyForInterceptionAsStreamParameters) {
+    return this._client.send<Network.TakeResponseBodyForInterceptionAsStreamReturn>("Network.takeResponseBodyForInterceptionAsStream", params);
   }
   /** This method sends a new XMLHttpRequest which is identical to the original one. The following
 parameters should be identical: method, url, async, request body, extra headers, withCredentials
@@ -4184,6 +4199,19 @@ mocked. */
       this._client.on("Network.resourceChangedPriority", handler);
     }
   }
+  /** Fired when a signed exchange was received over the network */
+  get signedExchangeReceived() {
+    return this._signedExchangeReceived;
+  }
+  set signedExchangeReceived(handler) {
+    if (this._signedExchangeReceived) {
+      this._client.removeListener("Network.signedExchangeReceived", this._signedExchangeReceived);
+    }
+    this._signedExchangeReceived = handler;
+    if (handler) {
+      this._client.on("Network.signedExchangeReceived", handler);
+    }
+  }
   /** Fired when HTTP response is available. */
   get responseReceived() {
     return this._responseReceived;
@@ -4297,7 +4325,7 @@ export namespace Network {
   /** Unique intercepted request identifier. */
   export type InterceptionId = string;
   /** Network level fetch failure reason. */
-  export type ErrorReason = "Failed" | "Aborted" | "TimedOut" | "AccessDenied" | "ConnectionClosed" | "ConnectionReset" | "ConnectionRefused" | "ConnectionAborted" | "ConnectionFailed" | "NameNotResolved" | "InternetDisconnected" | "AddressUnreachable";
+  export type ErrorReason = "Failed" | "Aborted" | "TimedOut" | "AccessDenied" | "ConnectionClosed" | "ConnectionReset" | "ConnectionRefused" | "ConnectionAborted" | "ConnectionFailed" | "NameNotResolved" | "InternetDisconnected" | "AddressUnreachable" | "BlockedByClient" | "BlockedByResponse";
   /** UTC time in seconds, counted from January 1, 1970. */
   export type TimeSinceEpoch = number;
   /** Monotonically increasing time in seconds since an arbitrary point in the past. */
@@ -4413,9 +4441,13 @@ milliseconds relatively to this requestTime. */
     validTo: TimeSinceEpoch;
     /** List of signed certificate timestamps (SCTs). */
     signedCertificateTimestampList: SignedCertificateTimestamp[];
+    /** Whether the request complied with Certificate Transparency policy */
+    certificateTransparencyCompliance: CertificateTransparencyCompliance;
   }
+  /** Whether the request complied with Certificate Transparency policy. */
+  export type CertificateTransparencyCompliance = "unknown" | "not-compliant" | "compliant";
   /** The reason why request was blocked. */
-  export type BlockedReason = "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "other";
+  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type";
   /** HTTP response data. */
   export interface Response {
     /** Response URL. This URL can be different from CachedResource.url in case of redirect. */
@@ -4591,6 +4623,11 @@ backslash. Omitting is equivalent to "*". */
     /** Stage at wich to begin intercepting requests. Default is Request. */
     interceptionStage?: InterceptionStage;
   }
+  /** Information about a signed exchange response. */
+  export interface SignedExchangeInfo {
+    /** The outer response of signed HTTP exchange which was received from network. */
+    outerResponse: Response;
+  }
   export type DataReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
@@ -4653,6 +4690,9 @@ Likewise if HTTP authentication is needed then the same fetch id will be used. *
     resourceType: Page.ResourceType;
     /** Whether this is a navigation request, which can abort the navigation completely. */
     isNavigationRequest: boolean;
+    /** Set if the request is a navigation that will result in a download.
+Only present after response is received from the server (i.e. HeadersReceived stage). */
+    isDownload?: boolean;
     /** Redirect location, only sent if a redirect was intercepted. */
     redirectUrl?: string;
     /** Details of the Authorization Challenge encountered. If this is set then
@@ -4708,6 +4748,13 @@ intercepting request or auth retry occurred. */
     timestamp: MonotonicTime;
   };
   export type ResourceChangedPriorityHandler = (params: ResourceChangedPriorityParameters) => void;
+  export type SignedExchangeReceivedParameters = {
+    /** Request identifier. */
+    requestId: RequestId;
+    /** Information about the signed exchange response. */
+    info: SignedExchangeInfo;
+  };
+  export type SignedExchangeReceivedHandler = (params: SignedExchangeReceivedParameters) => void;
   export type ResponseReceivedParameters = {
     /** Request identifier. */
     requestId: RequestId;
@@ -4898,6 +4945,12 @@ provided URL. */
     body: string;
     /** True, if content was sent as base64. */
     base64Encoded: boolean;
+  };
+  export type TakeResponseBodyForInterceptionAsStreamParameters = {
+    interceptionId: InterceptionId;
+  };
+  export type TakeResponseBodyForInterceptionAsStreamReturn = {
+    stream: IO.StreamHandle;
   };
   export type ReplayXHRParameters = {
     /** Identifier of XHR to replay. */
@@ -5237,6 +5290,7 @@ export class Page {
   private _javascriptDialogOpening: Page.JavascriptDialogOpeningHandler | null = null;
   private _lifecycleEvent: Page.LifecycleEventHandler | null = null;
   private _loadEventFired: Page.LoadEventFiredHandler | null = null;
+  private _navigatedWithinDocument: Page.NavigatedWithinDocumentHandler | null = null;
   private _screencastFrame: Page.ScreencastFrameHandler | null = null;
   private _screencastVisibilityChanged: Page.ScreencastVisibilityChangedHandler | null = null;
   private _windowOpen: Page.WindowOpenHandler | null = null;
@@ -5359,6 +5413,10 @@ information in the `cookies` field. */
   public setAdBlockingEnabled(params: Page.SetAdBlockingEnabledParameters) {
     return this._client.send<void>("Page.setAdBlockingEnabled", params);
   }
+  /** Enable page Content Security Policy by-passing. */
+  public setBypassCSP(params: Page.SetBypassCSPParameters) {
+    return this._client.send<void>("Page.setBypassCSP", params);
+  }
   /** Overrides the values of device screen dimensions (window.screen.width, window.screen.height,
 window.innerWidth, window.innerHeight, and "device-width"/"device-height"-related CSS media
 query results). */
@@ -5401,6 +5459,16 @@ unavailable. */
   /** Crashes renderer on the IO thread, generates minidumps. */
   public crash() {
     return this._client.send<void>("Page.crash");
+  }
+  /** Tries to close page, running its beforeunload hooks, if any. */
+  public close() {
+    return this._client.send<void>("Page.close");
+  }
+  /** Tries to update the web lifecycle state of the page.
+It will transition the page to the given state according to:
+https://github.com/WICG/web-lifecycle/ */
+  public setWebLifecycleState(params: Page.SetWebLifecycleStateParameters) {
+    return this._client.send<void>("Page.setWebLifecycleState", params);
   }
   /** Stops sending each frame in the `screencastFrame`. */
   public stopScreencast() {
@@ -5600,6 +5668,19 @@ open. */
       this._client.on("Page.loadEventFired", handler);
     }
   }
+  /** Fired when same-document navigation happens, e.g. due to history API usage or anchor navigation. */
+  get navigatedWithinDocument() {
+    return this._navigatedWithinDocument;
+  }
+  set navigatedWithinDocument(handler) {
+    if (this._navigatedWithinDocument) {
+      this._client.removeListener("Page.navigatedWithinDocument", this._navigatedWithinDocument);
+    }
+    this._navigatedWithinDocument = handler;
+    if (handler) {
+      this._client.on("Page.navigatedWithinDocument", handler);
+    }
+  }
   /** Compressed image data requested by the `startScreencast`. */
   get screencastFrame() {
     return this._screencastFrame;
@@ -5643,7 +5724,7 @@ etc. */
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
-  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "Other";
+  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Other";
   /** Unique frame identifier. */
   export type FrameId = string;
   /** Information about the Frame on the page. */
@@ -5853,6 +5934,10 @@ guaranteed to start. */
     message: string;
     /** Dialog type. */
     type: DialogType;
+    /** True iff browser is capable showing or acting on the given dialog. When browser has no
+dialog handler for given target, calling alert while Page domain is engaged will stall
+the page execution. Execution can be resumed via calling Page.handleJavaScriptDialog. */
+    hasBrowserHandler: boolean;
     /** Default dialog prompt. */
     defaultPrompt?: string;
   };
@@ -5870,6 +5955,13 @@ guaranteed to start. */
     timestamp: Network.MonotonicTime;
   };
   export type LoadEventFiredHandler = (params: LoadEventFiredParameters) => void;
+  export type NavigatedWithinDocumentParameters = {
+    /** Id of the frame. */
+    frameId: FrameId;
+    /** Frame's new url. */
+    url: string;
+  };
+  export type NavigatedWithinDocumentHandler = (params: NavigatedWithinDocumentParameters) => void;
   export type ScreencastFrameParameters = {
     /** Base64-encoded compressed image. */
     data: string;
@@ -6045,13 +6137,13 @@ Defaults to false. */
     ignoreInvalidPageRanges?: boolean;
     /** HTML template for the print header. Should be valid HTML markup with following
 classes used to inject printing values into them:
-- date - formatted print date
-- title - document title
-- url - document location
-- pageNumber - current page number
-- totalPages - total pages in the document
+- `date`: formatted print date
+- `title`: document title
+- `url`: document location
+- `pageNumber`: current page number
+- `totalPages`: total pages in the document
 
-For example, <span class=title></span> would generate span containing the title. */
+For example, `<span class=title></span>` would generate span containing the title. */
     headerTemplate?: string;
     /** HTML template for the print footer. Should use the same format as the `headerTemplate`. */
     footerTemplate?: string;
@@ -6098,6 +6190,10 @@ Argument will be ignored if reloading dataURL origin. */
   };
   export type SetAdBlockingEnabledParameters = {
     /** Whether to block ads. */
+    enabled: boolean;
+  };
+  export type SetBypassCSPParameters = {
+    /** Whether to bypass page CSP. */
     enabled: boolean;
   };
   export type SetDeviceMetricsOverrideParameters = {
@@ -6178,6 +6274,10 @@ available (otherwise deny). */
     /** Send every n-th frame. */
     everyNthFrame?: number;
   };
+  export type SetWebLifecycleStateParameters = {
+    /** Target lifecycle state */
+    state: "frozen" | "active";
+  };
 }
 export class Performance {
   private _metrics: Performance.MetricsHandler | null = null;
@@ -6256,12 +6356,12 @@ export class Security {
     return this._client.send<void>("Security.handleCertificateError", params);
   }
   /** Enable/disable overriding certificate errors. If enabled, all certificate error events need to
-be handled by the DevTools client and should be answered with handleCertificateError commands. */
+be handled by the DevTools client and should be answered with `handleCertificateError` commands. */
   public setOverrideCertificateErrors(params: Security.SetOverrideCertificateErrorsParameters) {
     return this._client.send<void>("Security.setOverrideCertificateErrors", params);
   }
   /** There is a certificate error. If overriding certificate errors is enabled, then it should be
-handled with the handleCertificateError command. Note: this event does not fire if the
+handled with the `handleCertificateError` command. Note: this event does not fire if the
 certificate error has been allowed internally. Only one client per target should override
 certificate errors at the same time. */
   get certificateError() {
@@ -6766,6 +6866,10 @@ one. */
   public createBrowserContext() {
     return this._client.send<Target.CreateBrowserContextReturn>("Target.createBrowserContext");
   }
+  /** Returns all browser contexts created with `Target.createBrowserContext` method. */
+  public getBrowserContexts() {
+    return this._client.send<Target.GetBrowserContextsReturn>("Target.getBrowserContexts");
+  }
   /** Creates a new page. */
   public createTarget(params: Target.CreateTargetParameters) {
     return this._client.send<Target.CreateTargetReturn>("Target.createTarget", params);
@@ -6774,9 +6878,10 @@ one. */
   public detachFromTarget(params: Target.DetachFromTargetParameters) {
     return this._client.send<void>("Target.detachFromTarget", params);
   }
-  /** Deletes a BrowserContext, will fail of any open page uses it. */
+  /** Deletes a BrowserContext. All the belonging pages will be closed without calling their
+beforeunload hooks. */
   public disposeBrowserContext(params: Target.DisposeBrowserContextParameters) {
-    return this._client.send<Target.DisposeBrowserContextReturn>("Target.disposeBrowserContext", params);
+    return this._client.send<void>("Target.disposeBrowserContext", params);
   }
   /** Returns information about a target. */
   public getTargetInfo(params: Target.GetTargetInfoParameters) {
@@ -6902,6 +7007,7 @@ export namespace Target {
     attached: boolean;
     /** Opener target Id */
     openerId?: TargetID;
+    browserContextId?: BrowserContextID;
   }
   export interface RemoteLocation {
     host: string;
@@ -6961,6 +7067,10 @@ export namespace Target {
     /** The id of the context created. */
     browserContextId: BrowserContextID;
   };
+  export type GetBrowserContextsReturn = {
+    /** An array of browser context ids. */
+    browserContextIds: BrowserContextID[];
+  };
   export type CreateTargetParameters = {
     /** The initial URL the page will be navigated to. */
     url: string;
@@ -6968,7 +7078,7 @@ export namespace Target {
     width?: number;
     /** Frame height in DIP (headless chrome only). */
     height?: number;
-    /** The browser context to create the page in (headless chrome only). */
+    /** The browser context to create the page in. */
     browserContextId?: BrowserContextID;
     /** Whether BeginFrames for this target will be controlled via DevTools (headless chrome only,
 not supported on MacOS yet, false by default). */
@@ -6986,9 +7096,6 @@ not supported on MacOS yet, false by default). */
   };
   export type DisposeBrowserContextParameters = {
     browserContextId: BrowserContextID;
-  };
-  export type DisposeBrowserContextReturn = {
-    success: boolean;
   };
   export type GetTargetInfoParameters = {
     targetId: TargetID;
@@ -7369,6 +7476,12 @@ command is issued, all existing parsed scripts will have breakpoints resolved an
   public setBreakpointByUrl(params: Debugger.SetBreakpointByUrlParameters) {
     return this._client.send<Debugger.SetBreakpointByUrlReturn>("Debugger.setBreakpointByUrl", params);
   }
+  /** Sets JavaScript breakpoint before each call to the given function.
+If another function was created from the same source as a given one,
+calling it will also trigger the breakpoint. */
+  public setBreakpointOnFunctionCall(params: Debugger.SetBreakpointOnFunctionCallParameters) {
+    return this._client.send<Debugger.SetBreakpointOnFunctionCallReturn>("Debugger.setBreakpointOnFunctionCall", params);
+  }
   /** Activates / deactivates all breakpoints on the page. */
   public setBreakpointsActive(params: Debugger.SetBreakpointsActiveParameters) {
     return this._client.send<void>("Debugger.setBreakpointsActive", params);
@@ -7661,6 +7774,8 @@ execution. Overrides `setPauseOnException` state. */
     generatePreview?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: Runtime.TimeDelta;
   };
   export type EvaluateOnCallFrameReturn = {
     /** Object wrapper for the evaluation result. */
@@ -7776,6 +7891,17 @@ breakpoint if this expression evaluates to true. */
     breakpointId: BreakpointId;
     /** List of the locations this breakpoint resolved into upon addition. */
     locations: Location[];
+  };
+  export type SetBreakpointOnFunctionCallParameters = {
+    /** Function object id. */
+    objectId: Runtime.RemoteObjectId;
+    /** Expression to use as a breakpoint condition. When specified, debugger will
+stop on the breakpoint if this expression evaluates to true. */
+    condition?: string;
+  };
+  export type SetBreakpointOnFunctionCallReturn = {
+    /** Id of the created breakpoint for further reference. */
+    breakpointId: BreakpointId;
   };
   export type SetBreakpointsActiveParameters = {
     /** New value for breakpoints active state. */
@@ -8290,6 +8416,15 @@ context. */
   public evaluate(params: Runtime.EvaluateParameters) {
     return this._client.send<Runtime.EvaluateReturn>("Runtime.evaluate", params);
   }
+  /** Returns the isolate id. */
+  public getIsolateId() {
+    return this._client.send<Runtime.GetIsolateIdReturn>("Runtime.getIsolateId");
+  }
+  /** Returns the JavaScript heap usage.
+It is the total usage of the corresponding isolate not scoped to a particular Runtime. */
+  public getHeapUsage() {
+    return this._client.send<Runtime.GetHeapUsageReturn>("Runtime.getHeapUsage");
+  }
   /** Returns properties of a given object. Object group of the result is inherited from the target
 object. */
   public getProperties(params: Runtime.GetPropertiesParameters) {
@@ -8320,6 +8455,11 @@ object. */
   }
   public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
+  }
+  /** Terminate current or next JavaScript execution.
+Will cancel the termination when the outer-most script execution ends. */
+  public terminateExecution() {
+    return this._client.send<void>("Runtime.terminateExecution");
   }
   /** Issued when console API was called. */
   get consoleAPICalled() {
@@ -8565,6 +8705,8 @@ execution. */
   }
   /** Number of milliseconds since epoch. */
   export type Timestamp = number;
+  /** Number of milliseconds. */
+  export type TimeDelta = number;
   /** Stack entry for runtime errors and assertions. */
   export interface CallFrame {
     /** JavaScript function name. */
@@ -8733,12 +8875,24 @@ resolved. */
     awaitPromise?: boolean;
     /** Whether to throw an exception if side effect cannot be ruled out during evaluation. */
     throwOnSideEffect?: boolean;
+    /** Terminate execution after timing out (number of milliseconds). */
+    timeout?: TimeDelta;
   };
   export type EvaluateReturn = {
     /** Evaluation result. */
     result: RemoteObject;
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
+  };
+  export type GetIsolateIdReturn = {
+    /** The isolate id. */
+    id: string;
+  };
+  export type GetHeapUsageReturn = {
+    /** Used heap size in bytes. */
+    usedSize: number;
+    /** Allocated heap size in bytes. */
+    totalSize: number;
   };
   export type GetPropertiesParameters = {
     /** Identifier of the object to return properties for. */

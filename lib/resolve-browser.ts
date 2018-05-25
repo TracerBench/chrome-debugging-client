@@ -1,95 +1,54 @@
-import * as os from "os";
-import { IExecutableInfo, IResolveOptions } from "./types";
+import * as finder from "chrome-launcher/dist/chrome-finder";
+import { getPlatform } from "chrome-launcher/dist/utils";
+import { IResolveOptions } from "./types";
 
-const APP_NAMES = {
-  darwin: {
-    chromium: "Chromium.app/Contents/MacOS/Chromium",
-    content_shell: "Content Shell.app/Contents/MacOS/Content Shell",
-  },
-  linux: {
-    chromium: "chrome",
-    content_shell: "content_shell",
-  },
-  win32: {
-    chromium: "chrome.exe",
-    content_shell: "content_shell.exe",
-  },
-};
+const CANARY_PATTERN = /Canary|unstable|SxS/i;
 
-const platform = (() => {
-  switch (os.platform()) {
-    case "darwin":
-      return "darwin";
-    case "win32":
-      return "win32";
-    case "linux":
-    default:
-      return "linux";
+export default function resolveBrowser(options?: IResolveOptions): string {
+  let executablePath =
+    (options && options.executablePath) ||
+    process.env.LIGHTHOUSE_CHROMIUM_PATH ||
+    process.env.CHROME_PATH ||
+    process.env.CHROME_BIN;
+  let browserType = options && options.browserType;
+  if (browserType === undefined) {
+    browserType = executablePath === undefined ? "system" : "exact";
   }
-})();
 
-const chromiumAppName = APP_NAMES[platform].chromium;
-const contentShellAppName = APP_NAMES[platform].content_shell;
+  if (browserType === "exact") {
+    if (executablePath === undefined) {
+      throw new Error(
+        `browserType exact requires the executablePath be specified or set as CHROME_PATH`,
+      );
+    }
+  } else {
+    executablePath = findExecutablePath(browserType);
+  }
 
-export default function resolveBrowser(
-  browserType: string,
-  options?: IResolveOptions,
-): IExecutableInfo {
-  if (!options) {
-    options = {};
-  }
-  let executablePath: string | undefined;
-  switch (browserType) {
-    case "exact":
-      executablePath = options.executablePath;
-      break;
-    case "system":
-    case "canary":
-      executablePath = resolveChromeApplication(browserType);
-      break;
-    case "release":
-    case "content-shell-release":
-    case "debug":
-    case "content-shell-debug":
-      executablePath = resolveChromiumBuild(browserType, options);
-      break;
-  }
-  if (!executablePath) {
-    throw new Error(`failed to resolve browser for type ${browserType}`);
-  }
-  return {
-    executablePath,
-    isContentShell: executablePath.endsWith(contentShellAppName),
-  };
+  return executablePath;
 }
 
-function resolveChromiumBuild(
-  browserType: string,
-  options: IResolveOptions,
-): string | undefined {
-  const chromiumSrcDir =
-    options.chromiumSrcDir || `${os.homedir()}/chromium/src`;
-  switch (browserType) {
-    case "release":
-      return `${chromiumSrcDir}/out/Release/${chromiumAppName}`;
-    case "debug":
-      return `${chromiumSrcDir}/out/Debug/${chromiumAppName}`;
-    case "content-shell-release":
-      return `${chromiumSrcDir}/out/Release/${contentShellAppName}`;
-    case "content-shell-debug":
-      return `${chromiumSrcDir}/out/Debug/${contentShellAppName}`;
-    default:
-      return;
+function findExecutablePath(browserType: "system" | "canary") {
+  const platform = getPlatform();
+
+  let executablePaths: string[] | undefined;
+  if (isFinder(platform)) {
+    executablePaths = finder[platform]();
   }
+
+  if (executablePaths !== undefined) {
+    if (browserType === "canary") {
+      executablePaths = executablePaths.filter(p => CANARY_PATTERN.test(p));
+    }
+  }
+
+  if (executablePaths === undefined || executablePaths.length === 0) {
+    throw new Error(`Unable to find browser for type ${browserType}`);
+  }
+
+  return executablePaths[0];
 }
 
-function resolveChromeApplication(browserType: string): string | undefined {
-  if (platform !== "darwin") {
-    // TODO other platforms, can use exact or build variants
-    return;
-  }
-  if (browserType === "canary") {
-    return "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary";
-  }
-  return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+function isFinder(platform: string): platform is "darwin" | "linux" {
+  return typeof (finder as any)[platform] === "function";
 }

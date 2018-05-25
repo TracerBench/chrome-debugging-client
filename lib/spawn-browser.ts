@@ -6,6 +6,7 @@ import { delay } from "./delay";
 import { IBrowserProcess, ISpawnOptions } from "./types";
 
 const PORT_FILENAME = "DevToolsActivePort";
+const NEWLINE = /\r?\n/;
 
 export default async function spawnBrowser(
   executablePath: string,
@@ -20,16 +21,18 @@ export default async function spawnBrowser(
   const process: IBrowserProcess = new BrowserProcess(executablePath, args);
   try {
     let port: number = 0;
+    let wsPath: string | undefined;
     let tries = 0;
     while (true) {
       if (++tries > 10) {
         throw new Error("failed waiting for port file");
       }
       await delay(200);
-      port = await tryReadPort(portFile);
+      [port, wsPath] = await tryReadPort(portFile);
       process.validate();
       if (port > 0) {
         process.remoteDebuggingPort = port;
+        process.remoteDebuggingPath = wsPath;
         process.dataDir = dataDir;
         break;
       }
@@ -111,6 +114,7 @@ function getArguments(
 /* tslint:disable:max-classes-per-file */
 class BrowserProcess implements IBrowserProcess {
   public remoteDebuggingPort: number = 0;
+  public remoteDebuggingPath: string | undefined;
   public dataDir: string;
   public pid: number;
 
@@ -124,6 +128,12 @@ class BrowserProcess implements IBrowserProcess {
     process.on("exit", () => (this.hasExited = true));
     this.process = process;
     this.pid = process.pid;
+  }
+
+  public get webSocketDebuggerUrl() {
+    return `ws://127.0.0.1:${this.remoteDebuggingPort}${
+      this.remoteDebuggingPath
+    }`;
   }
 
   public dispose(): Promise<void> {
@@ -162,15 +172,17 @@ function tryDeleteFile(filename: string): Promise<void> {
   return new Promise<void>(resolve => fs.unlink(filename, () => resolve()));
 }
 
-function tryReadPort(filename: string): Promise<number> {
-  return new Promise<number>(resolve => {
+function tryReadPort(filename: string) {
+  return new Promise<[number, string | undefined]>(resolve => {
     fs.readFile(filename, "utf8", (err, data) => {
-      if (err) {
-        resolve(0);
+      if (err || data.length === 0) {
+        resolve([0, undefined]);
+      } else {
+        const [portStr, wsPath] = data.split(NEWLINE, 2);
+        const port = parseInt(portStr, 10);
+        // handles NaN if write was created but port not written
+        port > 0 ? resolve([port, wsPath]) : resolve([0, wsPath]);
       }
-      const port = parseInt(data, 10);
-      // handles NaN if write was created but port not written
-      port > 0 ? resolve(port) : resolve(0);
     });
   });
 }

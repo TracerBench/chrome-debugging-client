@@ -3,7 +3,6 @@
  */
 export interface ISession extends IDisposable {
   spawnBrowser(
-    browserType: string,
     options?: IResolveOptions & ISpawnOptions,
   ): Promise<IBrowserProcess>;
   createAPIClient(host: string, port: number): IAPIClient;
@@ -88,13 +87,8 @@ export interface IDisposable {
 }
 
 export interface IResolveOptions {
+  browserType?: "system" | "canary" | "exact";
   executablePath?: string;
-  chromiumSrcDir?: string;
-}
-
-export interface IExecutableInfo {
-  executablePath: string;
-  isContentShell: boolean;
 }
 
 export interface ISpawnOptions {
@@ -107,6 +101,8 @@ export interface ISpawnOptions {
 
 export interface IBrowserProcess extends IDisposable {
   remoteDebuggingPort: number;
+  remoteDebuggingPath: string | undefined;
+  webSocketDebuggerUrl: string | undefined;
   dataDir: string;
   /** throws if process has exited or there has been an error */
   validate(): void;

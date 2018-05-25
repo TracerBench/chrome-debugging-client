@@ -8,6 +8,6 @@ addons:
     sources:
       - google-chrome
     packages:
-      - google-chrome-beta
+      - google-chrome-unstable
 env:
-  - CHROME_BIN=/usr/bin/google-chrome-beta
+  - CHROME_PATH=/usr/bin/google-chrome-unstable

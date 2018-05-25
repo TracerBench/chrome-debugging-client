@@ -1,13 +1,9 @@
 {
   "name": "chrome-debugging-client",
   "version": "0.4.7",
-  "description": "An async/await friendly Chrome debugging client with TypeScript support",
-  "keywords": [
-    "chrome",
-    "debugging",
-    "protocol",
-    "typescript"
-  ],
+  "description":
+    "An async/await friendly Chrome debugging client with TypeScript support",
+  "keywords": ["chrome", "debugging", "protocol", "typescript"],
   "main": "dist/index.js",
   "files": [
     "dist/index.d.ts",
@@ -26,7 +22,8 @@
   "scripts": {
     "prepare": "npm run rebuild",
     "compile-protocol-gen": "tsc -p scripts/tsconfig.json",
-    "protocol-gen": "npm run compile-protocol-gen && node dist/scripts/generate-protocol.js",
+    "protocol-gen":
+      "npm run compile-protocol-gen && node dist/scripts/generate-protocol.js",
     "rebuild": "rm -rf dist && tsc",
     "compile": "tsc --watch",
     "lint": "tslint -p tsconfig.json",
@@ -43,6 +40,7 @@
     "@types/rimraf": "^2.0.2",
     "@types/tape": "^4.2.29",
     "@types/ws": "^4.0.1",
+    "chrome-launcher": "^0.10.2",
     "execa": "^0.10.0",
     "mktemp": "^0.4.0",
     "rimraf": "^2.5.1",

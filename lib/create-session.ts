@@ -49,20 +49,19 @@ class Session implements IDisposable {
   private disposables = new Disposables();
 
   public async spawnBrowser(
-    browserType: string,
     options?: IResolveOptions & ISpawnOptions,
   ): Promise<IBrowserProcess> {
-    const browser = resolveBrowser(browserType, options);
+    const executablePath = resolveBrowser(options);
     const tmpDir = await createTmpDir();
     this.disposables.add(tmpDir);
-    const process = await spawnBrowser(
-      browser.executablePath,
+    const browserProcess = await spawnBrowser(
+      executablePath,
       tmpDir.path,
-      browser.isContentShell,
+      false,
       options,
     );
-    this.disposables.add(process);
-    return process;
+    this.disposables.add(browserProcess);
+    return browserProcess;
   }
 
   public createAPIClient(host: string, port: number): IAPIClient {

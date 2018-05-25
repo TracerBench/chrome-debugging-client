@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Wed May 16 2018 09:39:55 GMT-0700 (PDT)
+ * Generated on Fri May 25 2018 13:23:35 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -2367,6 +2367,14 @@ export class DOMSnapshot {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
+  /** Disables DOM snapshot agent for the given page. */
+  public disable() {
+    return this._client.send<void>("DOMSnapshot.disable");
+  }
+  /** Enables DOM snapshot agent for the given page. */
+  public enable() {
+    return this._client.send<void>("DOMSnapshot.enable");
+  }
   /** Returns a document snapshot, including the full DOM tree of the root node (including iframes,
 template contents, and imported documents) in a flattened array, as well as layout and
 white-listed computed style information for the nodes. Shadow DOM in the returned DOM tree is
@@ -2440,6 +2448,8 @@ clicked. */
     eventListeners?: DOMDebugger.EventListener[];
     /** The selected url for nodes with a srcset attribute. */
     currentSourceURL?: string;
+    /** The url of the script (if any) that generates this node. */
+    originURL?: string;
   }
   /** Details of post layout rendered text positions. The exact layout should not be regarded as
 stable and may change between versions. */
@@ -2966,8 +2976,6 @@ Note any previous deferred policy change is superseded. */
     initialVirtualTime?: Network.TimeSinceEpoch;
   };
   export type SetVirtualTimePolicyReturn = {
-    /** Absolute timestamp at which virtual time was first enabled (milliseconds since epoch). */
-    virtualTimeBase: Runtime.Timestamp;
     /** Absolute timestamp at which virtual time was first enabled (up time in milliseconds). */
     virtualTimeTicksBase: number;
   };
@@ -3028,18 +3036,9 @@ export namespace HeadlessExperimental {
   };
   export type NeedsBeginFramesChangedHandler = (params: NeedsBeginFramesChangedParameters) => void;
   export type BeginFrameParameters = {
-    /** Timestamp of this BeginFrame (milliseconds since epoch). If not set, the current time will
-be used unless frameTicks is specified. */
-    frameTime?: Runtime.Timestamp;
     /** Timestamp of this BeginFrame in Renderer TimeTicks (milliseconds of uptime). If not set,
-the current time will be used unless frameTime is specified. */
+the current time will be used. */
     frameTimeTicks?: number;
-    /** Deadline of this BeginFrame (milliseconds since epoch). If not set, the deadline will be
-calculated from the frameTime and interval unless deadlineTicks is specified. */
-    deadline?: Runtime.Timestamp;
-    /** Deadline of this BeginFrame in Renderer TimeTicks  (milliseconds of uptime). If not set,
-the deadline will be calculated from the frameTime and interval unless deadline is specified. */
-    deadlineTicks?: number;
     /** The interval between BeginFrames that is reported to the compositor, in milliseconds.
 Defaults to a 60 frames/second interval, i.e. about 16.666 milliseconds. */
     interval?: number;
@@ -4532,10 +4531,10 @@ milliseconds relatively to this requestTime. */
   /** Information about the request initiator. */
   export interface Initiator {
     /** Type of this initiator. */
-    type: "parser" | "script" | "preload" | "other";
+    type: "parser" | "script" | "preload" | "SignedExchange" | "other";
     /** Initiator JavaScript stack trace, set for Script only. */
     stack?: Runtime.StackTrace;
-    /** Initiator URL, set for Parser type or for Script type (when script is importing module). */
+    /** Initiator URL, set for Parser type or for Script type (when script is importing module) or for SignedExchange type. */
     url?: string;
     /** Initiator line number, set for Parser type or for Script type (when script is importing
 module) (0-based). */
@@ -4623,10 +4622,52 @@ backslash. Omitting is equivalent to "*". */
     /** Stage at wich to begin intercepting requests. Default is Request. */
     interceptionStage?: InterceptionStage;
   }
+  /** Information about a signed exchange signature.
+https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-impl.html#rfc.section.3.1 */
+  export interface SignedExchangeSignature {
+    /** Signed exchange signature label. */
+    label: string;
+    /** The hex string of signed exchange signature. */
+    signature: string;
+    /** Signed exchange signature integrity. */
+    integrity: string;
+    /** Signed exchange signature cert Url. */
+    certUrl?: string;
+    /** The hex string of signed exchange signature cert sha256. */
+    certSha256?: string;
+    /** Signed exchange signature validity Url. */
+    validityUrl: string;
+    /** Signed exchange signature date. */
+    date: number;
+    /** Signed exchange signature expires. */
+    expires: number;
+    /** The encoded certificates. */
+    certificates?: string[];
+  }
+  /** Information about a signed exchange header.
+https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-impl.html#cbor-representation */
+  export interface SignedExchangeHeader {
+    /** Signed exchange request URL. */
+    requestUrl: string;
+    /** Signed exchange request method. */
+    requestMethod: string;
+    /** Signed exchange response code. */
+    responseCode: number;
+    /** Signed exchange response headers. */
+    responseHeaders: Headers;
+    /** Signed exchange response signature. */
+    signatures: SignedExchangeSignature[];
+  }
   /** Information about a signed exchange response. */
   export interface SignedExchangeInfo {
     /** The outer response of signed HTTP exchange which was received from network. */
     outerResponse: Response;
+    /** Information about the signed exchange header. */
+    header?: SignedExchangeHeader;
+    /** Security details for the signed exchange header. */
+    securityDetails?: SecurityDetails;
+    /** Errors occurred while handling the signed exchagne. */
+    errors?: string[];
   }
   export type DataReceivedParameters = {
     /** Request identifier. */

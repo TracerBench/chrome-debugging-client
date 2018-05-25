@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Wed May 16 2018 09:39:55 GMT-0700 (PDT)
+ * Generated on Fri May 25 2018 13:23:35 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -1618,10 +1618,10 @@ milliseconds relatively to this requestTime. */
   /** Information about the request initiator. */
   export interface Initiator {
     /** Type of this initiator. */
-    type: "parser" | "script" | "preload" | "other";
+    type: "parser" | "script" | "preload" | "SignedExchange" | "other";
     /** Initiator JavaScript stack trace, set for Script only. */
     stack?: Runtime.StackTrace;
-    /** Initiator URL, set for Parser type or for Script type (when script is importing module). */
+    /** Initiator URL, set for Parser type or for Script type (when script is importing module) or for SignedExchange type. */
     url?: string;
     /** Initiator line number, set for Parser type or for Script type (when script is importing
 module) (0-based). */

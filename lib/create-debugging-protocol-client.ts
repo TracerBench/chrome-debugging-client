@@ -23,7 +23,7 @@ interface IResponseError {
   code: number;
   message: string;
   data?: string;
-};
+}
 
 interface IErrorResponseMessage {
   id: number;

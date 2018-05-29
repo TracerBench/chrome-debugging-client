@@ -96,6 +96,7 @@ export interface ISpawnOptions {
     width: number;
     height: number;
   };
+  disableDefaultArguments?: boolean;
   additionalArguments?: string[];
 }
 

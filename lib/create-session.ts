@@ -57,7 +57,6 @@ class Session implements IDisposable {
     const browserProcess = await spawnBrowser(
       executablePath,
       tmpDir.path,
-      false,
       options,
     );
     this.disposables.add(browserProcess);

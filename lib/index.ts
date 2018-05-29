@@ -4,3 +4,4 @@ export {
   default as createDebuggingProtocolClient,
 } from "./create-debugging-protocol-client";
 export { createSession, createSessions } from "./create-session";
+export * from "./flags";

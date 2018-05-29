@@ -3,6 +3,7 @@ import * as execa from "execa";
 import * as fs from "fs";
 import * as path from "path";
 import { delay } from "./delay";
+import { DEFAULT_FLAGS } from "./flags";
 import { IBrowserProcess, ISpawnOptions } from "./types";
 
 const PORT_FILENAME = "DevToolsActivePort";
@@ -11,13 +12,12 @@ const NEWLINE = /\r?\n/;
 export default async function spawnBrowser(
   executablePath: string,
   dataDir: string,
-  isContentShell: boolean,
   options?: ISpawnOptions,
 ): Promise<IBrowserProcess> {
   const portFile = path.join(dataDir, PORT_FILENAME);
   // delete port file before launching
   await tryDeleteFile(portFile);
-  const args = getArguments(dataDir, isContentShell, options);
+  const args = getArguments(dataDir, options);
   const process: IBrowserProcess = new BrowserProcess(executablePath, args);
   try {
     let port: number = 0;
@@ -44,71 +44,21 @@ export default async function spawnBrowser(
   }
 }
 
-function getArguments(
-  dataDir: string,
-  isContentShell: boolean,
-  options?: ISpawnOptions,
-): string[] {
+function getArguments(dataDir: string, options?: ISpawnOptions): string[] {
   const windowSize = (options && options.windowSize) || {
     height: 736,
     width: 414,
   };
+  const defaultArguments =
+    options === undefined || options.disableDefaultArguments !== true
+      ? DEFAULT_FLAGS
+      : [];
   const additionalArguments = (options && options.additionalArguments) || [];
-  const args = [
-    // base switches
-    "--disable-breakpad",
-    "--noerrdialogs",
-    // content switches
-    "--allow-insecure-localhost",
-    "--disable-hang-monitor",
-    "--disable-notifications",
-    "--disable-web-security",
-    "--disable-v8-idle-tasks",
-    "--disable-xss-auditor",
-    "--ignore-certificate-errors",
-    "--no-sandbox",
-    "--reduce-security-for-testing",
-    "--safebrowsing-disable-auto-update",
-    "--v8-cache-options=none",
-    "--process-per-tab",
-    "--use-mock-keychain",
-    "--password-store=basic",
-    //  first available ephemeral port
+  return [
     "--remote-debugging-port=0",
-  ].concat(additionalArguments);
-  if (isContentShell) {
-    return args.concat([
-      `--data-path=${dataDir}`,
-      `--content-shell-host-window-size=${windowSize.width}x${
-        windowSize.height
-      }`,
-      "about:blank",
-    ]);
-  }
-  return args.concat([
-    "--disable-add-to-shelf",
-    "--disable-background-networking",
-    "--disable-client-side-phishing-detection",
-    "--disable-component-extensions-with-background-pages",
-    "--disable-component-update",
-    "--disable-default-apps",
-    "--disable-domain-reliability",
-    "--disable-extensions",
-    "--disable-features=NetworkPrediction",
-    "--disable-popup-blocking",
-    "--disable-prompt-on-repost",
-    "--disable-sync",
-    "--disable-translate", // auto translate
-    "--metrics-recording-only",
-    "--no-default-browser-check",
-    "--no-experiments",
-    "--no-first-run",
-    "--no-ping",
-    "--no-proxy-server",
     `--user-data-dir=${dataDir}`,
     `--window-size=${windowSize.width},${windowSize.height}`,
-    "about:blank",
-  ]);
+  ].concat(defaultArguments, additionalArguments, ["about:blank"]);
 }
 
 /* tslint:disable:max-classes-per-file */

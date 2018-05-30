@@ -1,50 +1,68 @@
+import { EventEmitter } from "events";
 import * as WebSocket from "ws";
 import { eventPromise } from "./event-promise";
-import { IWebSocketConnection, IWebSocketDelegate } from "./types";
+import { IConnection } from "./types";
 
-export default async function openWebSocket(
-  url: string,
-  delegate: IWebSocketDelegate,
-): Promise<IWebSocketConnection> {
+export default async function openWebSocket(url: string): Promise<IConnection> {
   const ws = new WebSocket(url);
   await eventPromise(ws, "open", "error");
+  return new WebSocketConnection(ws);
+}
 
-  const onMessage = delegate.onMessage.bind(delegate);
-  const onError = delegate.onError.bind(delegate);
-
-  ws.addListener("message", onMessage);
-  ws.addListener("error", onError);
-
-  function removeListeners() {
-    ws.removeListener("message", onMessage);
-    ws.removeListener("error", onError);
+class WebSocketConnection extends EventEmitter implements IConnection {
+  constructor(private ws: WebSocket) {
+    super();
+    ws.on("message", this.onMessage.bind(this));
+    ws.on("error", this.onError.bind(this));
+    ws.on("close", this.onClose.bind(this));
   }
 
-  const closed = new Promise(resolveClose => {
-    const onClose = () => {
-      ws.removeListener("close", onClose);
-      resolveClose();
-    };
-    ws.addListener("close", onClose);
-  }).then(() => {
-    removeListeners();
-    delegate.onClose();
-  });
+  public async send(message: string): Promise<void> {
+    await send(this.ws, message);
+  }
 
-  function close() {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.close();
+  public async close(): Promise<any> {
+    if (this.ws.readyState === WebSocket.CLOSED) {
+      return;
+    }
+    this.ws.removeAllListeners();
+    const closePromise = eventPromise(this.ws, "close", "error");
+    this.ws.close();
+    await closePromise;
+  }
+
+  public async dispose(): Promise<any> {
+    try {
+      await this.close();
+    } catch (err) {
+      // ignore err since dispose is called in a finally
+      // tslint:disable-next-line:no-console
+      console.error(err);
     }
   }
 
-  async function dispose() {
-    close();
-    await closed;
+  private onMessage(msg: string) {
+    this.emit("message", msg);
   }
 
-  function send(data: string) {
-    ws.send(data);
+  private onError(err: Error) {
+    this.emit("error", err);
   }
 
-  return (delegate.socket = { send, close, dispose });
+  private onClose() {
+    this.emit("close");
+    this.ws.removeAllListeners();
+  }
+}
+
+function send(ws: WebSocket, data: string): Promise<void> {
+  return new Promise((resolve, reject) =>
+    ws.send(data, err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    }),
+  );
 }

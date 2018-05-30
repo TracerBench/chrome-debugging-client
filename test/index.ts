@@ -1,6 +1,6 @@
 import * as tape from "tape";
 import { createSession } from "../index";
-import { HeapProfiler, Target } from "../protocol/tot";
+import { HeapProfiler, Page, Target } from "../protocol/tot";
 
 tape("test REST API", async t => {
   await createSession(async session => {
@@ -67,11 +67,11 @@ tape("test browser protocol", async t => {
       additionalArguments: ["--headless"],
     });
 
-    const debuggingClient = await session.openDebuggingProtocol(
+    const browserClient = await session.openDebuggingProtocol(
       browser.webSocketDebuggerUrl!,
     );
 
-    const targetDomain = new Target(debuggingClient);
+    const targetDomain = new Target(browserClient);
     const { browserContextId } = await targetDomain.createBrowserContext();
     const { targetId } = await targetDomain.createTarget({
       browserContextId,
@@ -86,6 +86,18 @@ tape("test browser protocol", async t => {
       ),
       "has opened target",
     );
+
+    const targetClient = await session.attachToTarget(browserClient, targetId);
+    const page = new Page(targetClient);
+
+    const frameTree = await page.getFrameTree();
+
+    t.assert(frameTree.frameTree.frame, "has target has frame tree");
+
+    await targetClient.close();
+
     await targetDomain.closeTarget({ targetId });
+
+    await browserClient.send("Browser.close");
   }).then(() => t.end(), err => (err ? t.error(err) : t.fail()));
 });

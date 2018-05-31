@@ -1,5 +1,5 @@
-chrome-debugging-client
-=======================
+# chrome-debugging-client
+
 [![Build Status](https://travis-ci.org/devtrace/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/devtrace/chrome-debugging-client)
 
 An async/await friendly Chrome debugging client with TypeScript support,
@@ -25,8 +25,7 @@ import { HeapProfiler } from "chrome-debugging-client/dist/protocol/tot";
 createSession(async (session) => {
   // spawns a chrome instance with a tmp user data
   // and the debugger open to an ephemeral port
-  const process = await session.spawnBrowser('exact', {
-    executablePath: '/usr/bin/google-chrome-beta',
+  const process = await session.spawnBrowser({
     additionalArguments: ['--headless', '--disable-gpu', '--hide-scrollbars', '--mute-audio'],
     windowSize: { width: 640, height: 320 }
   });
@@ -65,10 +64,12 @@ createSession(async (session) => {
 ```
 
 ## customize browser executable path
-By default, this tool launches Chrome Canary. It may error if it cannot find the executable. For this and other reasons, you can configure the executable path like so:
+
+By default, this tool chrome-launcher to find chrome. It may error if it cannot find the executable. For this and other reasons, you can configure via a CHROME_PATH environment variable or pass in the executablePath like so:
+
 ```js
 // example for macOS
-let browser = await session.spawnBrowser('exact', {
+let browser = await session.spawnBrowser({
  executablePath: '/Users/someone/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
 });
 ```

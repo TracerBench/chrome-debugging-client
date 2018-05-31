@@ -1,6 +1,7 @@
 import createAPIClient from "./create-api-client";
 import createDebuggingProtocolClient from "./create-debugging-protocol-client";
 import createHTTPClient from "./create-http-client";
+import createTargetConnection from "./create-target-connection";
 import createTmpDir from "./create-tmpdir";
 import Disposables from "./disposables";
 import openWebSocket from "./open-web-socket";
@@ -9,6 +10,7 @@ import spawnBrowser from "./spawn-browser";
 import {
   IAPIClient,
   IBrowserProcess,
+  IConnection,
   IDebuggingProtocolClient,
   IDisposable,
   IResolveOptions,
@@ -16,9 +18,20 @@ import {
   ISpawnOptions,
 } from "./types";
 
-export async function createSession<T>(
-  cb: (session: ISession) => PromiseLike<T> | T,
-): Promise<T> {
+export type SessionCallback<T> = (session: ISession) => PromiseLike<T> | T;
+
+export function createSession<T>(cb: SessionCallback<T>): Promise<T>;
+export function createSession(): ISession;
+export function createSession(
+  cb?: SessionCallback<any>,
+): Promise<any> | ISession {
+  if (cb === undefined) {
+    return new Session();
+  }
+  return usingSession(cb);
+}
+
+async function usingSession(cb: SessionCallback<any>) {
   const session = new Session();
   try {
     return await cb(session);
@@ -27,25 +40,7 @@ export async function createSession<T>(
   }
 }
 
-export async function createSessions<T>(
-  count: number,
-  cb: (sessions: ISession[]) => PromiseLike<T> | T,
-): Promise<T> {
-  const disposables = new Disposables();
-  const sessions: ISession[] = [];
-  try {
-    while (count--) {
-      const session = new Session();
-      disposables.add(session);
-      sessions.push(session);
-    }
-    return await cb(sessions);
-  } finally {
-    await disposables.dispose();
-  }
-}
-
-class Session implements IDisposable {
+class Session implements ISession {
   private disposables = new Disposables();
 
   public async spawnBrowser(
@@ -70,16 +65,47 @@ class Session implements IDisposable {
   public async openDebuggingProtocol(
     webSocketDebuggerUrl: string,
   ): Promise<IDebuggingProtocolClient> {
-    const debuggingProtocol = createDebuggingProtocolClient();
-    const connection = await openWebSocket(
-      webSocketDebuggerUrl,
-      debuggingProtocol,
+    return this.createDebuggingProtocolClient(
+      this.addDisposable(await openWebSocket(webSocketDebuggerUrl)),
     );
-    this.disposables.add(connection);
-    return debuggingProtocol;
+  }
+
+  public async attachToTarget(
+    browserClient: IDebuggingProtocolClient,
+    targetId: string,
+  ): Promise<IDebuggingProtocolClient> {
+    const { sessionId } = await browserClient.send<{ sessionId: string }>(
+      "Target.attachToTarget",
+      {
+        targetId,
+      },
+    );
+    return this.createTargetSessionClient(browserClient, sessionId);
+  }
+
+  public createTargetSessionClient(
+    browserClient: IDebuggingProtocolClient,
+    sessionId: string,
+  ) {
+    const connection = this.addDisposable(
+      createTargetConnection(browserClient, sessionId),
+    );
+    return this.createDebuggingProtocolClient(connection);
+  }
+
+  public createSession(): ISession {
+    return this.addDisposable(new Session());
   }
 
   public dispose() {
     return this.disposables.dispose();
+  }
+
+  private createDebuggingProtocolClient(connection: IConnection) {
+    return this.addDisposable(createDebuggingProtocolClient(connection));
+  }
+
+  private addDisposable<T extends IDisposable>(disposable: T): T {
+    return disposable;
   }
 }

@@ -1,12 +1,12 @@
 import { EventEmitter } from "events";
-import { IDebuggingProtocolClient, IWebSocketConnection } from "./types";
+import { IConnection, IDebuggingProtocolClient } from "./types";
 
 interface ICommandRequest {
   id: number;
   method: string;
-  params: string;
-  resolve: (res: ICommandResponseMessage) => void;
-  reject: (reason: any) => void;
+  params: any;
+
+  response: Promise<ICommandResponseMessage>;
 }
 
 interface IEventMessage {
@@ -39,50 +39,60 @@ interface ICommandResponseMessage
   extends ISuccessResponseMessage,
     IErrorResponseMessage {}
 
-export default function createDebuggingProtocolClient(): IDebuggingProtocolClient {
-  return new DebuggingProtocol();
+export default function createDebuggingProtocolClient(
+  connection: IConnection,
+): IDebuggingProtocolClient {
+  return new DebuggingProtocol(connection);
 }
 
 /* tslint:disable:max-classes-per-file */
 class DebuggingProtocol extends EventEmitter
   implements IDebuggingProtocolClient {
-  public socket: IWebSocketConnection;
   private seq = 0;
-  private pendingRequests = new Map<number, ICommandRequest>();
+  private pendingRequests = new Map<number, CommandRequest>();
 
-  constructor() {
+  constructor(private connection: IConnection) {
     super();
+    this.onMessage = this.onMessage.bind(this);
+    this.onError = this.onError.bind(this);
+    this.onClose = this.onClose.bind(this);
+
+    this.connection.on("message", this.onMessage);
+    this.connection.on("error", this.onError);
+    this.connection.on("close", this.onClose);
   }
 
-  public send(method: string, params?: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const id = this.seq++;
-      this.socket.send(JSON.stringify({ id, method, params }));
-      this.pendingRequests.set(id, { id, method, params, resolve, reject });
-    }).then((res: ICommandResponseMessage) => {
-      if (res.error) {
-        throw new ProtocolError(res.error);
-      }
-      return res.result;
-    });
+  public async send(method: string, params?: any): Promise<any> {
+    const request = this.createRequest(method, params);
+    try {
+      const [, response] = await Promise.all([
+        this.sendRequest(request),
+        this.getResponse(request),
+      ]);
+      return response;
+    } finally {
+      this.deleteRequest(request);
+    }
   }
 
   public onMessage(data: string) {
     try {
       const msg: IMessage = JSON.parse(data);
       if (msg.id !== undefined) {
-        const req = this.pendingRequests.get(msg.id);
-        this.pendingRequests.delete(msg.id);
-        if (req) {
-          req.resolve(msg);
+        const request = this.pendingRequests.get(msg.id);
+        if (request) {
+          request.resolve(msg);
         }
       } else {
         this.emit(msg.method, msg.params);
       }
     } catch (err) {
       this.onError(err);
-      this.socket.close();
     }
+  }
+
+  public close(): Promise<void> {
+    return this.connection.close();
   }
 
   public onClose() {
@@ -92,8 +102,37 @@ class DebuggingProtocol extends EventEmitter
 
   public onError(err: Error) {
     this.clearPending(err);
-    this.socket.close();
     this.emit("error", err);
+  }
+
+  public async dispose() {
+    this.connection.removeListener("message", this.onMessage);
+    this.connection.removeListener("error", this.onError);
+    this.connection.removeListener("close", this.onClose);
+  }
+
+  private createRequest(method: string, params: any): ICommandRequest {
+    const req = new CommandRequest(this.seq++, method, params);
+    this.pendingRequests.set(req.id, req);
+    return req;
+  }
+
+  private async getResponse(request: ICommandRequest) {
+    const response = await request.response;
+
+    if (response.error) {
+      throw protocolError(response.error);
+    }
+
+    return response.result;
+  }
+
+  private sendRequest(req: ICommandRequest): Promise<void> {
+    return this.connection.send(JSON.stringify(req));
+  }
+
+  private deleteRequest(req: ICommandRequest): void {
+    this.pendingRequests.delete(req.id);
   }
 
   private clearPending(err: Error) {
@@ -106,11 +145,23 @@ class DebuggingProtocol extends EventEmitter
   }
 }
 
-class ProtocolError extends Error {
-  public code: number;
-  constructor(err: IResponseError) {
-    const msg = err.data ? `${err.message}:${err.data}` : err.message;
-    super(msg);
-    this.code = err.code;
+export type ProtocolError = Error & { code: number };
+
+class CommandRequest implements ICommandRequest {
+  public response: Promise<ICommandResponseMessage>;
+  public resolve: (res: ICommandResponseMessage) => void;
+  public reject: (reason: any) => void;
+
+  constructor(public id: number, public method: string, public params: any) {
+    this.response = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
   }
+}
+
+function protocolError({ message, code, data }: IResponseError): ProtocolError {
+  const msg = data ? `${message}:${data}` : message;
+  const err = new Error(msg);
+  return Object.assign(err, { code });
 }

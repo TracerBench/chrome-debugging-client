@@ -1,14 +1,70 @@
 /**
- * The session is a factory for the various debugging tools/clients that disposes them at the end.
+ * The session is a factory for the various debugging client primitives
+ * that tracks all of the disposables it creates, so it can ensure they are
+ * all cleaned up when it is disposed.
+ *
+ * It has no other state.
  */
 export interface ISession extends IDisposable {
+  /**
+   * Spawn a chrome instance with a temporary user data folder with
+   * the Chrome Debugging Protocol open on an ephemeral port.
+   * @param options
+   */
   spawnBrowser(
     options?: IResolveOptions & ISpawnOptions,
   ): Promise<IBrowserProcess>;
+
+  /**
+   * Open a DevTools HTTP Client for the specified host and port.
+   * @param host {string}
+   * @param port {number}
+   * @returns {IAPIClient}
+   */
   createAPIClient(host: string, port: number): IAPIClient;
+
+  /**
+   * Open a Chrome Debugging Protocol client for the specified web socket url.
+   * @param webSocketUrl {string} a web socket url.
+   */
   openDebuggingProtocol(
-    webSocketDebuggerUrl: string,
+    webSocketUrl: string,
   ): Promise<IDebuggingProtocolClient>;
+
+  /**
+   * Attach a Chrome Debugging Protocol client to the specified target id.
+   * @param browserClient {IDebuggingProtocolClient} Chrome Debugging Protocol client connected to the browser.
+   * @param targetId {string} the id of the target.
+   * @returns {IDebuggingProtocolClient} the Chrome Debugging Protocol client for the specified target.
+   */
+  attachToTarget(
+    browserClient: IDebuggingProtocolClient,
+    targetId: string,
+  ): Promise<IDebuggingProtocolClient>;
+
+  /**
+   * Create a Chrome Debugging Protocol client for the specified target session id.
+   *
+   * Useful for creating a client for an already attached target.
+   *
+   * @param browserClient {IDebuggingProtocolClient} Chrome Debugging Protocol client connected to the browser.
+   * @param sessionId {string} the session id of the target.
+   * @returns {IDebuggingProtocolClient} the Chrome Debugging Protocol client for the specified target session.
+   */
+  createTargetSessionClient(
+    browserClient: IDebuggingProtocolClient,
+    sessionId: string,
+  ): IDebuggingProtocolClient;
+
+  /**
+   * Create nested session within the current.
+   *
+   * Everything created within this session will be disposed with the parent,
+   * but it allows you to dispose of the session earlier than the parent.
+   *
+   * @returns {ISession}
+   */
+  createSession(): ISession;
 }
 
 export interface IAPIClient {
@@ -37,15 +93,10 @@ export interface IVersionResponse {
   "WebKit-Version": string;
 }
 
-export interface IDebuggingProtocolClient
-  extends IEventNotifier,
-    IWebSocketDelegate {
+export interface IDebuggingProtocolClient extends IEventNotifier, IDisposable {
   send<T>(command: string, params?: any): Promise<T>;
   send(command: string, params?: any): Promise<any>;
-}
-
-export interface ITmpDir extends IDisposable {
-  path: string;
+  close(): Promise<void>;
 }
 
 export interface IEventNotifier {
@@ -54,35 +105,8 @@ export interface IEventNotifier {
   removeAllListeners(event?: string): any;
 }
 
-export interface IHTTPClientFactory {
-  create(host: string, port: number): IHTTPClient;
-}
-
-export interface IHTTPClient {
-  get(path: string): Promise<string>;
-}
-
-export interface IWebSocketOpener {
-  open(
-    url: string,
-    delegate: IWebSocketDelegate,
-  ): Promise<IWebSocketConnection>;
-}
-
-export interface IWebSocketConnection extends IDisposable {
-  send(data: string): void;
-  close(): void;
-}
-
-export interface IWebSocketDelegate {
-  socket: IWebSocketConnection;
-  onMessage(data: string): void;
-  onError(err: Error): void;
-  onClose(): void;
-}
-
 export interface IDisposable {
-  /* should not reject */
+  /** called in finally should not reject or will mask original error */
   dispose(): Promise<any>;
 }
 
@@ -107,4 +131,24 @@ export interface IBrowserProcess extends IDisposable {
   dataDir: string;
   /** throws if process has exited or there has been an error */
   validate(): void;
+}
+
+export interface IHTTPClient {
+  get(path: string): Promise<string>;
+}
+
+export type ErrorEventHandler = (error: Error) => void;
+export type MessageEventHandler = (message: string) => void;
+export type CloseEventHandler = () => void;
+
+export interface IConnection extends IDisposable, IEventNotifier {
+  send(message: string): Promise<void>;
+  close(): Promise<void>;
+  on(event: "message", listener: MessageEventHandler): any;
+  on(event: "error", listener: ErrorEventHandler): any;
+  on(event: "close", listener: CloseEventHandler): any;
+  removeListener(event: "message", listener: MessageEventHandler): any;
+  removeListener(event: "error", listener: ErrorEventHandler): any;
+  removeListener(event: "close", listener: CloseEventHandler): any;
+  removeAllListeners(event: "message" | "error" | "close"): any;
 }

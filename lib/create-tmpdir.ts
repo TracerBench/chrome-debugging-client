@@ -1,7 +1,11 @@
 import { tmpdir } from "os";
 import { join } from "path";
 import * as rimraf from "rimraf";
-import { ITmpDir } from "./types";
+import { IDisposable } from "./types";
+
+export interface ITmpDir extends IDisposable {
+  path: string;
+}
 
 /* tslint:disable:no-var-requires */
 const mktemp: {

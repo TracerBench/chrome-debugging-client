@@ -101,6 +101,7 @@ export interface IDebuggingProtocolClient extends IEventNotifier, IDisposable {
 
 export interface IEventNotifier {
   on(event: string, listener: (evt?: any) => void): any;
+  once(event: string, listener: (evt?: any) => void): any;
   removeListener(event: string, listener: (evt?: any) => void): any;
   removeAllListeners(event?: string): any;
 }
@@ -147,6 +148,9 @@ export interface IConnection extends IDisposable, IEventNotifier {
   on(event: "message", listener: MessageEventHandler): any;
   on(event: "error", listener: ErrorEventHandler): any;
   on(event: "close", listener: CloseEventHandler): any;
+  once(event: "message", listener: MessageEventHandler): any;
+  once(event: "error", listener: ErrorEventHandler): any;
+  once(event: "close", listener: CloseEventHandler): any;
   removeListener(event: "message", listener: MessageEventHandler): any;
   removeListener(event: "error", listener: ErrorEventHandler): any;
   removeListener(event: "close", listener: CloseEventHandler): any;

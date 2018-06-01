@@ -73,11 +73,16 @@ class BrowserProcess implements IBrowserProcess {
   private hasExited: boolean = false;
 
   constructor(executablePath: string, args: string[]) {
-    const process = execa(executablePath, args);
-    process.on("error", (err: Error) => (this.lastError = err));
-    process.on("exit", () => (this.hasExited = true));
-    this.process = process;
-    this.pid = process.pid;
+    const child = execa(executablePath, args, {
+      // disable buffer, pipe to stdout
+      maxBuffer: null as any,
+    });
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    child.on("error", (err: Error) => (this.lastError = err));
+    child.on("exit", () => (this.hasExited = true));
+    this.process = child;
+    this.pid = child.pid;
   }
 
   public get webSocketDebuggerUrl() {

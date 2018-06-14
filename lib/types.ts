@@ -123,6 +123,7 @@ export interface ISpawnOptions {
   };
   disableDefaultArguments?: boolean;
   additionalArguments?: string[];
+  userDataRoot?: string;
 }
 
 export interface IBrowserProcess extends IDisposable {

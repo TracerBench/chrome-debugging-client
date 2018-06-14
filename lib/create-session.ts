@@ -47,7 +47,7 @@ class Session implements ISession {
     options?: IResolveOptions & ISpawnOptions,
   ): Promise<IBrowserProcess> {
     const executablePath = resolveBrowser(options);
-    const tmpDir = await createTmpDir();
+    const tmpDir = await createTmpDir(options && options.userDataRoot);
     this.disposables.add(tmpDir);
     const browserProcess = await spawnBrowser(
       executablePath,

@@ -16,8 +16,9 @@ const mktemp: {
 } = require("mktemp");
 /* tslint:enable:no-var-requires */
 
-export default async function createTmpDir(): Promise<ITmpDir> {
-  const templatePath = join(tmpdir(), "tmpXXXXXX");
+export default async function createTmpDir(customRoot?: string): Promise<ITmpDir> {
+  const root = customRoot || tmpdir();
+  const templatePath = join(root, "tmpXXXXXX");
   const path = await new Promise<string>((resolve, reject) => {
     mktemp.createDir(templatePath, (e, p) => (e ? reject(e) : resolve(p)));
   });

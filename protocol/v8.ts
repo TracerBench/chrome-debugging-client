@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol 1.3 Domains
- * Generated on Fri May 25 2018 13:23:35 GMT-0700 (PDT)
+ * Generated on Mon Aug 20 2018 10:05:40 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -1058,6 +1058,7 @@ and unique identifier that can be used for further object reference. Original ob
 maintained in memory unless they are either explicitly released or are released along with the
 other objects in their object group. */
 export class Runtime {
+  private _bindingCalled: Runtime.BindingCalledHandler | null = null;
   private _consoleAPICalled: Runtime.ConsoleAPICalledHandler | null = null;
   private _exceptionRevoked: Runtime.ExceptionRevokedHandler | null = null;
   private _exceptionThrown: Runtime.ExceptionThrownHandler | null = null;
@@ -1137,13 +1138,49 @@ object. */
   public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
   }
+  /** Enables or disables async call stacks tracking. */
+  public setAsyncCallStackDepth(params: Runtime.SetAsyncCallStackDepthParameters) {
+    return this._client.send<void>("Runtime.setAsyncCallStackDepth", params);
+  }
   public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
+  }
+  public setMaxCallStackSizeToCapture(params: Runtime.SetMaxCallStackSizeToCaptureParameters) {
+    return this._client.send<void>("Runtime.setMaxCallStackSizeToCapture", params);
   }
   /** Terminate current or next JavaScript execution.
 Will cancel the termination when the outer-most script execution ends. */
   public terminateExecution() {
     return this._client.send<void>("Runtime.terminateExecution");
+  }
+  /** If executionContextId is empty, adds binding with the given name on the
+global objects of all inspected contexts, including those created later,
+bindings survive reloads.
+If executionContextId is specified, adds binding only on global object of
+given execution context.
+Binding function takes exactly one argument, this argument should be string,
+in case of any other input, function throws an exception.
+Each binding function call produces Runtime.bindingCalled notification. */
+  public addBinding(params: Runtime.AddBindingParameters) {
+    return this._client.send<void>("Runtime.addBinding", params);
+  }
+  /** This method does not remove binding function from global object but
+unsubscribes current runtime agent from Runtime.bindingCalled notifications. */
+  public removeBinding(params: Runtime.RemoveBindingParameters) {
+    return this._client.send<void>("Runtime.removeBinding", params);
+  }
+  /** Notification is issued every time when binding is called. */
+  get bindingCalled() {
+    return this._bindingCalled;
+  }
+  set bindingCalled(handler) {
+    if (this._bindingCalled) {
+      this._client.removeListener("Runtime.bindingCalled", this._bindingCalled);
+    }
+    this._bindingCalled = handler;
+    if (handler) {
+      this._client.on("Runtime.bindingCalled", handler);
+    }
   }
   /** Issued when console API was called. */
   get consoleAPICalled() {
@@ -1424,6 +1461,13 @@ allows to track cross-debugger calls. See `Runtime.StackTrace` and `Debugger.pau
     id: string;
     debuggerId?: UniqueDebuggerId;
   }
+  export type BindingCalledParameters = {
+    name: string;
+    payload: string;
+    /** Identifier of the context where the call was made. */
+    executionContextId: ExecutionContextId;
+  };
+  export type BindingCalledHandler = (params: BindingCalledParameters) => void;
   export type ConsoleAPICalledParameters = {
     /** Type of the call. */
     type: "log" | "debug" | "info" | "error" | "warning" | "dir" | "dirxml" | "table" | "trace" | "clear" | "startGroup" | "startGroupCollapsed" | "endGroup" | "assert" | "profile" | "profileEnd" | "count" | "timeEnd";
@@ -1650,8 +1694,23 @@ resolved. */
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
   };
+  export type SetAsyncCallStackDepthParameters = {
+    /** Maximum depth of async call stacks. Setting to `0` will effectively disable collecting async
+call stacks (default). */
+    maxDepth: number;
+  };
   export type SetCustomObjectFormatterEnabledParameters = {
     enabled: boolean;
+  };
+  export type SetMaxCallStackSizeToCaptureParameters = {
+    size: number;
+  };
+  export type AddBindingParameters = {
+    name: string;
+    executionContextId?: ExecutionContextId;
+  };
+  export type RemoveBindingParameters = {
+    name: string;
   };
 }
 /** This domain is deprecated. */

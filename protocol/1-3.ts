@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Fri May 25 2018 13:23:35 GMT-0700 (PDT)
+ * Generated on Mon Aug 20 2018 10:05:40 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -814,6 +814,10 @@ unavailable. */
   public setTouchEmulationEnabled(params: Emulation.SetTouchEmulationEnabledParameters) {
     return this._client.send<void>("Emulation.setTouchEmulationEnabled", params);
   }
+  /** Allows overriding user agent with the given string. */
+  public setUserAgentOverride(params: Emulation.SetUserAgentOverrideParameters) {
+    return this._client.send<void>("Emulation.setUserAgentOverride", params);
+  }
 }
 export namespace Emulation {
   /** Screen orientation. */
@@ -881,6 +885,14 @@ change is not observed by the page, e.g. viewport-relative elements do not chang
     enabled: boolean;
     /** Maximum touch points supported. Defaults to one. */
     maxTouchPoints?: number;
+  };
+  export type SetUserAgentOverrideParameters = {
+    /** User agent to use. */
+    userAgent: string;
+    /** Browser langugage to emulate. */
+    acceptLanguage?: string;
+    /** The platform navigator.platform should return. */
+    platform?: string;
   };
 }
 /** Input/Output operations for streams produced by DevTools. */
@@ -1463,8 +1475,10 @@ milliseconds relatively to this requestTime. */
   export type ResourcePriority = "VeryLow" | "Low" | "Medium" | "High" | "VeryHigh";
   /** HTTP request data. */
   export interface Request {
-    /** Request URL. */
+    /** Request URL (without fragment). */
     url: string;
+    /** Fragment of the requested URL starting with hash, if present. */
+    urlFragment?: string;
     /** HTTP request method. */
     method: string;
     /** HTTP request headers. */
@@ -1533,7 +1547,7 @@ milliseconds relatively to this requestTime. */
   /** Whether the request complied with Certificate Transparency policy. */
   export type CertificateTransparencyCompliance = "unknown" | "not-compliant" | "compliant";
   /** The reason why request was blocked. */
-  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type";
+  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type" | "collapsed-by-client";
   /** HTTP response data. */
   export interface Response {
     /** Response URL. This URL can be different from CachedResource.url in case of redirect. */
@@ -1718,8 +1732,9 @@ default domain and path values of the created cookie. */
     timestamp: MonotonicTime;
     /** Total number of bytes received for this request. */
     encodedDataLength: number;
-    /** Set when response was blocked due to being cross-site document response. */
-    blockedCrossSiteDocument?: boolean;
+    /** Set when 1) response was blocked by Cross-Origin Read Blocking and also
+2) this needs to be reported to the DevTools console. */
+    shouldReportCorbBlocking?: boolean;
   };
   export type LoadingFinishedHandler = (params: LoadingFinishedParameters) => void;
   export type RequestServedFromCacheParameters = {
@@ -1931,6 +1946,10 @@ default domain and path values of the created cookie. */
   export type SetUserAgentOverrideParameters = {
     /** User agent to use. */
     userAgent: string;
+    /** Browser langugage to emulate. */
+    acceptLanguage?: string;
+    /** The platform navigator.platform should return. */
+    platform?: string;
   };
 }
 /** Actions and events related to the inspected page belong to the page domain. */
@@ -2168,7 +2187,7 @@ etc. */
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
-  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Other";
+  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Ping" | "CSPViolationReport" | "Other";
   /** Unique frame identifier. */
   export type FrameId = string;
   /** Information about the Frame on the page. */
@@ -2637,6 +2656,7 @@ export class Target {
   private _receivedMessageFromTarget: Target.ReceivedMessageFromTargetHandler | null = null;
   private _targetCreated: Target.TargetCreatedHandler | null = null;
   private _targetDestroyed: Target.TargetDestroyedHandler | null = null;
+  private _targetCrashed: Target.TargetCrashedHandler | null = null;
   private _targetInfoChanged: Target.TargetInfoChangedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
@@ -2715,6 +2735,19 @@ export class Target {
       this._client.on("Target.targetDestroyed", handler);
     }
   }
+  /** Issued when a target has crashed. */
+  get targetCrashed() {
+    return this._targetCrashed;
+  }
+  set targetCrashed(handler) {
+    if (this._targetCrashed) {
+      this._client.removeListener("Target.targetCrashed", this._targetCrashed);
+    }
+    this._targetCrashed = handler;
+    if (handler) {
+      this._client.on("Target.targetCrashed", handler);
+    }
+  }
   /** Issued when some information about a target has changed. This only happens between
 `targetCreated` and `targetDestroyed`. */
   get targetInfoChanged() {
@@ -2762,6 +2795,14 @@ export namespace Target {
     targetId: TargetID;
   };
   export type TargetDestroyedHandler = (params: TargetDestroyedParameters) => void;
+  export type TargetCrashedParameters = {
+    targetId: TargetID;
+    /** Termination status type. */
+    status: string;
+    /** Termination error code. */
+    errorCode: number;
+  };
+  export type TargetCrashedHandler = (params: TargetCrashedParameters) => void;
   export type TargetInfoChangedParameters = {
     targetInfo: TargetInfo;
   };
@@ -2771,6 +2812,8 @@ export namespace Target {
   };
   export type AttachToTargetParameters = {
     targetId: TargetID;
+    /** Enables "flat" access to the session via specifying sessionId attribute in the commands. */
+    flatten?: boolean;
   };
   export type AttachToTargetReturn = {
     /** Id assigned to the session. */
@@ -3577,6 +3620,10 @@ object. */
   public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
   }
+  /** Enables or disables async call stacks tracking. */
+  public setAsyncCallStackDepth(params: Runtime.SetAsyncCallStackDepthParameters) {
+    return this._client.send<void>("Runtime.setAsyncCallStackDepth", params);
+  }
   /** Issued when console API was called. */
   get consoleAPICalled() {
     return this._consoleAPICalled;
@@ -4027,5 +4074,10 @@ resolved. */
     result: RemoteObject;
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
+  };
+  export type SetAsyncCallStackDepthParameters = {
+    /** Maximum depth of async call stacks. Setting to `0` will effectively disable collecting async
+call stacks (default). */
+    maxDepth: number;
   };
 }

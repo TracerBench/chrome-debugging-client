@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Fri May 25 2018 13:23:35 GMT-0700 (PDT)
+ * Generated on Mon Aug 20 2018 10:05:40 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -574,6 +574,8 @@ export namespace Browser {
 substring in their name are extracted. An empty or absent query returns
 all histograms. */
     query?: string;
+    /** If true, retrieve delta since last call. */
+    delta?: boolean;
   };
   export type GetHistogramsReturn = {
     /** Histograms. */
@@ -582,6 +584,8 @@ all histograms. */
   export type GetHistogramParameters = {
     /** Requested histogram name. */
     name: string;
+    /** If true, retrieve delta since last call. */
+    delta?: boolean;
   };
   export type GetHistogramReturn = {
     /** Histogram. */
@@ -1394,6 +1398,11 @@ be called for that search. */
   public getBoxModel(params: DOM.GetBoxModelParameters) {
     return this._client.send<DOM.GetBoxModelReturn>("DOM.getBoxModel", params);
   }
+  /** Returns quads that describe node position on the page. This method
+might return multiple quads for inline nodes. */
+  public getContentQuads(params: DOM.GetContentQuadsParameters) {
+    return this._client.send<DOM.GetContentQuadsReturn>("DOM.getContentQuads", params);
+  }
   /** Returns the root DOM node (and optionally the subtree) to the caller. */
   public getDocument(params: DOM.GetDocumentParameters) {
     return this._client.send<DOM.GetDocumentReturn>("DOM.getDocument", params);
@@ -2005,6 +2014,18 @@ entire subtree or provide an integer larger than 0. */
     /** Box model for the node. */
     model: BoxModel;
   };
+  export type GetContentQuadsParameters = {
+    /** Identifier of the node. */
+    nodeId?: NodeId;
+    /** Identifier of the backend node. */
+    backendNodeId?: BackendNodeId;
+    /** JavaScript object id of the node wrapper. */
+    objectId?: Runtime.RemoteObjectId;
+  };
+  export type GetContentQuadsReturn = {
+    /** Quads that describe node layout relative to viewport. */
+    quads: Quad[];
+  };
   export type GetDocumentParameters = {
     /** The maximum depth at which children should be retrieved, defaults to 1. Use -1 for the
 entire subtree or provide an integer larger than 0. */
@@ -2382,6 +2403,13 @@ flattened. */
   public getSnapshot(params: DOMSnapshot.GetSnapshotParameters) {
     return this._client.send<DOMSnapshot.GetSnapshotReturn>("DOMSnapshot.getSnapshot", params);
   }
+  /** Returns a document snapshot, including the full DOM tree of the root node (including iframes,
+template contents, and imported documents) in a flattened array, as well as layout and
+white-listed computed style information for the nodes. Shadow DOM in the returned DOM tree is
+flattened. */
+  public captureSnapshot(params: DOMSnapshot.CaptureSnapshotParameters) {
+    return this._client.send<DOMSnapshot.CaptureSnapshotReturn>("DOMSnapshot.captureSnapshot", params);
+  }
 }
 export namespace DOMSnapshot {
   /** A Node in the DOM tree. */
@@ -2430,12 +2458,6 @@ any. */
     /** The index of a frame owner element's content document in the `domNodes` array returned by
 `getSnapshot`, if any. */
     contentDocumentIndex?: number;
-    /** Index of the imported document's node of a link element in the `domNodes` array returned by
-`getSnapshot`, if any. */
-    importedDocumentIndex?: number;
-    /** Index of the content node of a template element in the `domNodes` array returned by
-`getSnapshot`. */
-    templateContentIndex?: number;
     /** Type of a pseudo element node. */
     pseudoType?: DOM.PseudoType;
     /** Shadow root type. */
@@ -2492,6 +2514,106 @@ getSnapshot was true. */
     /** Attribute/property value. */
     value: string;
   }
+  /** Index of the string in the strings table. */
+  export type StringIndex = number;
+  /** Index of the string in the strings table. */
+  export type ArrayOfStrings = StringIndex[];
+  /** Data that is only present on rare nodes. */
+  export interface RareStringData {
+    index: number[];
+    value: StringIndex[];
+  }
+  export interface RareBooleanData {
+    index: number[];
+  }
+  export interface RareIntegerData {
+    index: number[];
+    value: number[];
+  }
+  export type Rectangle = number[];
+  /** Document snapshot. */
+  export interface DocumentSnapshot {
+    /** Document URL that `Document` or `FrameOwner` node points to. */
+    documentURL: StringIndex;
+    /** Base URL that `Document` or `FrameOwner` node uses for URL completion. */
+    baseURL: StringIndex;
+    /** Contains the document's content language. */
+    contentLanguage: StringIndex;
+    /** Contains the document's character set encoding. */
+    encodingName: StringIndex;
+    /** `DocumentType` node's publicId. */
+    publicId: StringIndex;
+    /** `DocumentType` node's systemId. */
+    systemId: StringIndex;
+    /** Frame ID for frame owner elements and also for the document node. */
+    frameId: StringIndex;
+    /** A table with dom nodes. */
+    nodes: NodeTreeSnapshot;
+    /** The nodes in the layout tree. */
+    layout: LayoutTreeSnapshot;
+    /** The post-layout inline text nodes. */
+    textBoxes: TextBoxSnapshot;
+  }
+  /** Table containing nodes. */
+  export interface NodeTreeSnapshot {
+    /** Parent node index. */
+    parentIndex?: number[];
+    /** `Node`'s nodeType. */
+    nodeType?: number[];
+    /** `Node`'s nodeName. */
+    nodeName?: StringIndex[];
+    /** `Node`'s nodeValue. */
+    nodeValue?: StringIndex[];
+    /** `Node`'s id, corresponds to DOM.Node.backendNodeId. */
+    backendNodeId?: DOM.BackendNodeId[];
+    /** Attributes of an `Element` node. Flatten name, value pairs. */
+    attributes?: ArrayOfStrings[];
+    /** Only set for textarea elements, contains the text value. */
+    textValue?: RareStringData;
+    /** Only set for input elements, contains the input's associated text value. */
+    inputValue?: RareStringData;
+    /** Only set for radio and checkbox input elements, indicates if the element has been checked */
+    inputChecked?: RareBooleanData;
+    /** Only set for option elements, indicates if the element has been selected */
+    optionSelected?: RareBooleanData;
+    /** The index of the document in the list of the snapshot documents. */
+    contentDocumentIndex?: RareIntegerData;
+    /** Type of a pseudo element node. */
+    pseudoType?: RareStringData;
+    /** Whether this DOM node responds to mouse clicks. This includes nodes that have had click
+event listeners attached via JavaScript as well as anchor tags that naturally navigate when
+clicked. */
+    isClickable?: RareBooleanData;
+    /** The selected url for nodes with a srcset attribute. */
+    currentSourceURL?: RareStringData;
+    /** The url of the script (if any) that generates this node. */
+    originURL?: RareStringData;
+  }
+  /** Details of an element in the DOM tree with a LayoutObject. */
+  export interface LayoutTreeSnapshot {
+    /** The index of the related DOM node in the `domNodes` array returned by `getSnapshot`. */
+    nodeIndex: number[];
+    /** Index into the `computedStyles` array returned by `captureSnapshot`. */
+    styles: ArrayOfStrings[];
+    /** The absolute position bounding box. */
+    bounds: Rectangle[];
+    /** Contents of the LayoutText, if any. */
+    text: StringIndex[];
+  }
+  /** Details of post layout rendered text positions. The exact layout should not be regarded as
+stable and may change between versions. */
+  export interface TextBoxSnapshot {
+    /** Intex of th elayout tree node that owns this box collection. */
+    layoutIndex: number[];
+    /** The absolute position bounding box. */
+    bounds: Rectangle[];
+    /** The starting index in characters, for this post layout textbox substring. Characters that
+would be represented as a surrogate pair in UTF-16 have length 2. */
+    start: number[];
+    /** The number of characters in this post layout textbox substring. Characters that would be
+represented as a surrogate pair in UTF-16 have length 2. */
+    length: number[];
+  }
   export type GetSnapshotParameters = {
     /** Whitelist of computed styles to return. */
     computedStyleWhitelist: string[];
@@ -2509,6 +2631,16 @@ getSnapshot was true. */
     layoutTreeNodes: LayoutTreeNode[];
     /** Whitelisted ComputedStyle properties for each node in the layout tree. */
     computedStyles: ComputedStyle[];
+  };
+  export type CaptureSnapshotParameters = {
+    /** Whitelist of computed styles to return. */
+    computedStyles: string[];
+  };
+  export type CaptureSnapshotReturn = {
+    /** The nodes in the DOM tree. The DOMNode at index 0 corresponds to the root document. */
+    documents: DocumentSnapshot[];
+    /** Shared string table that all string properties refer to with indexes. */
+    strings: string[];
   };
 }
 /** Query and modify DOM storage. */
@@ -2779,6 +2911,12 @@ query results). */
   public setDeviceMetricsOverride(params: Emulation.SetDeviceMetricsOverrideParameters) {
     return this._client.send<void>("Emulation.setDeviceMetricsOverride", params);
   }
+  public setScrollbarsHidden(params: Emulation.SetScrollbarsHiddenParameters) {
+    return this._client.send<void>("Emulation.setScrollbarsHidden", params);
+  }
+  public setDocumentCookieDisabled(params: Emulation.SetDocumentCookieDisabledParameters) {
+    return this._client.send<void>("Emulation.setDocumentCookieDisabled", params);
+  }
   public setEmitTouchEventsForMouse(params: Emulation.SetEmitTouchEventsForMouseParameters) {
     return this._client.send<void>("Emulation.setEmitTouchEventsForMouse", params);
   }
@@ -2817,6 +2955,10 @@ the current virtual time policy.  Note this supersedes any previous time budget.
 on Android. */
   public setVisibleSize(params: Emulation.SetVisibleSizeParameters) {
     return this._client.send<void>("Emulation.setVisibleSize", params);
+  }
+  /** Allows overriding user agent with the given string. */
+  public setUserAgentOverride(params: Emulation.SetUserAgentOverrideParameters) {
+    return this._client.send<void>("Emulation.setUserAgentOverride", params);
   }
   /** Notification sent after the virtual time has advanced. */
   get virtualTimeAdvanced() {
@@ -2925,6 +3067,14 @@ autosizing and more. */
 change is not observed by the page, e.g. viewport-relative elements do not change positions. */
     viewport?: Page.Viewport;
   };
+  export type SetScrollbarsHiddenParameters = {
+    /** Whether scrollbars should be always hidden. */
+    hidden: boolean;
+  };
+  export type SetDocumentCookieDisabledParameters = {
+    /** Whether document.coookie API should be disabled. */
+    disabled: boolean;
+  };
   export type SetEmitTouchEventsForMouseParameters = {
     /** Whether touch emulation based on mouse input should be enabled. */
     enabled: boolean;
@@ -2984,6 +3134,14 @@ Note any previous deferred policy change is superseded. */
     width: number;
     /** Frame height (DIP). */
     height: number;
+  };
+  export type SetUserAgentOverrideParameters = {
+    /** User agent to use. */
+    userAgent: string;
+    /** Browser langugage to emulate. */
+    acceptLanguage?: string;
+    /** The platform navigator.platform should return. */
+    platform?: string;
   };
 }
 /** This domain provides experimental commands only supported in headless mode. */
@@ -3295,6 +3453,11 @@ export class Input {
   public dispatchKeyEvent(params: Input.DispatchKeyEventParameters) {
     return this._client.send<void>("Input.dispatchKeyEvent", params);
   }
+  /** This method emulates inserting text that doesn't come from a key press,
+for example an emoji keyboard or an IME. */
+  public insertText(params: Input.InsertTextParameters) {
+    return this._client.send<void>("Input.insertText", params);
+  }
   /** Dispatches a mouse event to the page. */
   public dispatchMouseEvent(params: Input.DispatchMouseEventParameters) {
     return this._client.send<void>("Input.dispatchMouseEvent", params);
@@ -3379,6 +3542,10 @@ modifiers, keyboard layout, etc (e.g., 'AltGr') (default: ""). */
     /** Whether the event was from the left or right side of the keyboard. 1=Left, 2=Right (default:
 0). */
     location?: number;
+  };
+  export type InsertTextParameters = {
+    /** The text to insert. */
+    text: string;
   };
   export type DispatchMouseEventParameters = {
     /** Type of the mouse event. */
@@ -3917,6 +4084,19 @@ export namespace Memory {
   /** Array of heap profile samples. */
   export interface SamplingProfile {
     samples: SamplingProfileNode[];
+    modules: Module[];
+  }
+  /** Executable module information */
+  export interface Module {
+    /** Name of the module. */
+    name: string;
+    /** UUID of the module. */
+    uuid: string;
+    /** Base address where the module is loaded into memory. Encoded as a decimal
+or hexadecimal (0x prefixed) string. */
+    baseAddress: string;
+    /** Size of the module in bytes. */
+    size: number;
   }
   export type GetDOMCountersReturn = {
     documents: number;
@@ -4376,8 +4556,10 @@ milliseconds relatively to this requestTime. */
   export type ResourcePriority = "VeryLow" | "Low" | "Medium" | "High" | "VeryHigh";
   /** HTTP request data. */
   export interface Request {
-    /** Request URL. */
+    /** Request URL (without fragment). */
     url: string;
+    /** Fragment of the requested URL starting with hash, if present. */
+    urlFragment?: string;
     /** HTTP request method. */
     method: string;
     /** HTTP request headers. */
@@ -4446,7 +4628,7 @@ milliseconds relatively to this requestTime. */
   /** Whether the request complied with Certificate Transparency policy. */
   export type CertificateTransparencyCompliance = "unknown" | "not-compliant" | "compliant";
   /** The reason why request was blocked. */
-  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type";
+  export type BlockedReason = "other" | "csp" | "mixed-content" | "origin" | "inspector" | "subresource-filter" | "content-type" | "collapsed-by-client";
   /** HTTP response data. */
   export interface Response {
     /** Response URL. This URL can be different from CachedResource.url in case of redirect. */
@@ -4658,6 +4840,17 @@ https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-
     /** Signed exchange response signature. */
     signatures: SignedExchangeSignature[];
   }
+  /** Field type for a signed exchange related error. */
+  export type SignedExchangeErrorField = "signatureSig" | "signatureIntegrity" | "signatureCertUrl" | "signatureCertSha256" | "signatureValidityUrl" | "signatureTimestamps";
+  /** Information about a signed exchange response. */
+  export interface SignedExchangeError {
+    /** Error message. */
+    message: string;
+    /** The index of the signature which caused the error. */
+    signatureIndex?: number;
+    /** The field which caused the error. */
+    errorField?: SignedExchangeErrorField;
+  }
   /** Information about a signed exchange response. */
   export interface SignedExchangeInfo {
     /** The outer response of signed HTTP exchange which was received from network. */
@@ -4667,7 +4860,7 @@ https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-
     /** Security details for the signed exchange header. */
     securityDetails?: SecurityDetails;
     /** Errors occurred while handling the signed exchagne. */
-    errors?: string[];
+    errors?: SignedExchangeError[];
   }
   export type DataReceivedParameters = {
     /** Request identifier. */
@@ -4715,8 +4908,9 @@ https://wicg.github.io/webpackage/draft-yasskin-httpbis-origin-signed-exchanges-
     timestamp: MonotonicTime;
     /** Total number of bytes received for this request. */
     encodedDataLength: number;
-    /** Set when response was blocked due to being cross-site document response. */
-    blockedCrossSiteDocument?: boolean;
+    /** Set when 1) response was blocked by Cross-Origin Read Blocking and also
+2) this needs to be reported to the DevTools console. */
+    shouldReportCorbBlocking?: boolean;
   };
   export type LoadingFinishedHandler = (params: LoadingFinishedParameters) => void;
   export type RequestInterceptedParameters = {
@@ -5070,6 +5264,10 @@ continueInterceptedRequest call. */
   export type SetUserAgentOverrideParameters = {
     /** User agent to use. */
     userAgent: string;
+    /** Browser langugage to emulate. */
+    acceptLanguage?: string;
+    /** The platform navigator.platform should return. */
+    platform?: string;
   };
 }
 /** This domain provides various functionality related to drawing atop the inspected page. */
@@ -5335,6 +5533,7 @@ export class Page {
   private _screencastFrame: Page.ScreencastFrameHandler | null = null;
   private _screencastVisibilityChanged: Page.ScreencastVisibilityChangedHandler | null = null;
   private _windowOpen: Page.WindowOpenHandler | null = null;
+  private _compilationCacheProduced: Page.CompilationCacheProducedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
@@ -5468,6 +5667,14 @@ query results). */
   public setDeviceOrientationOverride(params: Page.SetDeviceOrientationOverrideParameters) {
     return this._client.send<void>("Page.setDeviceOrientationOverride", params);
   }
+  /** Set generic font families. */
+  public setFontFamilies(params: Page.SetFontFamiliesParameters) {
+    return this._client.send<void>("Page.setFontFamilies", params);
+  }
+  /** Set default font sizes. */
+  public setFontSizes(params: Page.SetFontSizesParameters) {
+    return this._client.send<void>("Page.setFontSizes", params);
+  }
   /** Sets given markup as the document's HTML. */
   public setDocumentContent(params: Page.SetDocumentContentParameters) {
     return this._client.send<void>("Page.setDocumentContent", params);
@@ -5514,6 +5721,19 @@ https://github.com/WICG/web-lifecycle/ */
   /** Stops sending each frame in the `screencastFrame`. */
   public stopScreencast() {
     return this._client.send<void>("Page.stopScreencast");
+  }
+  /** Forces compilation cache to be generated for every subresource script. */
+  public setProduceCompilationCache(params: Page.SetProduceCompilationCacheParameters) {
+    return this._client.send<void>("Page.setProduceCompilationCache", params);
+  }
+  /** Seeds compilation cache for given url. Compilation cache does not survive
+cross-process navigation. */
+  public addCompilationCache(params: Page.AddCompilationCacheParameters) {
+    return this._client.send<void>("Page.addCompilationCache", params);
+  }
+  /** Clears seeded compilation cache. */
+  public clearCompilationCache() {
+    return this._client.send<void>("Page.clearCompilationCache");
   }
   get domContentEventFired() {
     return this._domContentEventFired;
@@ -5762,10 +5982,24 @@ etc. */
       this._client.on("Page.windowOpen", handler);
     }
   }
+  /** Issued for every compilation cache generated. Is only available
+if Page.setGenerateCompilationCache is enabled. */
+  get compilationCacheProduced() {
+    return this._compilationCacheProduced;
+  }
+  set compilationCacheProduced(handler) {
+    if (this._compilationCacheProduced) {
+      this._client.removeListener("Page.compilationCacheProduced", this._compilationCacheProduced);
+    }
+    this._compilationCacheProduced = handler;
+    if (handler) {
+      this._client.on("Page.compilationCacheProduced", handler);
+    }
+  }
 }
 export namespace Page {
   /** Resource type as it was perceived by the rendering engine. */
-  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Other";
+  export type ResourceType = "Document" | "Stylesheet" | "Image" | "Media" | "Font" | "Script" | "TextTrack" | "XHR" | "Fetch" | "EventSource" | "WebSocket" | "Manifest" | "SignedExchange" | "Ping" | "CSPViolationReport" | "Other";
   /** Unique frame identifier. */
   export type FrameId = string;
   /** Information about the Frame on the page. */
@@ -5908,6 +6142,30 @@ export namespace Page {
     /** Page scale factor. */
     scale: number;
   }
+  /** Generic font families collection. */
+  export interface FontFamilies {
+    /** The standard font-family. */
+    standard?: string;
+    /** The fixed font-family. */
+    fixed?: string;
+    /** The serif font-family. */
+    serif?: string;
+    /** The sansSerif font-family. */
+    sansSerif?: string;
+    /** The cursive font-family. */
+    cursive?: string;
+    /** The fantasy font-family. */
+    fantasy?: string;
+    /** The pictograph font-family. */
+    pictograph?: string;
+  }
+  /** Default font sizes. */
+  export interface FontSizes {
+    /** Default standard font size. */
+    standard?: number;
+    /** Default fixed font size. */
+    fixed?: number;
+  }
   export type DomContentEventFiredParameters = {
     timestamp: Network.MonotonicTime;
   };
@@ -6028,6 +6286,12 @@ the page execution. Execution can be resumed via calling Page.handleJavaScriptDi
     userGesture: boolean;
   };
   export type WindowOpenHandler = (params: WindowOpenParameters) => void;
+  export type CompilationCacheProducedParameters = {
+    url: string;
+    /** Base64-encoded data */
+    data: string;
+  };
+  export type CompilationCacheProducedHandler = (params: CompilationCacheProducedParameters) => void;
   export type AddScriptToEvaluateOnLoadParameters = {
     scriptSource: string;
   };
@@ -6272,6 +6536,14 @@ autosizing and more. */
     /** Mock gamma */
     gamma: number;
   };
+  export type SetFontFamiliesParameters = {
+    /** Specifies font families to set. If a font family is not specified, it won't be changed. */
+    fontFamilies: FontFamilies;
+  };
+  export type SetFontSizesParameters = {
+    /** Specifies font sizes to set. If a font size is not specified, it won't be changed. */
+    fontSizes: FontSizes;
+  };
   export type SetDocumentContentParameters = {
     /** Frame id to set HTML for. */
     frameId: FrameId;
@@ -6318,6 +6590,14 @@ available (otherwise deny). */
   export type SetWebLifecycleStateParameters = {
     /** Target lifecycle state */
     state: "frozen" | "active";
+  };
+  export type SetProduceCompilationCacheParameters = {
+    enabled: boolean;
+  };
+  export type AddCompilationCacheParameters = {
+    url: string;
+    /** Base64-encoded data */
+    data: string;
   };
 }
 export class Performance {
@@ -6885,6 +7165,7 @@ export class Target {
   private _receivedMessageFromTarget: Target.ReceivedMessageFromTargetHandler | null = null;
   private _targetCreated: Target.TargetCreatedHandler | null = null;
   private _targetDestroyed: Target.TargetDestroyedHandler | null = null;
+  private _targetCrashed: Target.TargetCrashedHandler | null = null;
   private _targetInfoChanged: Target.TargetInfoChangedHandler | null = null;
   private _client: IDebuggingProtocolClient;
   constructor(client: IDebuggingProtocolClient) {
@@ -6898,9 +7179,24 @@ export class Target {
   public attachToTarget(params: Target.AttachToTargetParameters) {
     return this._client.send<Target.AttachToTargetReturn>("Target.attachToTarget", params);
   }
+  /** Attaches to the browser target, only uses flat sessionId mode. */
+  public attachToBrowserTarget() {
+    return this._client.send<Target.AttachToBrowserTargetReturn>("Target.attachToBrowserTarget");
+  }
   /** Closes the target. If the target is a page that gets closed too. */
   public closeTarget(params: Target.CloseTargetParameters) {
     return this._client.send<Target.CloseTargetReturn>("Target.closeTarget", params);
+  }
+  /** Inject object to the target's main frame that provides a communication
+channel with browser target.
+
+Injected object will be available as `window[bindingName]`.
+
+The object has the follwing API:
+- `binding.send(json)` - a method to send messages over the remote debugging protocol
+- `binding.onmessage = json => handleMessage(json)` - a callback that will be called for the protocol notifications and command responses. */
+  public exposeDevToolsProtocol(params: Target.ExposeDevToolsProtocolParameters) {
+    return this._client.send<void>("Target.exposeDevToolsProtocol", params);
   }
   /** Creates a new empty BrowserContext. Similar to an incognito profile but you can have more than
 one. */
@@ -7019,6 +7315,19 @@ issued multiple times per target if multiple sessions have been attached to it. 
       this._client.on("Target.targetDestroyed", handler);
     }
   }
+  /** Issued when a target has crashed. */
+  get targetCrashed() {
+    return this._targetCrashed;
+  }
+  set targetCrashed(handler) {
+    if (this._targetCrashed) {
+      this._client.removeListener("Target.targetCrashed", this._targetCrashed);
+    }
+    this._targetCrashed = handler;
+    if (handler) {
+      this._client.on("Target.targetCrashed", handler);
+    }
+  }
   /** Issued when some information about a target has changed. This only happens between
 `targetCreated` and `targetDestroyed`. */
   get targetInfoChanged() {
@@ -7084,6 +7393,14 @@ export namespace Target {
     targetId: TargetID;
   };
   export type TargetDestroyedHandler = (params: TargetDestroyedParameters) => void;
+  export type TargetCrashedParameters = {
+    targetId: TargetID;
+    /** Termination status type. */
+    status: string;
+    /** Termination error code. */
+    errorCode: number;
+  };
+  export type TargetCrashedHandler = (params: TargetCrashedParameters) => void;
   export type TargetInfoChangedParameters = {
     targetInfo: TargetInfo;
   };
@@ -7093,8 +7410,14 @@ export namespace Target {
   };
   export type AttachToTargetParameters = {
     targetId: TargetID;
+    /** Enables "flat" access to the session via specifying sessionId attribute in the commands. */
+    flatten?: boolean;
   };
   export type AttachToTargetReturn = {
+    /** Id assigned to the session. */
+    sessionId: SessionID;
+  };
+  export type AttachToBrowserTargetReturn = {
     /** Id assigned to the session. */
     sessionId: SessionID;
   };
@@ -7103,6 +7426,11 @@ export namespace Target {
   };
   export type CloseTargetReturn = {
     success: boolean;
+  };
+  export type ExposeDevToolsProtocolParameters = {
+    targetId: TargetID;
+    /** Binding name, 'cdp' if not specified. */
+    bindingName?: string;
   };
   export type CreateBrowserContextReturn = {
     /** The id of the context created. */
@@ -7139,7 +7467,7 @@ not supported on MacOS yet, false by default). */
     browserContextId: BrowserContextID;
   };
   export type GetTargetInfoParameters = {
-    targetId: TargetID;
+    targetId?: TargetID;
   };
   export type GetTargetInfoReturn = {
     targetInfo: TargetInfo;
@@ -7161,6 +7489,8 @@ not supported on MacOS yet, false by default). */
     /** Whether to pause new targets when attaching to them. Use `Runtime.runIfWaitingForDebugger`
 to run paused targets. */
     waitForDebuggerOnStart: boolean;
+    /** Enables "flat" access to the session via specifying sessionId attribute in the commands. */
+    flatten?: boolean;
   };
   export type SetDiscoverTargetsParameters = {
     /** Whether to discover available targets. */
@@ -8415,6 +8745,7 @@ and unique identifier that can be used for further object reference. Original ob
 maintained in memory unless they are either explicitly released or are released along with the
 other objects in their object group. */
 export class Runtime {
+  private _bindingCalled: Runtime.BindingCalledHandler | null = null;
   private _consoleAPICalled: Runtime.ConsoleAPICalledHandler | null = null;
   private _exceptionRevoked: Runtime.ExceptionRevokedHandler | null = null;
   private _exceptionThrown: Runtime.ExceptionThrownHandler | null = null;
@@ -8494,13 +8825,49 @@ object. */
   public runScript(params: Runtime.RunScriptParameters) {
     return this._client.send<Runtime.RunScriptReturn>("Runtime.runScript", params);
   }
+  /** Enables or disables async call stacks tracking. */
+  public setAsyncCallStackDepth(params: Runtime.SetAsyncCallStackDepthParameters) {
+    return this._client.send<void>("Runtime.setAsyncCallStackDepth", params);
+  }
   public setCustomObjectFormatterEnabled(params: Runtime.SetCustomObjectFormatterEnabledParameters) {
     return this._client.send<void>("Runtime.setCustomObjectFormatterEnabled", params);
+  }
+  public setMaxCallStackSizeToCapture(params: Runtime.SetMaxCallStackSizeToCaptureParameters) {
+    return this._client.send<void>("Runtime.setMaxCallStackSizeToCapture", params);
   }
   /** Terminate current or next JavaScript execution.
 Will cancel the termination when the outer-most script execution ends. */
   public terminateExecution() {
     return this._client.send<void>("Runtime.terminateExecution");
+  }
+  /** If executionContextId is empty, adds binding with the given name on the
+global objects of all inspected contexts, including those created later,
+bindings survive reloads.
+If executionContextId is specified, adds binding only on global object of
+given execution context.
+Binding function takes exactly one argument, this argument should be string,
+in case of any other input, function throws an exception.
+Each binding function call produces Runtime.bindingCalled notification. */
+  public addBinding(params: Runtime.AddBindingParameters) {
+    return this._client.send<void>("Runtime.addBinding", params);
+  }
+  /** This method does not remove binding function from global object but
+unsubscribes current runtime agent from Runtime.bindingCalled notifications. */
+  public removeBinding(params: Runtime.RemoveBindingParameters) {
+    return this._client.send<void>("Runtime.removeBinding", params);
+  }
+  /** Notification is issued every time when binding is called. */
+  get bindingCalled() {
+    return this._bindingCalled;
+  }
+  set bindingCalled(handler) {
+    if (this._bindingCalled) {
+      this._client.removeListener("Runtime.bindingCalled", this._bindingCalled);
+    }
+    this._bindingCalled = handler;
+    if (handler) {
+      this._client.on("Runtime.bindingCalled", handler);
+    }
   }
   /** Issued when console API was called. */
   get consoleAPICalled() {
@@ -8781,6 +9148,13 @@ allows to track cross-debugger calls. See `Runtime.StackTrace` and `Debugger.pau
     id: string;
     debuggerId?: UniqueDebuggerId;
   }
+  export type BindingCalledParameters = {
+    name: string;
+    payload: string;
+    /** Identifier of the context where the call was made. */
+    executionContextId: ExecutionContextId;
+  };
+  export type BindingCalledHandler = (params: BindingCalledParameters) => void;
   export type ConsoleAPICalledParameters = {
     /** Type of the call. */
     type: "log" | "debug" | "info" | "error" | "warning" | "dir" | "dirxml" | "table" | "trace" | "clear" | "startGroup" | "startGroupCollapsed" | "endGroup" | "assert" | "profile" | "profileEnd" | "count" | "timeEnd";
@@ -9007,8 +9381,23 @@ resolved. */
     /** Exception details. */
     exceptionDetails?: ExceptionDetails;
   };
+  export type SetAsyncCallStackDepthParameters = {
+    /** Maximum depth of async call stacks. Setting to `0` will effectively disable collecting async
+call stacks (default). */
+    maxDepth: number;
+  };
   export type SetCustomObjectFormatterEnabledParameters = {
     enabled: boolean;
+  };
+  export type SetMaxCallStackSizeToCaptureParameters = {
+    size: number;
+  };
+  export type AddBindingParameters = {
+    name: string;
+    executionContextId?: ExecutionContextId;
+  };
+  export type RemoveBindingParameters = {
+    name: string;
   };
 }
 /** This domain is deprecated. */

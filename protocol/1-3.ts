@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Mon Aug 20 2018 10:05:40 GMT-0700 (PDT)
+ * Generated on Wed Sep 05 2018 11:32:10 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -2219,7 +2219,7 @@ export namespace Page {
   /** Unique script identifier. */
   export type ScriptIdentifier = string;
   /** Transition type. */
-  export type TransitionType = "link" | "typed" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated" | "other";
+  export type TransitionType = "link" | "typed" | "address_bar" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated" | "other";
   /** Navigation history entry. */
   export interface NavigationEntry {
     /** Unique id of the navigation history entry. */

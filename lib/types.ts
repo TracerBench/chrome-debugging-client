@@ -124,6 +124,7 @@ export interface ISpawnOptions {
   disableDefaultArguments?: boolean;
   additionalArguments?: string[];
   userDataRoot?: string;
+  stdio?: "pipe" | "ignore" | "inherit" | null;
 }
 
 export interface IBrowserProcess extends IDisposable {

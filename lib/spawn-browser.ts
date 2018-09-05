@@ -9,6 +9,9 @@ import { IBrowserProcess, ISpawnOptions } from "./types";
 const PORT_FILENAME = "DevToolsActivePort";
 const NEWLINE = /\r?\n/;
 
+// roughly the same as the chromedriver chrome_launcher
+// https://chromium.googlesource.com/chromium/src/+/6fd4390daea50497e5ead4583829e2e8f9b215b2/chrome/test/chromedriver/chrome_launcher.cc#445
+// Launch chrome, wait for the DevToolsActivePort port file 60 second timeout polling on a 50ms interval.
 export default async function spawnBrowser(
   executablePath: string,
   dataDir: string,
@@ -18,16 +21,17 @@ export default async function spawnBrowser(
   // delete port file before launching
   await tryDeleteFile(portFile);
   const args = getArguments(dataDir, options);
-  const process: IBrowserProcess = new BrowserProcess(executablePath, args);
+  const process: IBrowserProcess = new BrowserProcess(
+    executablePath,
+    args,
+    options === undefined ? undefined : options.stdio,
+  );
+  const deadline = Date.now() + 60 * 1000;
   try {
     let port: number = 0;
     let wsPath: string | undefined;
-    let tries = 0;
     while (true) {
-      if (++tries > 10) {
-        throw new Error("failed waiting for port file");
-      }
-      await delay(200);
+      await delay(50);
       [port, wsPath] = await tryReadPort(portFile);
       process.validate();
       if (port > 0) {
@@ -35,6 +39,9 @@ export default async function spawnBrowser(
         process.remoteDebuggingPath = wsPath;
         process.dataDir = dataDir;
         break;
+      }
+      if (Date.now() > deadline) {
+        throw new Error(`timeout waiting for ${portFile}`);
       }
     }
     return process;
@@ -72,14 +79,23 @@ class BrowserProcess implements IBrowserProcess {
   private lastError: Error;
   private hasExited: boolean = false;
 
-  constructor(executablePath: string, args: string[]) {
+  constructor(
+    executablePath: string,
+    args: string[],
+    stdio: "pipe" | "ignore" | "inherit" | null = "inherit",
+  ) {
+    // the types aren't current for this
+    // disabling buffer used to be maxBuffer: null
+    // now it is buffer: false
     const child = execa(executablePath, args, {
-      // disable buffer, pipe to stdout
-      maxBuffer: null as any,
-    });
-    child.stdout.pipe(process.stdout);
-    child.stderr.pipe(process.stderr);
-    child.on("error", (err: Error) => (this.lastError = err));
+      // disable buffer, pipe or drain
+      buffer: false,
+      stdio,
+    } as any);
+    // child is now a thenable for the duration of the promise
+    // ensure we handle its error or we will get an
+    // unhandled rejection warning
+    child.catch(err => (this.lastError = err));
     child.on("exit", () => (this.hasExited = true));
     this.process = child;
     this.pid = child.pid;

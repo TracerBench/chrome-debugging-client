@@ -1,6 +1,6 @@
 /**
  * Debugging Protocol Domains
- * Generated on Mon Aug 20 2018 10:05:40 GMT-0700 (PDT)
+ * Generated on Wed Sep 05 2018 11:32:10 GMT-0700 (PDT)
  */
 /* tslint:disable */
 import { IDebuggingProtocolClient } from "../lib/types";
@@ -482,9 +482,21 @@ export class Browser {
   constructor(client: IDebuggingProtocolClient) {
     this._client = client;
   }
+  /** Grant specific permissions to the given origin and reject all others. */
+  public grantPermissions(params: Browser.GrantPermissionsParameters) {
+    return this._client.send<void>("Browser.grantPermissions", params);
+  }
+  /** Reset all permission management for all origins. */
+  public resetPermissions(params: Browser.ResetPermissionsParameters) {
+    return this._client.send<void>("Browser.resetPermissions", params);
+  }
   /** Close browser gracefully. */
   public close() {
     return this._client.send<void>("Browser.close");
+  }
+  /** Crashes browser on the main thread. */
+  public crash() {
+    return this._client.send<void>("Browser.crash");
   }
   /** Returns version information. */
   public getVersion() {
@@ -533,6 +545,7 @@ export namespace Browser {
     /** The window state. Default to normal. */
     windowState?: WindowState;
   }
+  export type PermissionType = "accessibilityEvents" | "audioCapture" | "backgroundSync" | "clipboardRead" | "clipboardWrite" | "durableStorage" | "flash" | "geolocation" | "midi" | "midiSysex" | "notifications" | "paymentHandler" | "protectedMediaIdentifier" | "sensors" | "videoCapture";
   /** Chrome histogram bucket. */
   export interface Bucket {
     /** Minimum value (inclusive). */
@@ -553,6 +566,16 @@ export namespace Browser {
     /** Buckets. */
     buckets: Bucket[];
   }
+  export type GrantPermissionsParameters = {
+    origin: string;
+    permissions: PermissionType[];
+    /** BrowserContext to override permissions. When omitted, default browser context is used. */
+    browserContextId?: Target.BrowserContextID;
+  };
+  export type ResetPermissionsParameters = {
+    /** BrowserContext to reset permissions. When omitted, default browser context is used. */
+    browserContextId?: Target.BrowserContextID;
+  };
   export type GetVersionReturn = {
     /** Protocol version. */
     protocolVersion: string;
@@ -2472,11 +2495,14 @@ clicked. */
     currentSourceURL?: string;
     /** The url of the script (if any) that generates this node. */
     originURL?: string;
+    /** Scroll offsets, set when this node is a Document. */
+    scrollOffsetX?: number;
+    scrollOffsetY?: number;
   }
   /** Details of post layout rendered text positions. The exact layout should not be regarded as
 stable and may change between versions. */
   export interface InlineTextBox {
-    /** The absolute position bounding box. */
+    /** The bounding box in document coordinates. Note that scroll offset of the document is ignored. */
     boundingBox: DOM.Rect;
     /** The starting index in characters, for this post layout textbox substring. Characters that
 would be represented as a surrogate pair in UTF-16 have length 2. */
@@ -2489,7 +2515,7 @@ represented as a surrogate pair in UTF-16 have length 2. */
   export interface LayoutTreeNode {
     /** The index of the related DOM node in the `domNodes` array returned by `getSnapshot`. */
     domNodeIndex: number;
-    /** The absolute position bounding box. */
+    /** The bounding box in document coordinates. Note that scroll offset of the document is ignored. */
     boundingBox: DOM.Rect;
     /** Contents of the LayoutText, if any. */
     layoutText?: string;
@@ -2501,6 +2527,8 @@ represented as a surrogate pair in UTF-16 have length 2. */
 that are painted together will have the same index. Only provided if includePaintOrder in
 getSnapshot was true. */
     paintOrder?: number;
+    /** Set to true to indicate the element begins a new stacking context. */
+    isStackingContext?: boolean;
   }
   /** A subset of the full ComputedStyle as defined by the request whitelist. */
   export interface ComputedStyle {
@@ -2553,6 +2581,9 @@ getSnapshot was true. */
     layout: LayoutTreeSnapshot;
     /** The post-layout inline text nodes. */
     textBoxes: TextBoxSnapshot;
+    /** Scroll offsets. */
+    scrollOffsetX?: number;
+    scrollOffsetY?: number;
   }
   /** Table containing nodes. */
   export interface NodeTreeSnapshot {
@@ -2599,6 +2630,8 @@ clicked. */
     bounds: Rectangle[];
     /** Contents of the LayoutText, if any. */
     text: StringIndex[];
+    /** Stacking context information. */
+    stackingContexts: RareBooleanData;
   }
   /** Details of post layout rendered text positions. The exact layout should not be regarded as
 stable and may change between versions. */
@@ -5735,6 +5768,10 @@ cross-process navigation. */
   public clearCompilationCache() {
     return this._client.send<void>("Page.clearCompilationCache");
   }
+  /** Generates a report for testing. */
+  public generateTestReport(params: Page.GenerateTestReportParameters) {
+    return this._client.send<void>("Page.generateTestReport", params);
+  }
   get domContentEventFired() {
     return this._domContentEventFired;
   }
@@ -6057,7 +6094,7 @@ export namespace Page {
   /** Unique script identifier. */
   export type ScriptIdentifier = string;
   /** Transition type. */
-  export type TransitionType = "link" | "typed" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated" | "other";
+  export type TransitionType = "link" | "typed" | "address_bar" | "auto_bookmark" | "auto_subframe" | "manual_subframe" | "generated" | "auto_toplevel" | "form_submit" | "reload" | "keyword" | "keyword_generated" | "other";
   /** Navigation history entry. */
   export interface NavigationEntry {
     /** Unique id of the navigation history entry. */
@@ -6598,6 +6635,12 @@ available (otherwise deny). */
     url: string;
     /** Base64-encoded data */
     data: string;
+  };
+  export type GenerateTestReportParameters = {
+    /** Message to be displayed in the report. */
+    message: string;
+    /** Specifies the endpoint group to deliver the report to. */
+    group?: string;
   };
 }
 export class Performance {
@@ -7689,6 +7732,26 @@ stream (defaults to `ReportEvents`). */
 transfer mode (defaults to `none`) */
     streamCompression?: StreamCompression;
     traceConfig?: TraceConfig;
+  };
+}
+/** Testing domain is a dumping ground for the capabilities requires for browser or app testing that do not fit other
+domains. */
+export class Testing {
+  private _client: IDebuggingProtocolClient;
+  constructor(client: IDebuggingProtocolClient) {
+    this._client = client;
+  }
+  /** Generates a report for testing. */
+  public generateTestReport(params: Testing.GenerateTestReportParameters) {
+    return this._client.send<void>("Testing.generateTestReport", params);
+  }
+}
+export namespace Testing {
+  export type GenerateTestReportParameters = {
+    /** Message to be displayed in the report. */
+    message: string;
+    /** Specifies the endpoint group to deliver the report to. */
+    group?: string;
   };
 }
 /** This domain is deprecated - use Runtime or Log instead. */

@@ -1,4 +1,4 @@
-import * as tape from "tape";
+import test from "ava";
 import { createSession } from "../index";
 import { HeapProfiler, Page, Target } from "../protocol/tot";
 
@@ -10,7 +10,7 @@ const additionalArguments = [
   "--disable-logging",
 ];
 
-tape("test REST API", async t => {
+test("test REST API", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
       additionalArguments,
@@ -22,24 +22,24 @@ tape("test REST API", async t => {
       browser.remoteDebuggingPort,
     );
     const version = await apiClient.version();
-    t.assert(version["Protocol-Version"], "has Protocol-Version");
-    t.assert(version["User-Agent"], "has User-Agent");
+    t.truthy(version["Protocol-Version"], "has Protocol-Version");
+    t.truthy(version["User-Agent"], "has User-Agent");
     const tab = await apiClient.newTab();
-    t.assert(tab, "newTab returned a tab");
-    t.assert(tab.id, "tab has id");
+    t.truthy(tab, "newTab returned a tab");
+    t.truthy(tab.id, "tab has id");
     await apiClient.activateTab(tab.id);
     const tabs = await apiClient.listTabs();
-    t.assert(tabs, "listTabs returned tabs");
-    t.assert(Array.isArray(tabs), "tabs isArray");
-    t.assert(
+    t.truthy(tabs, "listTabs returned tabs");
+    t.true(Array.isArray(tabs), "tabs isArray");
+    t.truthy(
       tabs.find(other => other.id === tab.id),
       "tabs from listTabs contains tab from newTab",
     );
     await apiClient.closeTab(tab.id);
-  }).then(() => t.end(), err => (err ? t.error(err) : t.fail()));
+  });
 });
 
-tape("test debugging protocol domains", async t => {
+test("test debugging protocol domains", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
       additionalArguments,
@@ -50,7 +50,7 @@ tape("test debugging protocol domains", async t => {
       browser.remoteDebuggingPort,
     );
     const tab = await apiClient.newTab("about:blank");
-    t.assert(tab.webSocketDebuggerUrl, "has web socket url");
+    t.truthy(tab.webSocketDebuggerUrl, "has web socket url");
     const debuggingClient = await session.openDebuggingProtocol(
       tab.webSocketDebuggerUrl!,
     );
@@ -60,18 +60,15 @@ tape("test debugging protocol domains", async t => {
     heapProfiler.addHeapSnapshotChunk = params => {
       buffer += params.chunk;
     };
-    heapProfiler.reportHeapSnapshotProgress = params => {
-      t.comment(params.done / params.total + "");
-    };
     await heapProfiler.takeHeapSnapshot({ reportProgress: false });
     await heapProfiler.disable();
-    t.assert(buffer.length > 0, "received chunks");
+    t.true(buffer.length > 0, "received chunks");
     const data = JSON.parse(buffer);
-    t.assert(data.snapshot.meta, "has snapshot");
-  }).then(() => t.end(), err => (err ? t.error(err) : t.fail()));
+    t.truthy(data.snapshot.meta, "has snapshot");
+  });
 });
 
-tape("test browser protocol", async t => {
+test("test browser protocol", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
       additionalArguments,
@@ -89,7 +86,7 @@ tape("test browser protocol", async t => {
       url: "about:blank",
     });
     const targets = await targetDomain.getTargets();
-    t.assert(
+    t.truthy(
       targets.targetInfos.find(
         info =>
           info.targetId === targetId &&
@@ -103,12 +100,12 @@ tape("test browser protocol", async t => {
 
     const frameTree = await page.getFrameTree();
 
-    t.assert(frameTree.frameTree.frame, "has target has frame tree");
+    t.truthy(frameTree.frameTree.frame, "has target has frame tree");
 
     await targetClient.close();
 
     await targetDomain.closeTarget({ targetId });
 
     await browserClient.send("Browser.close");
-  }).then(() => t.end(), err => (err ? t.error(err) : t.fail()));
+  });
 });

@@ -33,13 +33,11 @@
     "protocol": "dist/protocol"
   },
   "scripts": {
-    "compile": "tsc --watch",
     "compile-protocol-gen": "tsc -p scripts/tsconfig.json",
     "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run rebuild",
-    "protocol-gen": "npm run compile-protocol-gen && node dist/scripts/generate-protocol.js",
-    "rebuild": "rm -rf dist && tsc",
-    "test": "tsc && ava --verbose dist/test/index.js"
+    "prepare": "tsc",
+    "protocol-gen": "yarn compile-protocol-gen && node dist/scripts/generate-protocol.js",
+    "test": "ava"
   },
   "dependencies": {
     "@types/node": "*",

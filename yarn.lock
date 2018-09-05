@@ -36,6 +36,10 @@
   version "10.7.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.7.1.tgz#b704d7c259aa40ee052eec678758a68d07132a2e"
 
+"@types/node@^10.9.2":
+  version "10.9.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.9.4.tgz#0f4cb2dc7c1de6096055357f70179043c33e9897"
+
 "@types/node@^9.3.0":
   version "9.6.28"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.28.tgz#198927ce0786106ec2a7c8652d46d5f8b87bfc5f"
@@ -341,16 +345,16 @@ glob@^7.0.5, glob@^7.1.1, glob@~7.1.2:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-got@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/got/-/got-9.0.0.tgz#8673d2838adbac8a2e4a07e5772e238c701e9b7c"
+got@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/got/-/got-9.1.0.tgz#e31aa530bf953ca51599c5722039f891e49cf2ca"
   dependencies:
     "@sindresorhus/is" "^0.11.0"
     cacheable-request "^4.0.1"
     decompress-response "^3.3.0"
     duplexer3 "^0.1.4"
-    get-stream "^3.0.0"
-    mimic-response "^1.0.0"
+    get-stream "^4.0.0"
+    mimic-response "^1.0.1"
     p-cancelable "^0.5.0"
     to-readable-stream "^1.0.0"
     url-parse-lax "^3.0.0"
@@ -459,7 +463,7 @@ lowercase-keys@^1.0.0, lowercase-keys@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/lowercase-keys/-/lowercase-keys-1.0.1.tgz#6f9e30b47084d971a7c820ff15a6c5167b74c26f"
 
-mimic-response@^1.0.0:
+mimic-response@^1.0.0, mimic-response@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/mimic-response/-/mimic-response-1.0.1.tgz#4923538878eef42063cb8a3e3b0798781487ab1b"
 

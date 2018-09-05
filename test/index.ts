@@ -2,10 +2,19 @@ import * as tape from "tape";
 import { createSession } from "../index";
 import { HeapProfiler, Page, Target } from "../protocol/tot";
 
+const additionalArguments = [
+  "--headless",
+  "--disable-gpu",
+  "--hide-scrollbars",
+  "--mute-audio",
+  "--disable-logging",
+];
+
 tape("test REST API", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
-      additionalArguments: ["--headless"],
+      additionalArguments,
+      stdio: "ignore",
       windowSize: { width: 320, height: 640 },
     });
     const apiClient = session.createAPIClient(
@@ -33,7 +42,8 @@ tape("test REST API", async t => {
 tape("test debugging protocol domains", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
-      additionalArguments: ["--headless"],
+      additionalArguments,
+      stdio: "ignore",
     });
     const apiClient = session.createAPIClient(
       "localhost",
@@ -64,7 +74,8 @@ tape("test debugging protocol domains", async t => {
 tape("test browser protocol", async t => {
   await createSession(async session => {
     const browser = await session.spawnBrowser({
-      additionalArguments: ["--headless"],
+      additionalArguments,
+      stdio: "ignore",
     });
 
     const browserClient = await session.openDebuggingProtocol(

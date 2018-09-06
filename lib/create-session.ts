@@ -106,6 +106,6 @@ class Session implements ISession {
   }
 
   private addDisposable<T extends IDisposable>(disposable: T): T {
-    return disposable;
+    return this.disposables.add(disposable);
   }
 }

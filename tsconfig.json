@@ -5,6 +5,7 @@
     "target": "es2015",
     "outDir": "dist",
     "sourceMap": true,
+    "declarationMap": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
     "noImplicitAny": true,
@@ -20,6 +21,7 @@
     "protocol/1-2.ts",
     "protocol/tot.ts",
     "protocol/v8.ts",
+    "test/node.test.ts",
     "test/rest.test.ts",
     "test/targets.test.ts",
     "test/protocol.test.ts"

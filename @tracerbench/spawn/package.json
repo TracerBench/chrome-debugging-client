@@ -1,0 +1,33 @@
+{
+  "name": "@tracerbench/spawn",
+  "version": "1.0.0-beta.1",
+  "description": "High level spawn API for spawning process with a connection to the DevTools protocol.",
+  "license": "BSD-2-Clause",
+  "author": "Kris Selden <kris.selden@gmail.com>",
+  "files": [
+    "dist",
+    "src",
+    "types.d.ts"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:clean": "rm -rf dist && yarn run build",
+    "prepare": "yarn run build"
+  },
+  "dependencies": {
+    "@tracerbench/message-transport": "1.0.0-beta.1",
+    "execa": "^1.0.0",
+    "race-cancellation": "^0.4.1"
+  },
+  "devDependencies": {
+    "@types/execa": "^0.9.0",
+    "@types/node": "*",
+    "prettier": "^1.17.1",
+    "tslint": "^5.17.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.5.1"
+  }
+}

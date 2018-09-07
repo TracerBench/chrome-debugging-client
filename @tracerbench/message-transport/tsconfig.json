@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["scripthost", "es2017"],
+    "typeRoots": [],
+    "types": [],
+    "strict": true,
+    "moduleResolution": "node",
+    "target": "ES2017",
+    "noEmit": true
+  },
+  "files": ["index.d.ts"]
+}

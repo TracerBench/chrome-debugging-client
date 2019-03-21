@@ -53,7 +53,7 @@ createSession(async (session) => {
   let buffer = "";
   heapProfiler.addHeapSnapshotChunk = (evt) => {
     buffer += evt.chunk;
-  });
+  };
   await heapProfiler.takeHeapSnapshot({ reportProgress: false });
   await heapProfiler.disable();
 

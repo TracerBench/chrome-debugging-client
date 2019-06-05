@@ -3,11 +3,13 @@ import { DebugCallback } from "../types";
 import newAttachJsonRpcTransport from "./newAttachJsonRpcTransport";
 import _newAttachProtocolTransport from "./newAttachProtocolTransport";
 
-export default function newAttachProtocolTransport(
+export default function newAttachProtocolTransport<SessionId>(
   attach: AttachMessageTransport,
   debug: DebugCallback = () => void 0,
 ) {
-  return _newAttachProtocolTransport(newAttachJsonRpcTransport(attach, debug));
+  return _newAttachProtocolTransport<SessionId>(
+    newAttachJsonRpcTransport(attach, debug),
+  );
 }
 
 export {

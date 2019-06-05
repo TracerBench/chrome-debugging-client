@@ -1,9 +1,9 @@
 import { Cancellation, RaceCancellation } from "race-cancellation";
 
 export type AttachJsonRpcTransport = (
-  onNotification: (notification: Notification) => void,
-  onError: (err: Error) => void,
-  onClose: () => void,
+  onNotification: OnNotification,
+  onError: OnError,
+  onClose: OnClose,
 ) => [SendRequest, RaceCancellation];
 
 export type SendRequest = <
@@ -16,9 +16,9 @@ export type SendRequest = <
 ) => Promise<Response<Result>>;
 
 export type AttachProtocolTransport<SessionId> = (
-  onEvent: (event: string, params?: object) => void,
-  onError: (err: Error) => void,
-  onClose: () => void,
+  onEvent: OnEvent,
+  onError: OnError,
+  onClose: OnClose,
 ) => ProtocolTransport<SessionId>;
 
 export type ProtocolTransport<SessionId> = [
@@ -103,6 +103,18 @@ export interface ProtocolError<
   response: ErrorResponse;
 }
 
+export type OnNotification = <
+  Method extends string = string,
+  Params extends object = object
+>(
+  notification: Notification<Method, Params>,
+) => void;
 export type OnError = (error: Error) => void;
 export type OnClose = () => void;
-export type OnEvent = (event: string, params?: object) => void;
+export type OnEvent = <
+  Event extends string = string,
+  Params extends object = object
+>(
+  event: Event,
+  params?: Params,
+) => void;

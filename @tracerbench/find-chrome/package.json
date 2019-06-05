@@ -1,0 +1,28 @@
+{
+  "name": "@tracerbench/find-chrome",
+  "version": "1.0.0-beta.1",
+  "description": "Small wrapper for chrome-launcher to extract just finding chrome.",
+  "license": "BSD-2-Clause",
+  "author": "Kris Selden <kris.selden@gmail.com>",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:clean": "rm -rf dist && yarn run build",
+    "prepare": "yarn run build"
+  },
+  "dependencies": {
+    "chrome-launcher": "^0.10.7"
+  },
+  "devDependencies": {
+    "prettier": "^1.17.1",
+    "tslint": "^5.17.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.5.1"
+  }
+}

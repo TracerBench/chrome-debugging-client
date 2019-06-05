@@ -1,77 +1,153 @@
 # chrome-debugging-client
 
-[![Build Status](https://travis-ci.org/devtrace/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/devtrace/chrome-debugging-client)
+[![Build Status](https://travis-ci.org/tracerbench/chrome-debugging-client.svg?branch=master)](https://travis-ci.org/tracerbench/chrome-debugging-client)
 [![npm](https://img.shields.io/npm/v/chrome-debugging-client.svg)](https://www.npmjs.com/package/chrome-debugging-client)
 [![install size](https://packagephobia.now.sh/badge?p=chrome-debugging-client)](https://packagephobia.now.sh/result?p=chrome-debugging-client)
 
 An async/await friendly Chrome debugging client with TypeScript support,
 designed with automation in mind.
 
-Features:
+## Features
 
 * Promise API for async/await (most debugger commands are meant to be sequential).
+* TypeScript support and uses "devtools-protocol" types, allowing you to pick a protocol version.
 * Launches Chrome with a new temp user data folder so Chrome launches an isolated instance.
   (regardless if you already have Chrome open).
-* Opens an ephemeral remote debugging port so you don't need to configure a port.
-* A TypeScript codegen for API autocomplete and tooltips with documentation for
-  the debugger protocol https://chromedevtools.github.io/devtools-protocol/
-* Cleans up processes and connections at end of session.
+* Opens Chrome with a pipe message transport to the browser connection and supports
+  attaching flattened session connections to targets.
+* Supports cancellation in a way that avoids unhandled rejections, and allows you to add combine
+  additional cancellation concerns.
+* Supports seeing protocol debug messages with `DEBUG=chrome-debugging-client`
+* Use with race-cancellation library to add timeouts or other cancellation concerns to tasks
+  using the connection.
+* The library was designed to be careful about not floating promises (promises are
+  chained immediately after being created, combining concurrent promises with all
+  or race), this avoids unhandled rejections.
 
-Example:
+## Examples
+
+### Spawn Chrome And Take Heap Snapshot
 
 ```js
-import { createSession } from "chrome-debugging-client";
-// import protocol domains "1-2", "tot", or "v8"
-import { HeapProfiler } from "chrome-debugging-client/dist/protocol/tot";
+const { spawnChrome } = require("chrome-debugging-client");
+const { writeFileSync } = require("fs");
 
-createSession(async (session) => {
-  // spawns a chrome instance with a tmp user data
-  // and the debugger open to an ephemeral port
-  const process = await session.spawnBrowser({
-    additionalArguments: ['--headless', '--disable-gpu', '--hide-scrollbars', '--mute-audio'],
-    windowSize: { width: 640, height: 320 }
-  });
+main();
 
-  // open the REST API for tabs
-  const client = session.createAPIClient("localhost", process.remoteDebuggingPort);
+async function main() {
+  const chrome = spawnChrome();
+  try {
+    const browser = chrome.connection;
 
-  const tabs = await client.listTabs();
-  const tab = tabs[0];
-  await client.activateTab(tab.id);
+    browser.on("error", err => {
+      // underlying connection error or error dispatching events.
+      console.error(`connection error ${err.stack}`);
+    });
 
-  // open the debugger protocol
-  // https://chromedevtools.github.io/devtools-protocol/
-  const debuggerClient = await session.openDebuggingProtocol(tab.webSocketDebuggerUrl);
+    const { targetId } = await browser.send("Target.createTarget", {
+      url: "about:blank",
+    });
 
-  // create the HeapProfiler domain with the debugger protocol client
-  const heapProfiler = new HeapProfiler(debuggerClient);
-  await heapProfiler.enable();
+    await browser.send("Target.activateTarget", { targetId });
 
-  // The domains are optional, this can also be
-  // await debuggerClient.send("HeapProfiler.enable", {})
+    const page = browser.connection(
+      await browser.send("Target.attachToTarget", {
+        targetId,
+        // this library only supports flattened sessions
+        flatten: true,
+      }),
+    );
 
-  let buffer = "";
-  heapProfiler.addHeapSnapshotChunk = (evt) => {
-    buffer += evt.chunk;
-  };
-  await heapProfiler.takeHeapSnapshot({ reportProgress: false });
-  await heapProfiler.disable();
+    let buffer = "";
+    await page.send("HeapProfiler.enable");
+    page.on("HeapProfiler.addHeapSnapshotChunk", params => {
+      buffer += params.chunk;
+    });
 
-  return JSON.parse(buffer);
-}).then((data) => {
-  console.log(data.snapshot.meta);
-}).catch((err) => {
-  console.error(err);
-});
+    await page.send("HeapProfiler.takeHeapSnapshot", {
+      reportProgress: false,
+    });
+
+    writeFileSync("heapsnapshot.json", buffer);
+
+    await browser.send("Target.closeTarget", { targetId });
+
+    await browser.send("Browser.close");
+
+    await chrome.waitForExit();
+  } finally {
+    await chrome.dispose();
+  }
+}
 ```
 
-## customize browser executable path
-
-By default, this tool chrome-launcher to find chrome. It may error if it cannot find the executable. For this and other reasons, you can configure via a CHROME_PATH environment variable or pass in the executablePath like so:
+### Debugging Node
 
 ```js
-// example for macOS
-let browser = await session.spawnBrowser({
- executablePath: '/Users/someone/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
-});
+const { spawnWithWebSocket } = require("chrome-debugging-client");
+
+main();
+
+async function main() {
+  // start node requesting it break on start at debug port that
+  // is available
+  const node = await spawnWithWebSocket(process.execPath, [
+    "--inspect-brk=0",
+    "-e",
+    `const obj = {
+      hello: "world",
+    };
+    debugger;
+    console.log("end");`,
+  ]);
+  const { connection } = node;
+  try {
+    // we requested Node to break on start, so we runIfWaitingForDebugger
+    // and wait for it to break at the start of our script
+    await Promise.all([
+      connection.until("Debugger.paused"),
+      connection.send("Debugger.enable"),
+      connection.send("Runtime.enable"),
+      connection.send("Runtime.runIfWaitingForDebugger"),
+    ]);
+    // right now we are paused at the start of the script
+
+    // resume until debugger statement hit
+    const [debuggerStatement] = await Promise.all([
+      connection.until("Debugger.paused"),
+      connection.send("Debugger.resume"),
+    ]);
+
+    // get the call frame of the debugger statement
+    const [callFrame] = debuggerStatement.callFrames;
+    const { callFrameId } = callFrame;
+
+    // eval obj at the debugger call frame
+    const { result } = await connection.send(
+      "Debugger.evaluateOnCallFrame",
+      {
+        callFrameId,
+        expression: "obj",
+        returnByValue: true,
+      },
+    );
+
+    console.log(result.value); //= { hello: "world" }
+
+    // resume and wait for execution to be done
+    await Promise.all([
+      connection.until("Runtime.executionContextDestroyed"),
+      connection.send("Debugger.resume"),
+    ]);
+
+    // Node is still alive here and waiting for the debugger to disconnect
+    // when we close the websocket after resuming
+    // Node should exit on its own
+    node.close();
+
+    await node.waitForExit();
+  } finally {
+    await node.dispose();
+  }
+}
 ```

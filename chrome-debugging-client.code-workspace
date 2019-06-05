@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "search.exclude": {
+      "**/dist": true,
+      "**/node_modules": true,
+      "**/.git": true
+    },
+    "files.watcherExclude": {
+      "**/dist": true,
+      "**/node_modules": true,
+      "**/.git": true
+    }
+  },
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "launch": {
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "protocol-connection-test",
+        "program": "${workspaceFolder}/node_modules/qunit/bin/qunit",
+        "args": ["test/*.js"],
+        "sourceMaps": true
+      }
+    ]
+  }
+}

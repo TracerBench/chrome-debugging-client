@@ -1,6 +1,6 @@
 import { AttachMessageTransport } from "@tracerbench/message-transport";
 import _newProtocolConnection, {
-  ProtocolConnection,
+  RootConnection,
 } from "@tracerbench/protocol-connection";
 import _spawn, {
   Process,
@@ -15,7 +15,14 @@ import { combineRaceCancellation, RaceCancellation } from "race-cancellation";
 
 const debugCallback = debug("chrome-debugging-client");
 
-export function spawnChrome(options?: SpawnOptions): ChromeWithPipeConnection {
+export * from "@tracerbench/message-transport";
+export * from "@tracerbench/protocol-connection/types";
+export * from "@tracerbench/spawn/types";
+export * from "@tracerbench/spawn-chrome/types";
+
+export function spawnChrome(
+  options?: Partial<SpawnOptions>,
+): ChromeWithPipeConnection {
   return attachPipeTransport(_spawnChrome(options));
 }
 
@@ -43,9 +50,7 @@ export async function spawnWithWebSocket(
   return Object.assign(process, { connection, close });
 }
 
-export function newProtocolConnection(
-  attach: AttachMessageTransport,
-): ProtocolConnection {
+export function newProtocolConnection(attach: AttachMessageTransport) {
   return _newProtocolConnection(
     attach,
     () => new EventEmitter(),
@@ -61,30 +66,61 @@ export { default as findChrome } from "@tracerbench/find-chrome";
 
 function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
   process: P,
-): P & { connection: ProtocolConnection } {
+): P & {
+  connection: RootConnection;
+  close(timeout?: number, raceCancellation?: RaceCancellation): Promise<void>;
+} {
   const connection = newProtocolConnection(process.attach);
-  return Object.assign(process, { connection });
+  return Object.assign(process, { close, connection });
+
+  async function close(timeout?: number, raceCancellation?: RaceCancellation) {
+    if (process.hasExited) {
+      return;
+    }
+    try {
+      const waitForExit = process.waitForExit(timeout, raceCancellation);
+      await Promise.race([waitForExit, connection.send("Browser.close")]);
+      // double check in case send() won the race which is most of the time
+      // sometimes chrome exits before send() gets a response
+      await waitForExit;
+    } catch (e) {
+      // if we closed then we dont really care what the error is
+      if (!process.hasExited) {
+        throw e;
+      }
+    }
+  }
 }
 
 export interface ChromeWithPipeConnection extends Chrome {
   /**
    * Connection to devtools protocol https://chromedevtools.github.io/devtools-protocol/
    */
-  connection: ProtocolConnection;
+  connection: RootConnection;
+
+  /**
+   * Close browser.
+   */
+  close(timeout?: number, raceCancellation?: RaceCancellation): Promise<void>;
 }
 
 export interface ProcessWithPipeConnection extends Process {
   /**
    * Connection to devtools protocol https://chromedevtools.github.io/devtools-protocol/
    */
-  connection: ProtocolConnection;
+  connection: RootConnection;
+
+  /**
+   * Close browser.
+   */
+  close(timeout?: number, raceCancellation?: RaceCancellation): Promise<void>;
 }
 
 export interface ProcessWithWebSocketConnection extends Process {
   /**
    * Connection to devtools protocol https://chromedevtools.github.io/devtools-protocol/
    */
-  connection: ProtocolConnection;
+  connection: RootConnection;
 
   /**
    * Closes the web socket.

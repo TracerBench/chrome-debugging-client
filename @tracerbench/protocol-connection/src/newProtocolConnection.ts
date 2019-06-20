@@ -2,13 +2,21 @@ import {
   AttachProtocolTransport,
   AttachSession,
 } from "@tracerbench/protocol-transport";
+import Protocol from "devtools-protocol";
 import {
   combineRaceCancellation,
   disposablePromise,
   RaceCancellation,
   throwIfCancelled,
 } from "race-cancellation";
-import { NewEventEmitter, ProtocolConnection, SessionID } from "../types";
+import {
+  NewEventEmitter,
+  ProtocolConnection,
+  RootConnection,
+  SessionConnection,
+  SessionID,
+  TargetID,
+} from "../types";
 import newEventHook, { Session } from "./newEventHook";
 
 /**
@@ -21,7 +29,7 @@ import newEventHook, { Session } from "./newEventHook";
 export default function newRootConnection(
   attach: AttachProtocolTransport<SessionID>,
   newEventEmitter: NewEventEmitter,
-): ProtocolConnection {
+): RootConnection {
   return newProtocolConnection(attach, newEventEmitter);
 }
 
@@ -29,7 +37,7 @@ function newSessionConnection(
   attachSession: AttachSession<SessionID>,
   newEventEmitter: NewEventEmitter,
   session: Session,
-) {
+): SessionConnection {
   return newProtocolConnection(
     attachSession(session.sessionId),
     newEventEmitter,
@@ -37,6 +45,15 @@ function newSessionConnection(
   );
 }
 
+function newProtocolConnection(
+  attachTransport: AttachProtocolTransport<SessionID>,
+  newEventEmitter: NewEventEmitter,
+  session: Session,
+): SessionConnection;
+function newProtocolConnection(
+  attachTransport: AttachProtocolTransport<SessionID>,
+  newEventEmitter: NewEventEmitter,
+): RootConnection;
 function newProtocolConnection(
   attachTransport: AttachProtocolTransport<SessionID>,
   newEventEmitter: NewEventEmitter,
@@ -58,34 +75,66 @@ function newProtocolConnection(
     onTargetDetached,
   );
 
-  return {
+  const base: RootConnection = {
+    attachToTarget,
     connection,
+    off: emitter.removeListener.bind(emitter),
     on: emitter.on.bind(emitter),
     once: emitter.once.bind(emitter),
     raceDetached,
     removeAllListeners: emitter.removeAllListeners.bind(emitter),
     removeListener: emitter.removeListener.bind(emitter),
     send,
+    setAutoAttach,
     until,
     get isDetached() {
       return isDetached;
     },
-    get targetId() {
-      if (session !== undefined) {
-        return session.targetId;
-      }
-    },
-    get sessionId() {
-      if (session !== undefined) {
-        return session.sessionId;
-      }
-    },
-    get targetInfo() {
-      if (session !== undefined) {
-        return session.targetInfo;
-      }
-    },
   };
+
+  if (session !== undefined) {
+    return Object.create(base, {
+      sessionId: {
+        get: () => session.sessionId,
+      },
+      targetId: {
+        get: () => session.targetId,
+      },
+      targetInfo: {
+        get: () => session.targetInfo,
+      },
+    });
+  }
+
+  return base;
+
+  async function attachToTarget(targetId: TargetID | { targetId: TargetID }) {
+    if (typeof targetId === "object" && targetId !== null) {
+      targetId = targetId.targetId;
+    }
+    const request = { flatten: true, targetId };
+    const conn = connection(request, false);
+    if (conn !== undefined) {
+      return conn;
+    }
+    const resp: Protocol.Target.AttachToTargetResponse = await send(
+      "Target.attachToTarget",
+      request,
+    );
+    return connection(resp);
+  }
+
+  async function setAutoAttach(
+    autoAttach: boolean,
+    waitForDebuggerOnStart = false,
+  ) {
+    const request: Protocol.Target.SetAutoAttachRequest = {
+      autoAttach,
+      flatten: true,
+      waitForDebuggerOnStart,
+    };
+    await send("Target.setAutoAttach", request);
+  }
 
   function onEvent(event: string, params: any) {
     eventHook(event, params);

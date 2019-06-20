@@ -35,6 +35,8 @@ export interface Process {
   on(event: "exit", listener: () => void): void;
   once(event: "error", listener: (error: Error) => void): void;
   once(event: "exit", listener: () => void): void;
+  off(event: "error", listener: (error: Error) => void): void;
+  off(event: "exit", listener: () => void): void;
   removeListener(event: "error", listener: (error: Error) => void): void;
   removeListener(event: "exit", listener: () => void): void;
   removeAllListeners(event?: "error" | "exit"): void;

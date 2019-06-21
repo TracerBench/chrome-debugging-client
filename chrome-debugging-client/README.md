@@ -50,13 +50,7 @@ async function main() {
 
     await browser.send("Target.activateTarget", { targetId });
 
-    const page = browser.connection(
-      await browser.send("Target.attachToTarget", {
-        targetId,
-        // this library only supports flattened sessions
-        flatten: true,
-      }),
-    );
+    const page = await browser.attachToTarget(targetId);
 
     let buffer = "";
     await page.send("HeapProfiler.enable");
@@ -72,9 +66,8 @@ async function main() {
 
     await browser.send("Target.closeTarget", { targetId });
 
-    await browser.send("Browser.close");
-
-    await chrome.waitForExit();
+    // graceful browser shutdown
+    await chrome.close();
   } finally {
     await chrome.dispose();
   }

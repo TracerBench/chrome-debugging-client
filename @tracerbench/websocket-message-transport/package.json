@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/websocket-message-transport",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
   "files": [
@@ -15,7 +15,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@tracerbench/message-transport": "1.0.0-beta.1",
+    "@tracerbench/message-transport": "^1.0.0-beta.2",
     "ws": "^7.0.0"
   },
   "devDependencies": {

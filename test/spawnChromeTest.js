@@ -13,24 +13,29 @@ QUnit.module("spawnChrome", () => {
           assert.ok(false, `browser error ${err.stack}`);
         });
 
+        const browserVersion = await browser.send("Browser.getVersion");
+
+        assert.ok(browserVersion.protocolVersion);
+        assert.ok(browserVersion.product);
+        assert.ok(browserVersion.userAgent);
+        assert.ok(browserVersion.jsVersion);
+
+        await browser.send("Security.setIgnoreCertificateErrors", {
+          ignore: true,
+        });
+
         const { targetId } = await browser.send("Target.createTarget", {
           url: "about:blank",
         });
 
         await browser.send("Target.activateTarget", { targetId });
 
-        const page = browser.connection(
-          await browser.send("Target.attachToTarget", {
-            targetId,
-            flatten: true,
-          }),
-        );
+        const page = await browser.attachToTarget(targetId);
 
-        assert.ok(page, "session present");
-
-        if (page === undefined) {
-          return;
-        }
+        assert.equal(page.targetId, targetId);
+        assert.ok(page.sessionId);
+        assert.ok(page.targetInfo.type, "page");
+        assert.ok(page.targetInfo.url, "about:blank");
 
         page.on("error", err => {
           assert.ok(false, `target connection error ${err.stack}`);
@@ -52,9 +57,7 @@ QUnit.module("spawnChrome", () => {
 
         await browser.send("Target.closeTarget", { targetId });
 
-        await browser.send("Browser.close");
-
-        await chrome.waitForExit();
+        await chrome.close();
       } finally {
         await chrome.dispose();
       }

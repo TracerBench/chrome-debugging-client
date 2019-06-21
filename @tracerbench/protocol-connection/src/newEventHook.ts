@@ -1,15 +1,24 @@
 import Protocol from "devtools-protocol";
-import { ProtocolConnection, SessionID, TargetID, TargetInfo } from "../types";
+import {
+  SessionConnection,
+  SessionID,
+  SessionIdentifier,
+  TargetID,
+  TargetInfo,
+} from "../types";
 
 const CONNECTION = Symbol("connection");
 
-export type NewConnection = (session: Session) => ProtocolConnection;
+export type NewConnection = (session: Session) => SessionConnection;
 export type DestroyConnection = (sessionId: SessionID) => void;
 
 export type EventHook = (event: string, params?: any) => void;
-export type GetConnection = (
-  session: SessionIdentifier,
-) => ProtocolConnection | undefined;
+export type GetConnection = {
+  (session: SessionIdentifier, throwIfNotAttached?: true): SessionConnection;
+  (session: SessionIdentifier, throwIfNotAttached: boolean | undefined):
+    | SessionConnection
+    | undefined;
+};
 export type ClearSessions = () => void;
 
 export interface Session {
@@ -22,17 +31,8 @@ interface Attachment {
   sessionId: SessionID;
   targetId: TargetID;
   targetInfo: TargetInfo;
-  [CONNECTION]: ProtocolConnection | undefined;
+  [CONNECTION]: SessionConnection | undefined;
 }
-
-export type SessionIdentifier =
-  | SessionID
-  | {
-      targetId: TargetID;
-    }
-  | {
-      sessionId: SessionID;
-    };
 
 export default function newEventHook(
   newConnection: NewConnection,
@@ -57,7 +57,7 @@ export default function newEventHook(
     }
   }
 
-  function getSessionId(session: SessionIdentifier) {
+  function getSessionId(session: SessionIdentifier, throwIfNotAttached = true) {
     let sessionId: SessionID | undefined;
     if (typeof session === "string") {
       sessionId = session;
@@ -69,19 +69,31 @@ export default function newEventHook(
       if ("sessionId" in session) {
         sessionId = session.sessionId;
       } else if ("targetId" in session) {
+        const { targetId } = session;
         sessionId = sessionIds.get(session.targetId);
+        if (!sessionId && throwIfNotAttached) {
+          throw new Error(`Target ${targetId} is not attached.`);
+        }
       }
     }
     return sessionId;
   }
 
-  function getSession(session: SessionIdentifier) {
-    if (attachments === undefined) {
+  function getSession(session: SessionIdentifier, throwIfNotAttached = true) {
+    const sessionId = getSessionId(session, throwIfNotAttached);
+    if (sessionId === undefined) {
       return;
     }
-    const sessionId = getSessionId(session);
-    if (sessionId !== undefined) {
-      return attachments.get(sessionId);
+
+    if (attachments !== undefined) {
+      const attachment = attachments.get(sessionId);
+      if (attachment !== undefined) {
+        return attachment;
+      }
+    }
+
+    if (throwIfNotAttached) {
+      throw new Error(`Session ${sessionId} is no longer attached.`);
     }
   }
 
@@ -128,14 +140,26 @@ export default function newEventHook(
   function targetInfoChanged({
     targetInfo,
   }: Protocol.Target.TargetInfoChangedEvent) {
-    const attachment = getSession(targetInfo);
+    const attachment = getSession(targetInfo, false);
     if (attachment !== undefined) {
       attachment.targetInfo = targetInfo;
     }
   }
 
-  function getConnection(session: SessionIdentifier) {
-    const attachment = getSession(session);
+  function getConnection(session: SessionIdentifier): SessionConnection;
+  function getConnection(
+    session: SessionIdentifier,
+    throwIfNotAttached?: true,
+  ): SessionConnection;
+  function getConnection(
+    session: SessionIdentifier,
+    throwIfNotAttached: boolean | undefined,
+  ): SessionConnection | undefined;
+  function getConnection(
+    session: SessionIdentifier,
+    throwIfNotAttached = true,
+  ) {
+    const attachment = getSession(session, throwIfNotAttached);
     if (attachment === undefined) {
       return;
     }

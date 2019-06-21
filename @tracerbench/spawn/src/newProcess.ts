@@ -38,6 +38,7 @@ export default function newProcess(
     dispose,
     hasExited: () => hasExited,
     kill,
+    off: emitter.removeListener.bind(emitter),
     on: emitter.on.bind(emitter),
     once: emitter.once.bind(emitter),
     raceExit,

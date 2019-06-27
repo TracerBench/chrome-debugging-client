@@ -1,7 +1,10 @@
+import debug from "debug";
 import execa = require("execa");
 import * as t from "../types";
 import newProcessWithPipeMessageTransport from "./newProcessWithPipeMessageTransport";
 import newProcessWithWebSocketUrl from "./newProcessWithWebSocketUrl";
+
+const debugCallback = debug("@tracerbench/spawn");
 
 export default function spawn<T extends t.Transport>(
   executable: string,
@@ -20,6 +23,9 @@ export default function spawn(
   stdio: t.Stdio = "ignore",
   transport: t.Transport = "pipe",
 ): t.TransportMapping[t.Transport] {
+  debugCallback("spawn executable", executable);
+  debugCallback("spawn args", args);
+
   const child = execa(executable, args, {
     // disable buffer, pipe or drain
     buffer: false,

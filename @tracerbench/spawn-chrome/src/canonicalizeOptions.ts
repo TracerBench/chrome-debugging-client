@@ -69,7 +69,7 @@ export default function canonicalizeOptions(options: unknown): SpawnOptions {
     additionalArguments: undefined,
     chromeExecutable: undefined,
     disableDefaultArguments: false,
-    headless: true,
+    headless: false,
     stdio: "ignore",
     url: undefined,
     userDataDir: undefined,

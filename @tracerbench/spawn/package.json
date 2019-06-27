@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/spawn",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "description": "High level spawn API for spawning process with a connection to the DevTools protocol.",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",

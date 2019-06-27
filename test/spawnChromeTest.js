@@ -5,7 +5,7 @@ QUnit.module("spawnChrome", () => {
   QUnit.test(
     "connect to browser, create and attach to page target",
     async assert => {
-      const chrome = spawnChrome();
+      const chrome = spawnChrome({ headless: true });
       try {
         const browser = chrome.connection;
 

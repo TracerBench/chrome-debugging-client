@@ -1,9 +1,11 @@
 import { RaceCancellation } from "race-cancellation";
+
 import {
   AttachJsonRpcTransport,
   AttachProtocolTransport,
   Notification,
 } from "../types";
+
 import newProtocolError from "./newProtocolError";
 import newSessions from "./newSessions";
 

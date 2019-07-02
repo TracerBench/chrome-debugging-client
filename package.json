@@ -10,6 +10,7 @@
     "prepare": "lerna run prepare",
     "build": "lerna run build",
     "build:clean": "lerna run build:clean",
+    "lint": "lerna run --stream lint",
     "test": "lerna run --stream test"
   },
   "dependencies": {

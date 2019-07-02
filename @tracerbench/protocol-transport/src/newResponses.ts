@@ -1,4 +1,5 @@
 import { oneshot } from "race-cancellation";
+
 import { Response } from "../types";
 
 export default function newResponses(): [UsingResponse, ResolveResponse] {

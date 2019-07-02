@@ -1,6 +1,8 @@
 import findChrome from "@tracerbench/find-chrome";
 import spawn from "@tracerbench/spawn";
+
 import { Chrome, SpawnOptions } from "../types";
+
 import canonicalizeOptions from "./canonicalizeOptions";
 import createTempDir from "./createTmpDir";
 import getArguments from "./getArguments";

@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsc",
     "build:clean": "rm -rf dist && yarn run build",
+    "lint": "tslint -p tsconfig.json",
     "prepare": "yarn run build"
   },
   "dependencies": {
@@ -22,17 +23,18 @@
     "@tracerbench/spawn": "^1.0.0-beta.4",
     "@tracerbench/spawn-chrome": "^1.0.0-beta.4",
     "@tracerbench/websocket-message-transport": "^1.0.0-beta.2",
-    "debug": "^4.1.1"
+    "debug": "^4.1.1",
+    "race-cancellation": "^0.4.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.4",
     "@types/node": "^10.12.19",
     "devtools-protocol": "*",
-    "prettier": "^1.17.1",
-    "tslint": "^5.17.0",
+    "prettier": "^1.18.2",
+    "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.2"
   },
   "peerDependencies": {
     "devtools-protocol": "*"

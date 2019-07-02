@@ -9,6 +9,7 @@ import {
   RaceCancellation,
   throwIfCancelled,
 } from "race-cancellation";
+
 import {
   NewEventEmitter,
   ProtocolConnection,
@@ -17,6 +18,7 @@ import {
   SessionID,
   TargetID,
 } from "../types";
+
 import newEventHook, { Session } from "./newEventHook";
 
 /**

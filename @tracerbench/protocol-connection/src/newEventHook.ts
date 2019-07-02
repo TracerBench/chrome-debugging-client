@@ -1,4 +1,5 @@
 import Protocol from "devtools-protocol";
+
 import {
   SessionConnection,
   SessionID,
@@ -13,12 +14,12 @@ export type NewConnection = (session: Session) => SessionConnection;
 export type DestroyConnection = (sessionId: SessionID) => void;
 
 export type EventHook = (event: string, params?: any) => void;
-export type GetConnection = {
+export interface GetConnection {
   (session: SessionIdentifier, throwIfNotAttached?: true): SessionConnection;
   (session: SessionIdentifier, throwIfNotAttached: boolean | undefined):
     | SessionConnection
     | undefined;
-};
+}
 export type ClearSessions = () => void;
 
 export interface Session {

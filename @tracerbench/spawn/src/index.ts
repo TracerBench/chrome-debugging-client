@@ -1,2 +1,2 @@
-export { default as default } from './spawn';
-export * from '../types';
+export { default } from "./spawn";
+export * from "../types";

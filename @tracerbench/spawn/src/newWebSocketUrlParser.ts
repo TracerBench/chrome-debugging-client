@@ -1,4 +1,5 @@
 import { Transform, TransformCallback } from "stream";
+
 import newBufferSplitter from "./newBufferSplitter";
 
 const WS_URL_REGEX = /^(?:DevTools|Debugger) listening on (ws:\/\/\d+\.\d+\.\d+\.\d+:\d+\/.+$)/;

@@ -1,5 +1,4 @@
-sudo: required
-dist: trusty
+dist: xenial
 language: node_js
 node_js:
   - "stable"
@@ -11,3 +10,6 @@ addons:
       - google-chrome-unstable
 env:
   - CHROME_PATH=/usr/bin/google-chrome-unstable
+script:
+  - yarn lint
+  - yarn test

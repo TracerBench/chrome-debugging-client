@@ -5,7 +5,6 @@ import {
   RaceCancellation,
   throwIfCancelled,
 } from "race-cancellation";
-import newResponses from "./newResponses";
 
 import {
   AttachJsonRpcTransport,
@@ -14,6 +13,8 @@ import {
   Request,
   Response,
 } from "../types";
+
+import newResponses from "./newResponses";
 
 /**
  * Creates a AttachJsonRpcTransport function from the specified

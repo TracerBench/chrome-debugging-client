@@ -2,7 +2,9 @@ import { AttachMessageTransport } from "@tracerbench/message-transport";
 import newAttachProtocolTransport, {
   DebugCallback,
 } from "@tracerbench/protocol-transport";
+
 import { EventEmitter } from "../types";
+
 import _newProtocolConnection from "./newProtocolConnection";
 
 /**

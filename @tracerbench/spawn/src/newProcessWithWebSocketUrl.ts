@@ -1,9 +1,11 @@
 import {
+  combineRaceCancellation,
   RaceCancellation,
   throwIfCancelled,
-  combineRaceCancellation,
 } from "race-cancellation";
+
 import { ProcessWithWebSocketUrl, Stdio } from "../types";
+
 import newProcess from "./newProcess";
 import newWebSocketUrlParser from "./newWebSocketUrlParser";
 

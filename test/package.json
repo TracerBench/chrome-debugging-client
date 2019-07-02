@@ -12,7 +12,7 @@
     "@types/node": "^12.0.4",
     "@types/qunit": "^2.9.0",
     "chrome-debugging-client": "^1.0.0-beta.4",
-    "devtools-protocol": "0.0.665395",
+    "devtools-protocol": "0.0.674156",
     "qunit": "^2.9.1"
   },
   "devDependencies": {

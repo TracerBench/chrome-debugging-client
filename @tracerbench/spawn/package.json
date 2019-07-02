@@ -20,11 +20,10 @@
   "dependencies": {
     "@tracerbench/message-transport": "^1.0.0-beta.2",
     "debug": "^4.1.1",
-    "execa": "^1.0.0",
+    "execa": "^2.0.2",
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {
-    "@types/execa": "^0.9.0",
     "@types/node": "*",
     "prettier": "^1.18.2",
     "tslint": "^5.18.0",

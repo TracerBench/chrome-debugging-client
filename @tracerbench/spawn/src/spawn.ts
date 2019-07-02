@@ -25,14 +25,14 @@ export default function spawn(
   stdio: t.Stdio = "ignore",
   transport: t.Transport = "pipe",
 ): t.TransportMapping[t.Transport] {
-  debugCallback("spawn executable", executable);
-  debugCallback("spawn args", args);
-
-  const child = execa(executable, args, {
+  const opts: execa.Options = {
     // disable buffer, pipe or drain
     buffer: false,
     stdio: stdioFor(stdio, transport),
-  } as any);
+  };
+
+  debugCallback("execa(%o, %O, %O)", executable, args, opts);
+  const child = execa(executable, args, opts);
 
   // even though the child promise is a promise of exit
   // it rejects on being signalled
@@ -53,7 +53,7 @@ export default function spawn(
 function stdioFor(
   stdio: "ignore" | "inherit",
   transport: "pipe" | "websocket",
-) {
+): readonly execa.StdioOption[] {
   if (transport === "pipe") {
     return [stdio, stdio, stdio, "pipe", "pipe"];
   }

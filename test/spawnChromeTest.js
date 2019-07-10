@@ -58,6 +58,8 @@ QUnit.module("spawnChrome", () => {
         await browser.send("Target.closeTarget", { targetId });
 
         await chrome.close();
+
+        assert.ok(chrome.hasExited());
       } finally {
         await chrome.dispose();
       }

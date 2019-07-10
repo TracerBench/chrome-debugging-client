@@ -74,7 +74,7 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
   return Object.assign(process, { close, connection });
 
   async function close(timeout?: number, raceCancellation?: RaceCancellation) {
-    if (process.hasExited) {
+    if (process.hasExited()) {
       return;
     }
     try {
@@ -85,7 +85,7 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
       await waitForExit;
     } catch (e) {
       // if we closed then we dont really care what the error is
-      if (!process.hasExited) {
+      if (!process.hasExited()) {
         throw e;
       }
     }

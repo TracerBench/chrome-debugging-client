@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client-test",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "lint": "tslint -p tsconfig.json",
@@ -11,7 +11,7 @@
     "@types/debug": "^4.1.4",
     "@types/node": "^12.0.4",
     "@types/qunit": "^2.9.0",
-    "chrome-debugging-client": "^1.0.0-beta.4",
+    "chrome-debugging-client": "^1.0.1",
     "devtools-protocol": "0.0.674156",
     "qunit": "^2.9.1"
   },

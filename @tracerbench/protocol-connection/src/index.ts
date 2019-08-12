@@ -2,6 +2,7 @@ import { AttachMessageTransport } from "@tracerbench/message-transport";
 import newAttachProtocolTransport, {
   DebugCallback,
 } from "@tracerbench/protocol-transport";
+import { RaceCancellation } from "race-cancellation";
 
 import { EventEmitter } from "../types";
 
@@ -14,9 +15,10 @@ export default function newProtocolConnection(
   attach: AttachMessageTransport,
   newEventEmitter: () => EventEmitter,
   debug: DebugCallback = () => void 0,
+  raceCancellation?: RaceCancellation,
 ) {
   return _newProtocolConnection(
-    newAttachProtocolTransport(attach, debug),
+    newAttachProtocolTransport(attach, debug, raceCancellation),
     newEventEmitter,
   );
 }

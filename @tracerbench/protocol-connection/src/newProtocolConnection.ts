@@ -110,7 +110,10 @@ function newProtocolConnection(
 
   return base;
 
-  async function attachToTarget(targetId: TargetID | { targetId: TargetID }) {
+  async function attachToTarget(
+    targetId: TargetID | { targetId: TargetID },
+    raceCancellation?: RaceCancellation,
+  ) {
     if (typeof targetId === "object" && targetId !== null) {
       targetId = targetId.targetId;
     }
@@ -122,6 +125,7 @@ function newProtocolConnection(
     const resp: Protocol.Target.AttachToTargetResponse = await send(
       "Target.attachToTarget",
       request,
+      raceCancellation,
     );
     return connection(resp);
   }
@@ -129,13 +133,14 @@ function newProtocolConnection(
   async function setAutoAttach(
     autoAttach: boolean,
     waitForDebuggerOnStart = false,
+    raceCancellation?: RaceCancellation,
   ) {
     const request: Protocol.Target.SetAutoAttachRequest = {
       autoAttach,
       flatten: true,
       waitForDebuggerOnStart,
     };
-    await send("Target.setAutoAttach", request);
+    await send("Target.setAutoAttach", request, raceCancellation);
   }
 
   function onEvent(event: string, params: any) {

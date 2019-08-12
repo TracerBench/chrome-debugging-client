@@ -1,10 +1,9 @@
+import debug = require("debug");
 import { EventEmitter } from "events";
 import {
+  cancellableRace,
   Cancellation,
-  CancellationKind,
-  isCancellation,
-  newRaceCancellation,
-  oneshot,
+  disposablePromise,
   RaceCancellation,
   throwIfCancelled,
   withRaceTimeout,
@@ -12,27 +11,25 @@ import {
 
 import * as t from "../types";
 
+const debugCallback = debug("@tracerbench/spawn");
+
 export default function newProcess(
   child: import("execa").ExecaChildProcess,
 ): t.Process {
   let hasExited = false;
-  const [exited, onExit] = oneshot<void>();
+  let lastError: Error | undefined;
+
   const emitter = new EventEmitter();
-
-  const raceExit = newRaceCancellation(
-    exited,
-    "the process exited before the async task using it was completed",
-    "UnexpectedProcessExit",
-  );
-
-  child.on("exit", () => {
-    onExit();
-    hasExited = true;
-    emitter.emit("exit");
-  });
+  const [raceExit, cancel] = cancellableRace();
 
   child.on("error", error => {
-    emitter.emit("error", error);
+    lastError = error;
+    debugCallback("child process error %O", error);
+    onExit(error);
+  });
+  child.on("exit", () => {
+    debugCallback("child process exit");
+    onExit();
   });
 
   return {
@@ -48,52 +45,83 @@ export default function newProcess(
     waitForExit,
   };
 
+  function onExit(error?: Error) {
+    if (hasExited) {
+      return;
+    }
+
+    hasExited = true;
+
+    if (error) {
+      cancel(`process exited early: ${error.message}`);
+    } else {
+      cancel(`process exited early`);
+    }
+
+    emitter.emit("exit");
+  }
+
+  async function exited(
+    raceCancellation?: RaceCancellation,
+  ): Promise<void | Cancellation> {
+    if (lastError) {
+      throw lastError;
+    }
+
+    if (hasExited) {
+      return;
+    }
+
+    return await disposablePromise((resolve, reject) => {
+      child.on("exit", resolve);
+      child.on("error", reject);
+      return () => {
+        child.removeListener("exit", resolve);
+        child.removeListener("error", reject);
+      };
+    }, raceCancellation);
+  }
+
+  async function waitForExit(
+    timeout = 10000,
+    raceCancellation?: RaceCancellation,
+  ) {
+    if (hasExited) {
+      return;
+    }
+
+    const result = await (timeout > 0
+      ? withRaceTimeout(exited, timeout)(raceCancellation)
+      : exited(raceCancellation));
+    return throwIfCancelled(result);
+  }
+
   async function kill(timeout?: number, raceCancellation?: RaceCancellation) {
     if (hasExited) {
       return;
     }
-    child.kill("SIGTERM");
 
-    try {
-      await waitForExit(timeout, raceCancellation);
-    } catch (e) {
-      if (!hasExited) {
-        child.kill("SIGKILL");
-        if (isCancellation(e, CancellationKind.Timeout)) {
-          return await waitForExit(timeout, raceCancellation);
-        }
-      }
-      throw e;
+    if (child.killed || !child.pid) {
+      return;
     }
+
+    child.kill();
+
+    await waitForExit(timeout, raceCancellation);
   }
 
   async function dispose(): Promise<void> {
     if (hasExited) {
       return;
     }
+
     try {
       await kill();
     } catch (e) {
-      // dispose is in finally, we don't want to cover up error
-      emitter.emit("error", e);
+      // dispose is in finally and meant to be safe
+      // we don't want to cover up error
+      // just output for debugging
+      debugCallback("dispose error %O", e);
     }
-  }
-
-  async function waitForExit(
-    timeout = 3000,
-    raceCancellation?: RaceCancellation,
-  ) {
-    let result: void | Cancellation;
-    if (timeout > 0) {
-      result = await withRaceTimeout(
-        raceTimeout => raceTimeout(exited),
-        timeout,
-      )(raceCancellation);
-    } else if (raceCancellation !== undefined) {
-      result = await raceCancellation(exited);
-    } else {
-      result = await exited();
-    }
-    return throwIfCancelled(result);
   }
 }

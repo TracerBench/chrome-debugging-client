@@ -46,15 +46,19 @@ export async function spawnWithWebSocket(
     url,
     combineRaceCancellation(process.raceExit, raceCancellation),
   );
-  const connection = newProtocolConnection(attach);
+  const connection = newProtocolConnection(attach, process.raceExit);
   return Object.assign(process, { connection, close });
 }
 
-export function newProtocolConnection(attach: AttachMessageTransport) {
+export function newProtocolConnection(
+  attach: AttachMessageTransport,
+  raceCancellation?: RaceCancellation,
+) {
   return _newProtocolConnection(
     attach,
     () => new EventEmitter(),
     debugCallback,
+    raceCancellation,
   );
 }
 
@@ -70,7 +74,7 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
   connection: RootConnection;
   close(timeout?: number, raceCancellation?: RaceCancellation): Promise<void>;
 } {
-  const connection = newProtocolConnection(process.attach);
+  const connection = newProtocolConnection(process.attach, process.raceExit);
   return Object.assign(process, { close, connection });
 
   async function close(timeout?: number, raceCancellation?: RaceCancellation) {

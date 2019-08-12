@@ -24,14 +24,14 @@ export default function spawnChrome(options?: Partial<SpawnOptions>): Chrome {
   const args = getArguments(userDataDir, canonicalized);
 
   const process = Object.assign(
-    spawn(chromeExecutable, args, "ignore", "pipe"),
+    spawn(chromeExecutable, args, canonicalized.stdio, "pipe"),
     {
       userDataDir,
     },
   );
 
   if (removeTmp !== undefined) {
-    process.on("exit", removeTmp);
+    process.once("exit", removeTmp);
   }
 
   return process;

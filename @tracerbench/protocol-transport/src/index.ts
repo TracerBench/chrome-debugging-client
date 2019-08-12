@@ -1,4 +1,5 @@
 import { AttachMessageTransport } from "@tracerbench/message-transport";
+import { RaceCancellation } from "race-cancellation";
 
 import { DebugCallback } from "../types";
 
@@ -8,9 +9,10 @@ import _newAttachProtocolTransport from "./newAttachProtocolTransport";
 export default function newAttachProtocolTransport<SessionId>(
   attach: AttachMessageTransport,
   debug: DebugCallback = () => void 0,
+  raceCancellation?: RaceCancellation,
 ) {
   return _newAttachProtocolTransport<SessionId>(
-    newAttachJsonRpcTransport(attach, debug),
+    newAttachJsonRpcTransport(attach, debug, raceCancellation),
   );
 }
 

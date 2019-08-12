@@ -28,20 +28,20 @@ import newResponses from "./newResponses";
  *
  * @param attach a function that attaches the message transport
  * @param debug an optional debug function, should support format string + args like npm debug
+ * @param raceCancellation a raceCancellation that is scoped to the transport like Chrome exited
  */
 export default function newAttachJsonRpcTransport(
   attach: AttachMessageTransport,
   debug: DebugCallback = () => void 0,
+  raceCancellation?: RaceCancellation,
 ): AttachJsonRpcTransport {
-  return (onNotifiction, onError, onClose) => {
-    const [raceClose, cancel] = cancellableRace();
+  return (onNotifiction, emitError, emitClose) => {
+    const [_raceClose, cancel] = cancellableRace();
+
+    const raceClose = combineRaceCancellation(raceCancellation, _raceClose);
+
     const [usingResponse, resolveResponse] = newResponses();
-    const sendMessage = attach(onMessage, error => {
-      if (error !== undefined) {
-        handleError(error);
-      }
-      handleClose();
-    });
+    const sendMessage = attach(onMessage, onClose);
     return [sendRequest, raceClose];
 
     function onMessage(message: string): void {
@@ -56,19 +56,20 @@ export default function newAttachJsonRpcTransport(
           }
         }
       } catch (e) {
-        handleError(e);
+        debug("ERROR %O", e);
+        emitError(e);
       }
     }
 
-    function handleClose() {
-      debug("CLOSE");
-      cancel("transport closed");
-      onClose();
-    }
-
-    function handleError(error: Error) {
-      debug("ERROR %O", error);
-      onError(error);
+    function onClose(error?: Error) {
+      if (error) {
+        debug("CLOSE %O", error);
+        cancel(`transport closed: ${error.message}`);
+      } else {
+        debug("CLOSE");
+        cancel("transport closed");
+      }
+      emitClose();
     }
 
     async function sendRequest<
@@ -77,11 +78,11 @@ export default function newAttachJsonRpcTransport(
       Result extends object
     >(
       request: Request<Method, Params, unknown>,
-      raceCancellation?: RaceCancellation,
+      sendRaceCancellation?: RaceCancellation,
     ): Promise<Response<Result>> {
       const combinedRaceCancellation = combineRaceCancellation(
         raceClose,
-        raceCancellation,
+        sendRaceCancellation,
       );
       return await usingResponse<Result>(async (id, response) => {
         request.id = id;

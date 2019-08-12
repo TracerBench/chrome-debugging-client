@@ -3,44 +3,74 @@ import { AttachMessageTransport } from "@tracerbench/message-transport";
 import newBufferSplitter from "./newBufferSplitter";
 import newTaskQueue from "./newTaskQueue";
 
+export type Write = (data: Buffer) => void;
+export type EndWrite = () => void;
+export type OnRead = (chunk: Buffer) => void;
+export type OnReadEnd = () => void;
+export type OnClose = (err?: Error) => void;
+
+export type AttachProcess = (
+  onRead: OnRead,
+  onReadEnd: OnReadEnd,
+  onClose: OnClose,
+) => [Write, EndWrite];
+
 export default function newPipeMessageTransport(
-  writeStream: NodeJS.WriteStream,
-  readStream: NodeJS.ReadStream,
+  connect: AttachProcess,
 ): AttachMessageTransport {
   let attached = false;
+  let closed = false;
+
   return (onMessage, onClose) => {
     if (attached) {
       throw new Error("already attached to transport");
     }
     attached = true;
 
-    const enqueue = newTaskQueue();
-    const splitter = newBufferSplitter(Char.NULL, buffer =>
-      enqueue(() => onMessage(buffer.toString("utf8"))),
+    const [write, endWrite] = connect(
+      onRead,
+      onReadEnd,
+      enqueueClose,
     );
 
-    let closeEnqueued = false;
-    const enqueueOnClose = (error?: Error) => {
-      if (closeEnqueued) {
+    const enqueue = newTaskQueue();
+    const splitter = newBufferSplitter(Char.NULL, split =>
+      enqueueMessage(split.toString("utf8")),
+    );
+
+    return sendMessage;
+
+    function enqueueClose(error?: Error) {
+      if (closed) {
         return;
       }
-      closeEnqueued = true;
+
+      closed = true;
+
       if (error) {
         enqueue(() => onClose(error));
       } else {
         enqueue(onClose);
       }
-    };
 
-    writeStream.on("error", enqueueOnClose);
-    readStream.on("error", enqueueOnClose);
-    readStream.on("close", enqueueOnClose);
-    readStream.on("data", data => splitter.push(data));
-    readStream.on("end", () => splitter.flush());
+      endWrite();
+    }
 
-    return message => {
-      writeStream.write(message + "\0");
-    };
+    function enqueueMessage(message: string) {
+      enqueue(() => onMessage(message));
+    }
+
+    function onRead(data: Buffer) {
+      splitter.push(data);
+    }
+
+    function onReadEnd() {
+      splitter.flush();
+    }
+
+    function sendMessage(message: string) {
+      write(Buffer.from(message + "\0", "utf8"));
+    }
   };
 }
 

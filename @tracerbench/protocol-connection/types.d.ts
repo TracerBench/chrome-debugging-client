@@ -71,6 +71,7 @@ export interface ProtocolConnectionBase {
    */
   attachToTarget(
     targetId: TargetID | { targetId: TargetID },
+    raceCancellation?: RaceCancellation,
   ): Promise<SessionConnection>;
 
   /**
@@ -100,6 +101,7 @@ export interface ProtocolConnectionBase {
   setAutoAttach(
     autoAttach: boolean,
     waitForDebuggerOnStart?: boolean,
+    raceCancellation?: RaceCancellation,
   ): Promise<void>;
 
   /**
@@ -288,10 +290,10 @@ export type Event = keyof ProtocolMapping.Events | "error" | "detached";
 
 export type EventMapping = {
   [E in keyof ProtocolMapping.Events]: ProtocolMapping.Events[E] extends [
-    (infer T)?
+    (infer T)?,
   ]
     ? T
-    : never
+    : never;
 } & {
   error: Error;
 };
@@ -299,23 +301,23 @@ export type EventMapping = {
 export type RequestMapping = {
   [M in Method]: ProtocolMapping.Commands[M]["paramsType"] extends [(infer T)?]
     ? T
-    : never
+    : never;
 };
 
 export type ResponseMapping = {
-  [M in Method]: ProtocolMapping.Commands[M]["returnType"]
+  [M in Method]: ProtocolMapping.Commands[M]["returnType"];
 };
 
 export type VoidRequestMethod = {
   [M in Method]: ProtocolMapping.Commands[M]["paramsType"] extends []
     ? M
-    : never
+    : never;
 }[Method];
 
 export type MappedRequestMethod = {
   [M in Method]: ProtocolMapping.Commands[M]["paramsType"] extends [infer T]
     ? M
-    : never
+    : never;
 }[Method];
 
 export type MaybeMappedRequestMethod = Exclude<
@@ -326,7 +328,7 @@ export type MaybeMappedRequestMethod = Exclude<
 export type VoidResponseMethod = {
   [M in Method]: ProtocolMapping.Commands[M]["returnType"] extends void
     ? M
-    : never
+    : never;
 }[Method];
 
 export type MappedResponseMethod = Exclude<Method, VoidResponseMethod>;
@@ -344,7 +346,7 @@ export type VoidEvent =
   | {
       [E in keyof ProtocolMapping.Events]: ProtocolMapping.Events[E] extends []
         ? E
-        : never
+        : never;
     }[keyof ProtocolMapping.Events]
   | "detached";
 

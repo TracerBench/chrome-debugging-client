@@ -65,4 +65,28 @@ QUnit.module("spawnChrome", () => {
       }
     },
   );
+
+  QUnit.test("spawn chrome at bad path", async assert => {
+    const chrome = spawnChrome({
+      chromeExecutable: "bad/path/to/chrome",
+      headless: true,
+    });
+    try {
+      const browser = chrome.connection;
+
+      try {
+        await browser.send("Browser.getVersion");
+        assert.ok(false, "should not get here");
+      } catch (e) {
+        assert.equal(
+          e.message,
+          "process exited early: spawn bad/path/to/chrome ENOENT",
+        );
+      }
+
+      assert.ok(chrome.hasExited());
+    } finally {
+      await chrome.dispose();
+    }
+  });
 });

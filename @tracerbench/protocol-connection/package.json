@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/protocol-connection",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
   "files": [
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@tracerbench/message-transport": "^1.0.1",
-    "@tracerbench/protocol-transport": "^1.0.1",
+    "@tracerbench/protocol-transport": "^1.0.2",
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {

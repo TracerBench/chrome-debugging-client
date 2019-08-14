@@ -6,14 +6,28 @@ import {
 
 import { ProcessWithWebSocketUrl, Stdio } from "../types";
 
+import execa from "./execa";
 import newProcess from "./newProcess";
 import newWebSocketUrlParser from "./newWebSocketUrlParser";
 
 export default function newProcessWithWebSocketUrl(
-  child: import("execa").ExecaChildProcess,
+  command: string,
+  args: string[],
   stdio: Stdio,
+  debugCallback: (formatter: any, ...args: any[]) => void,
 ): ProcessWithWebSocketUrl {
-  const process = newProcess(child);
+  const child = execa(
+    command,
+    args,
+    {
+      // disable buffer, pipe or drain
+      buffer: false,
+      stdio: [stdio, stdio, "pipe"],
+    },
+    debugCallback,
+  );
+
+  const process = newProcess(child, command, debugCallback);
   return Object.assign(process, {
     url: createUrl(child.stderr!, stdio, process.raceExit),
   });

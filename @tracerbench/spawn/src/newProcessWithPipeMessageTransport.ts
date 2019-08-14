@@ -1,60 +1,91 @@
-import debug = require("debug");
+import { ProcessWithPipeMessageTransport, Stdio } from "../types";
 
-import { ProcessWithPipeMessageTransport } from "../types";
-
+import execa from "./execa";
 import createPipeMessageTransport from "./newPipeMessageTransport";
 import newProcess from "./newProcess";
 
-const debugCallback = debug("@tracerbench/spawn");
-
 export default function newProcessWithPipeMessageTransport(
-  child: import("execa").ExecaChildProcess,
+  command: string,
+  args: string[],
+  stdio: Stdio,
+  debugCallback: (formatter: any, ...args: any[]) => void,
 ): ProcessWithPipeMessageTransport {
-  const process = newProcess(child);
-  const [, , , writeStream, readStream] = streamsForPipe(child);
-  return Object.assign(process, {
-    attach: createPipeMessageTransport((onRead, onReadEnd, onClose) => {
-      child.on("error", onClose);
-      child.on("exit", onClose);
+  const child = execa(
+    command,
+    args,
+    {
+      // disable buffer, pipe or drain
+      buffer: false,
+      stdio: [stdio, stdio, stdio, "pipe", "pipe"],
+    },
+    debugCallback,
+  );
 
-      readStream.on("data", onRead);
-      readStream.on("end", () => {
-        debugCallback("read pipe end");
-        onReadEnd();
-      });
-      readStream.on("error", error => {
-        debugCallback("read pipe error %O", error);
-      });
+  const process = newProcess(child, command, debugCallback);
+  const [, , , writeStream, readStream] = child.stdio as [
+    NodeJS.WritableStream,
+    NodeJS.ReadableStream,
+    NodeJS.ReadableStream,
+    NodeJS.WritableStream,
+    NodeJS.ReadableStream,
+  ];
 
-      writeStream.on("close", () => {
-        debugCallback("write pipe close");
-        onClose();
-      });
-      writeStream.on("error", (error: Error | NodeJS.ErrnoException) => {
-        debugCallback("write pipe error %O", error);
-        // writes while the other side is closing can cause EPIPE
-        // just wait for close to actually happen and ignore it.
-        if (error && "code" in error && error.code === "EPIPE") {
-          return;
-        }
-        onClose(error);
-      });
+  const attach = createPipeMessageTransport((onRead, onReadEnd, onClose) => {
+    child.on("error", onClose);
+    child.on("exit", onClose);
 
-      return [data => writeStream.write(data), () => writeStream.end()];
-    }),
+    readStream.on("data", handleReadData);
+    readStream.on("end", handleReadEnd);
+    readStream.on("error", handleReadError);
+
+    writeStream.on("close", handleWriteClose);
+    writeStream.on("error", handleWriteError);
+
+    return [data => writeStream.write(data), () => writeStream.end()];
+
+    function handleReadData(buffer: Buffer) {
+      debugEvent("read", "data", buffer.byteLength);
+      onRead(buffer);
+    }
+
+    function handleReadEnd() {
+      debugEvent("read", "end");
+      onReadEnd();
+    }
+
+    function handleReadError(error: Error) {
+      debugEvent("read", "error", error);
+    }
+
+    function handleWriteError(error: Error | NodeJS.ErrnoException) {
+      debugEvent("write", "error", error);
+      // writes while the other side is closing can cause EPIPE
+      // just wait for close to actually happen and ignore it.
+      if (error && "code" in error && error.code === "EPIPE") {
+        return;
+      }
+      onClose(error);
+    }
+
+    function handleWriteClose() {
+      debugEvent("write", "close");
+      onClose();
+    }
+
+    function debugEvent(pipe: "read" | "write", event: string, arg?: any) {
+      if (arg === undefined) {
+        debugCallback("%s pipe (pid: %o) %o event", pipe, child.pid, event);
+      } else {
+        debugCallback(
+          "%s pipe (pid: %o) %o event: %O",
+          pipe,
+          child.pid,
+          event,
+          arg,
+        );
+      }
+    }
   });
-}
 
-function streamsForPipe(child: import("execa").ExecaChildProcess) {
-  const stdio: unknown[] = child.stdio;
-  if (stdio.length === 5) {
-    return stdio as [
-      NodeJS.WritableStream,
-      NodeJS.ReadableStream,
-      NodeJS.ReadableStream,
-      NodeJS.WritableStream,
-      NodeJS.ReadableStream,
-    ];
-  }
-  throw new Error("expected process to have 5 stdio streams");
+  return Object.assign(process, { attach });
 }

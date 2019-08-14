@@ -1,5 +1,4 @@
 import debug from "debug";
-import execa = require("execa");
 
 import * as t from "../types";
 
@@ -25,42 +24,19 @@ export default function spawn(
   stdio: t.Stdio = "ignore",
   transport: t.Transport = "pipe",
 ): t.TransportMapping[t.Transport] {
-  const opts: execa.Options = {
-    // disable buffer, pipe or drain
-    buffer: false,
-    stdio: stdioFor(stdio, transport),
-  };
-
-  debugCallback("execa(%o, %O, %O)", executable, args, opts);
-  const child = execa(executable, args, opts);
-
-  // even though the child promise is a promise of exit
-  // it rejects on being signalled
-  child.catch(() => {
-    // ignore unhandled rejection from sending signal
-  });
-
   switch (transport) {
     case "pipe":
-      return newProcessWithPipeMessageTransport(child);
+      return newProcessWithPipeMessageTransport(
+        executable,
+        args,
+        stdio,
+        debugCallback,
+      );
     case "websocket":
-      return newProcessWithWebSocketUrl(child, stdio);
+      return newProcessWithWebSocketUrl(executable, args, stdio, debugCallback);
     default:
       throw invalidTransport(transport);
   }
-}
-
-function stdioFor(
-  stdio: "ignore" | "inherit",
-  transport: "pipe" | "websocket",
-): readonly execa.StdioOption[] {
-  if (transport === "pipe") {
-    return [stdio, stdio, stdio, "pipe", "pipe"];
-  }
-  if (transport === "websocket") {
-    return [stdio, stdio, "pipe"];
-  }
-  throw new Error(`invalid transport argument ${transport}`);
 }
 
 function invalidTransport(transport: never) {

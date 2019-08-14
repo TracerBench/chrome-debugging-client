@@ -4,7 +4,7 @@ const { inspect } = require("util");
 
 const chrome = spawn(
   findChrome(),
-  ["--remote-debugging-pipe"],
+  ["--remote-debugging-pipe", "--disable-extensions", "https://google.com"],
   "inherit",
   "pipe",
 );
@@ -33,13 +33,13 @@ send(
   }),
 );
 
-setTimeout(async () => {
+(async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
   send(
     JSON.stringify({
       id: ++seq,
       method: "Browser.close",
     }),
   );
-
   await chrome.waitForExit();
-}, 1000);
+})();

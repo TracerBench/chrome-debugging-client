@@ -1,4 +1,3 @@
-import debug = require("debug");
 import { EventEmitter } from "events";
 import {
   cancellableRace,
@@ -11,10 +10,10 @@ import {
 
 import * as t from "../types";
 
-const debugCallback = debug("@tracerbench/spawn");
-
 export default function newProcess(
   child: import("execa").ExecaChildProcess,
+  command: string,
+  debugCallback: (formatter: any, ...args: any[]) => void,
 ): t.Process {
   let hasExited = false;
   let lastError: Error | undefined;
@@ -24,12 +23,13 @@ export default function newProcess(
 
   child.on("error", error => {
     lastError = error;
-    debugCallback("child process error %O", error);
-    onExit(error);
+    debugCallback("%o (pid: %o) 'error' event: %O", command, child.pid, error);
+    onErrorOrExit(error);
   });
+
   child.on("exit", () => {
-    debugCallback("child process exit");
-    onExit();
+    debugCallback("%o (pid: %o) 'exit' event", command, child.pid);
+    onErrorOrExit();
   });
 
   return {
@@ -45,7 +45,13 @@ export default function newProcess(
     waitForExit,
   };
 
-  function onExit(error?: Error) {
+  /*
+    https://nodejs.org/api/child_process.html#child_process_event_exit
+
+    The 'exit' event may or may not fire after an error has occurred.
+    When listening to both the 'exit' and 'error' events, it is important to guard against accidentally invoking handler functions multiple times.
+   */
+  function onErrorOrExit(error?: Error) {
     if (hasExited) {
       return;
     }
@@ -97,31 +103,21 @@ export default function newProcess(
   }
 
   async function kill(timeout?: number, raceCancellation?: RaceCancellation) {
-    if (hasExited) {
-      return;
+    if (!child.killed && child.pid) {
+      child.kill();
     }
-
-    if (child.killed || !child.pid) {
-      return;
-    }
-
-    child.kill();
 
     await waitForExit(timeout, raceCancellation);
   }
 
   async function dispose(): Promise<void> {
-    if (hasExited) {
-      return;
-    }
-
     try {
       await kill();
     } catch (e) {
       // dispose is in finally and meant to be safe
       // we don't want to cover up error
       // just output for debugging
-      debugCallback("dispose error %O", e);
+      debugCallback("%o (pid: %o) dispose error: %O", command, child.pid, e);
     }
   }
 }

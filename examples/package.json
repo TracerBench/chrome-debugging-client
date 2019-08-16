@@ -1,22 +1,16 @@
 {
-  "name": "chrome-debugging-client-test",
+  "name": "chrome-debugging-client-examples",
   "version": "1.0.2",
   "private": true,
   "scripts": {
     "lint": "tslint -p tsconfig.json",
-    "prepare": "tsc",
-    "test": "qunit *Test.js"
+    "prepare": "tsc"
   },
   "dependencies": {
-    "@types/debug": "^4.1.4",
     "@types/node": "^12.0.4",
-    "@types/qunit": "^2.9.0",
-    "@types/tmp": "^0.1.0",
     "chrome-debugging-client": "^1.0.2",
     "devtools-protocol": "0.0.674156",
-    "execa": "^2.0.2",
-    "qunit": "^2.9.1",
-    "tmp": "^0.1.0"
+    "execa": "^2.0.2"
   },
   "devDependencies": {
     "prettier": "^1.18.2",

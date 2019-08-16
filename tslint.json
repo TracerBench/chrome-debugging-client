@@ -5,7 +5,14 @@
     "tslint-plugin-prettier",
     "tslint-config-prettier"
   ],
-  "jsRules": {},
+  "jsRules": {
+    "no-duplicate-imports": true,
+    "ordered-imports": {
+      "severity": "error",
+      "options": { "grouped-imports": true }
+    },
+    "no-implicit-dependencies": true
+  },
   "rules": {
     "await-promise": true,
     "variable-name": {
@@ -21,7 +28,8 @@
     },
     "interface-name": false,
     "arrow-parens": false,
-    "no-conditional-assignment": false
+    "no-conditional-assignment": false,
+    "no-console": false
   },
   "rulesDirectory": []
 }

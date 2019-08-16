@@ -12,5 +12,9 @@
     "target": "ES2017",
     "types": ["node", "debug", "qunit"]
   },
-  "files": ["spawnChromeTest.js", "spawnWithWebSocketTest.js"]
+  "files": [
+    "examplesTest.js",
+    "spawnChromeTest.js",
+    "spawnWithWebSocketTest.js"
+  ]
 }

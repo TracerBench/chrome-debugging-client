@@ -1,0 +1,19 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-plugin-prettier",
+    "tslint-config-prettier"
+  ],
+  "jsRules": {
+    "no-console": false,
+    "no-implicit-dependencies": true,
+    "no-import-side-effect": true,
+    "ordered-imports": {
+      "severity": "error",
+      "options": { "grouped-imports": true }
+    }
+  },
+  "rules": {},
+  "rulesDirectory": []
+}

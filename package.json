@@ -4,14 +4,17 @@
   "workspaces": [
     "@tracerbench/*",
     "chrome-debugging-client",
+    "examples",
+    "scripts",
     "test"
   ],
   "scripts": {
-    "prepare": "lerna run prepare",
+    "prepare": "lerna run prepare && yarn readme",
     "build": "lerna run build",
     "build:clean": "lerna run build:clean",
     "lint": "lerna run --stream lint",
-    "test": "lerna run --stream test"
+    "test": "qunit test/*Test.js",
+    "readme": "scripts/readme.js"
   },
   "dependencies": {
     "lerna": "^3.15.0"

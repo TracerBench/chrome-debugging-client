@@ -290,7 +290,7 @@ export type Event = keyof ProtocolMapping.Events | "error" | "detached";
 
 export type EventMapping = {
   [E in keyof ProtocolMapping.Events]: ProtocolMapping.Events[E] extends [
-    (infer T)?,
+    (infer T)?
   ]
     ? T
     : never;

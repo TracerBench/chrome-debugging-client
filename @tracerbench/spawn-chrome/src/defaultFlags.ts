@@ -8,16 +8,16 @@ export const disableBackgroundNetworking = [
   "--disable-component-extensions-with-background-pages",
   // Disables syncing browser data to a Google Account.
   "--disable-sync",
-  // Don't send hyperlink auditing pings
-  "--no-pings",
-  // Disables Domain Reliability Monitoring.
-  "--disable-domain-reliability",
-  // This feature allows chrome to prerequest resources it thinks you will request
-  "--disable-features=NetworkPrediction",
-  // Disables the client-side phishing detection feature.
   "--disable-client-side-phishing-detection",
-  // Disable Google Translate detection
-  "--disable-translate",
+  "--disable-component-update",
+];
+
+export const disableTaskThrottling = [
+  "--disable-renderer-backgrounding",
+  "--disable-backgrounding-occluded-windows",
+  "--disable-background-timer-throttling",
+  "--disable-ipc-flooding-protection",
+  "--disable-hang-monitor",
 ];
 
 export const disableFirstRun = [
@@ -33,31 +33,32 @@ export const automationFlags = [
   // Enable indication that browser is controlled by automation.
   "--enable-automation",
   // Suppresses all error dialogs when present.
+  "--disable-breakpad",
   "--noerrdialogs",
-  // Prevent infobars from appearing.
-  "--disable-infobars",
+  // Prevents permission prompts from appearing by denying instead of showing
+  // prompts.
+  "--deny-permission-prompts",
+  "--autoplay-policy=no-user-gesture-required",
+  "--disable-popup-blocking",
+  "--disable-prompt-on-repost",
+  "--disable-search-geolocation-disclosure",
   // linux password store
   "--password-store=basic",
   // mac password store
   "--use-mock-keychain",
+  "--force-color-profile=srgb",
 ];
 
-export const defaultFlags = [
-  // Disable extensions.
-  "--disable-extensions",
-  // Disables all experiments set on about:flags.
-  "--no-experiments",
-  // Disables the sandbox for all process types that are normally sandboxed.
-  // allows them to log to stdout
-  "--no-sandbox",
-].concat(disableFirstRun, disableBackgroundNetworking, automationFlags);
+export const defaultFlags = disableFirstRun.concat(
+  automationFlags,
+  disableTaskThrottling,
+  disableBackgroundNetworking,
+);
 
 export const headlessFlags = [
   "--headless",
-  "--disable-gpu",
   "--hide-scrollbars",
   "--mute-audio",
-  "--disable-logging",
 ];
 
 export default defaultFlags;

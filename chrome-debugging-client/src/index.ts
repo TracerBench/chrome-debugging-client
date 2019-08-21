@@ -13,7 +13,8 @@ import debug = require("debug");
 import { EventEmitter } from "events";
 import { combineRaceCancellation, RaceCancellation } from "race-cancellation";
 
-const debugCallback = debug("chrome-debugging-client");
+const debugSpawn = debug("chrome-debugging-client:spawn");
+const debugTransport = debug("chrome-debugging-client:transport");
 
 export * from "@tracerbench/message-transport";
 export * from "@tracerbench/protocol-connection/types";
@@ -23,7 +24,7 @@ export * from "@tracerbench/spawn-chrome/types";
 export function spawnChrome(
   options?: Partial<SpawnOptions>,
 ): ChromeWithPipeConnection {
-  return attachPipeTransport(_spawnChrome(options));
+  return attachPipeTransport(_spawnChrome(options, debugSpawn));
 }
 
 export function spawnWithPipe(
@@ -31,7 +32,9 @@ export function spawnWithPipe(
   args: string[],
   stdio?: Stdio,
 ): ProcessWithPipeConnection {
-  return attachPipeTransport(_spawn(executable, args, stdio, "pipe"));
+  return attachPipeTransport(
+    _spawn(executable, args, stdio, "pipe", debugSpawn),
+  );
 }
 
 export async function spawnWithWebSocket(
@@ -40,7 +43,7 @@ export async function spawnWithWebSocket(
   stdio?: Stdio,
   raceCancellation?: RaceCancellation,
 ): Promise<ProcessWithWebSocketConnection> {
-  const process = _spawn(executable, args, stdio, "websocket");
+  const process = _spawn(executable, args, stdio, "websocket", debugSpawn);
   const url = await process.url(raceCancellation);
   const [attach, close] = await openWebSocket(
     url,
@@ -57,7 +60,7 @@ export function newProtocolConnection(
   return _newProtocolConnection(
     attach,
     () => new EventEmitter(),
-    debugCallback,
+    debugTransport,
     raceCancellation,
   );
 }

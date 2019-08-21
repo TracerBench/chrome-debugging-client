@@ -1,39 +1,52 @@
 import debug from "debug";
 
-import * as t from "../types";
+import {
+  DebugCallback,
+  ProcessWithPipeMessageTransport,
+  ProcessWithWebSocketUrl,
+  Stdio,
+  Transport,
+} from "../types";
 
 import newProcessWithPipeMessageTransport from "./newProcessWithPipeMessageTransport";
 import newProcessWithWebSocketUrl from "./newProcessWithWebSocketUrl";
 
-const debugCallback = debug("@tracerbench/spawn");
-
-export default function spawn<T extends t.Transport>(
-  executable: string,
-  args: string[],
-  stdio: t.Stdio | undefined,
-  transport: T,
-): t.TransportMapping[T];
-export default function spawn<T extends t.Transport>(
-  executable: string,
-  args: string[],
-  stdio?: t.Stdio,
-): t.ProcessWithPipeMessageTransport;
 export default function spawn(
   executable: string,
   args: string[],
-  stdio: t.Stdio = "ignore",
-  transport: t.Transport = "pipe",
-): t.TransportMapping[t.Transport] {
+  stderr: Stdio | undefined,
+  transport: "websocket",
+  debugCallback?: DebugCallback,
+): ProcessWithWebSocketUrl;
+export default function spawn(
+  executable: string,
+  args: string[],
+  stderr?: Stdio,
+  transport?: "pipe",
+  debugCallback?: DebugCallback,
+): ProcessWithPipeMessageTransport;
+export default function spawn(
+  executable: string,
+  args: string[],
+  stderr: Stdio = "ignore",
+  transport: Transport = "pipe",
+  debugCallback: DebugCallback = debug("@tracerbench/spawn"),
+): ProcessWithPipeMessageTransport | ProcessWithWebSocketUrl {
   switch (transport) {
     case "pipe":
       return newProcessWithPipeMessageTransport(
         executable,
         args,
-        stdio,
+        stderr,
         debugCallback,
       );
     case "websocket":
-      return newProcessWithWebSocketUrl(executable, args, stdio, debugCallback);
+      return newProcessWithWebSocketUrl(
+        executable,
+        args,
+        stderr,
+        debugCallback,
+      );
     default:
       throw invalidTransport(transport);
   }

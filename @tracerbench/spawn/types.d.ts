@@ -1,6 +1,8 @@
 import { AttachMessageTransport } from "@tracerbench/message-transport";
 import { RaceCancellation } from "race-cancellation";
 
+export type DebugCallback = (formatter: any, ...args: any[]) => void;
+
 export interface Process {
   /**
    * Allows tasks to be raced against the exit of the process.

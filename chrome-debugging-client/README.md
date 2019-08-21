@@ -26,7 +26,7 @@ designed with automation in mind.
     attaching flattened session connections to targets.
 -   Supports cancellation in a way that avoids unhandled rejections, and allows you to add combine
     additional cancellation concerns.
--   Supports seeing protocol debug messages with `DEBUG=chrome-debugging-client`
+-   Supports seeing protocol debug messages with `DEBUG=chrome-debugging-client:*`
 -   Use with race-cancellation library to add timeouts or other cancellation concerns to tasks
     using the connection.
 -   The library was designed to be careful about not floating promises (promises are

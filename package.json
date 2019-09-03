@@ -8,6 +8,10 @@
     "scripts",
     "test"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TracerBench/chrome-debugging-client"
+  },
   "scripts": {
     "prepare": "lerna run prepare && yarn readme",
     "build": "lerna run build",

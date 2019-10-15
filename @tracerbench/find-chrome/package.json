@@ -1,10 +1,13 @@
 {
   "name": "@tracerbench/find-chrome",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Small wrapper for chrome-launcher to extract just finding chrome.",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/spawn-chrome",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
   "files": [
@@ -17,8 +17,8 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@tracerbench/find-chrome": "^1.0.1",
-    "@tracerbench/spawn": "^1.0.2",
+    "@tracerbench/find-chrome": "^1.0.3",
+    "@tracerbench/spawn": "^1.0.3",
     "tmp": "^0.1.0"
   },
   "devDependencies": {

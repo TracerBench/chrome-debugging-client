@@ -20,16 +20,16 @@
   "dependencies": {
     "@tracerbench/message-transport": "^1.0.1",
     "debug": "^4.1.1",
-    "execa": "^2.0.2",
+    "execa": "^3.1.0",
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {
     "@types/node": "*",
     "prettier": "^1.18.2",
-    "tslint": "^5.18.0",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.2"
+    "typescript": "^3.6.4"
   },
   "gitHead": "930bc11c8b01620e5095df9249f0647af68235b5"
 }

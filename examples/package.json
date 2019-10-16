@@ -7,16 +7,16 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@types/node": "^12.0.4",
+    "@types/node": "^12.11.1",
     "chrome-debugging-client": "^1.0.3",
-    "devtools-protocol": "0.0.674156",
-    "execa": "^2.0.2"
+    "devtools-protocol": "0.0.704903",
+    "execa": "^3.1.0"
   },
   "devDependencies": {
     "prettier": "^1.18.2",
-    "tslint": "^5.18.0",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.2"
+    "typescript": "^3.6.4"
   }
 }

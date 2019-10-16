@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "lib": ["scripthost", "es2017"],
     "types": ["tmp"],
 
@@ -21,5 +22,13 @@
     "module": "commonjs",
     "target": "ES2017"
   },
-  "files": ["src/index.ts"]
+  "include": ["src/*.ts"],
+  "references": [
+    {
+      "path": "../find-chrome"
+    },
+    {
+      "path": "../spawn"
+    }
+  ]
 }

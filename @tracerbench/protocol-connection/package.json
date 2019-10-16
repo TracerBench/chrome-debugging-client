@@ -12,8 +12,8 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && rollup -c",
-    "build:clean": "rm -rf dist && yarn run build",
+    "build": "tsc -b && rollup -c",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint -p tsconfig.json",
     "prepare": "yarn run build"
   },

@@ -11,5 +11,6 @@ addons:
 env:
   - CHROME_PATH=/usr/bin/google-chrome-unstable
 script:
+  - yarn checkjs
   - yarn lint
   - yarn test

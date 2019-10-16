@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "lib": ["scripthost", "es2017"],
     "types": ["node"],
 
@@ -21,5 +22,22 @@
     "module": "commonjs",
     "target": "ES2017"
   },
-  "files": ["src/index.ts"]
+  "files": ["src/index.ts"],
+  "references": [
+    {
+      "path": "../@tracerbench/find-chrome"
+    },
+    {
+      "path": "../@tracerbench/protocol-connection"
+    },
+    {
+      "path": "../@tracerbench/spawn"
+    },
+    {
+      "path": "../@tracerbench/spawn-chrome"
+    },
+    {
+      "path": "../@tracerbench/websocket-message-transport"
+    }
+  ]
 }

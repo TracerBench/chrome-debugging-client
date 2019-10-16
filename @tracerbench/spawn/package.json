@@ -12,8 +12,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "build:clean": "rm -rf dist && yarn run build",
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint -p tsconfig.json",
     "prepare": "yarn run build"
   },

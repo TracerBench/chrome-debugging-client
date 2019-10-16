@@ -3,8 +3,8 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
+    "checkjs": "tsc",
     "lint": "tslint -p tsconfig.json",
-    "prepare": "tsc",
     "test": "qunit *Test.js"
   },
   "dependencies": {

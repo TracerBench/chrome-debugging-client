@@ -7,9 +7,6 @@
     "index.d.ts"
   ],
   "types": "index.d.ts",
-  "scripts": {
-    "prepare": "tsc"
-  },
   "devDependencies": {
     "prettier": "^1.18.2",
     "tslint": "^5.18.0",

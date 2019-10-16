@@ -1,6 +1,10 @@
 {
   "name": "chrome-debugging-client-root",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TracerBench/chrome-debugging-client"
+  },
   "workspaces": [
     "@tracerbench/*",
     "chrome-debugging-client",
@@ -8,17 +12,14 @@
     "scripts",
     "test"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TracerBench/chrome-debugging-client"
-  },
   "scripts": {
-    "prepare": "lerna run prepare && yarn readme",
-    "build": "lerna run build",
-    "build:clean": "lerna run build:clean",
+    "build": "tsc -b",
+    "checkjs": "lerna run --stream checkjs",
+    "clean": "lerna run clean",
     "lint": "lerna run --stream lint",
-    "test": "qunit test/*Test.js",
-    "readme": "scripts/readme.js"
+    "prepare": "yarn build && lerna run prepare && yarn readme",
+    "readme": "scripts/readme.js",
+    "test": "qunit test/*Test.js"
   },
   "dependencies": {
     "lerna": "^3.15.0"

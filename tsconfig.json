@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "chrome-debugging-client"
+    }
+  ]
+}

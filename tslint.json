@@ -11,17 +11,18 @@
       "severity": "error",
       "options": { "grouped-imports": true }
     },
-    "no-implicit-dependencies": true
+    "no-implicit-dependencies": true,
+    "no-import-side-effect": true
   },
   "rules": {
     "await-promise": true,
+    "no-floating-promises": true,
     "variable-name": {
       "options": ["allow-leading-underscore"]
     },
     "no-implicit-dependencies": true,
-    "no-floating-promises": true,
-    "no-duplicate-imports": true,
     "no-import-side-effect": true,
+    "no-duplicate-imports": true,
     "ordered-imports": {
       "severity": "error",
       "options": { "grouped-imports": true }

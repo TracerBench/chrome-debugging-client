@@ -11,7 +11,11 @@ import _spawnChrome, { Chrome, SpawnOptions } from "@tracerbench/spawn-chrome";
 import openWebSocket from "@tracerbench/websocket-message-transport";
 import debug = require("debug");
 import { EventEmitter } from "events";
-import { combineRaceCancellation, RaceCancellation } from "race-cancellation";
+import {
+  combineRaceCancellation,
+  isCancellation,
+  RaceCancellation,
+} from "race-cancellation";
 
 const debugSpawn = debug("chrome-debugging-client:spawn");
 const debugTransport = debug("chrome-debugging-client:transport");
@@ -86,13 +90,25 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
     }
     try {
       const waitForExit = process.waitForExit(timeout, raceCancellation);
-      await Promise.race([waitForExit, connection.send("Browser.close")]);
+      await Promise.race([waitForExit, sendBrowserClose()]);
       // double check in case send() won the race which is most of the time
       // sometimes chrome exits before send() gets a response
       await waitForExit;
     } catch (e) {
       // if we closed then we dont really care what the error is
       if (!process.hasExited()) {
+        throw e;
+      }
+    }
+  }
+
+  async function sendBrowserClose() {
+    try {
+      await connection.send("Browser.close");
+    } catch (e) {
+      // the browser sometimes closes the connection before sending
+      // the response which will cancel the send
+      if (!isCancellation(e)) {
         throw e;
       }
     }

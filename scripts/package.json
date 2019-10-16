@@ -3,25 +3,25 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
-    "lint": "tslint -p tsconfig.json",
-    "prepare": "tsc"
+    "checkjs": "tsc",
+    "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@types/node": "^12.0.4",
+    "@types/node": "^12.11.1",
     "remark": "^11.0.1",
     "remark-parse": "^7.0.1",
-    "remark-stringify": "^7.0.2",
+    "remark-stringify": "^7.0.3",
     "remark-toc": "^6.0.0",
     "shell-split": "^1.0.0",
-    "unified": "^8.3.2",
+    "unified": "^8.4.1",
     "unist-util-visit": "^2.0.0",
     "vfile": "^4.0.1"
   },
   "devDependencies": {
     "prettier": "^1.18.2",
-    "tslint": "^5.18.0",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.2"
+    "typescript": "^3.6.4"
   }
 }

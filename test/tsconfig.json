@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "noEmit": true,
     "allowJs": true,
     "checkJs": true,
     "strict": true,
+    // giving an out directory helps build perf
+    "outDir": "dist",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
@@ -16,5 +17,10 @@
     "examplesTest.js",
     "spawnChromeTest.js",
     "spawnWithWebSocketTest.js"
+  ],
+  "references": [
+    {
+      "path": "../chrome-debugging-client"
+    }
   ]
 }

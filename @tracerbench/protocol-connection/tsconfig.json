@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "lib": ["scripthost", "es2017"],
     "typeRoots": [],
     "types": [],
@@ -22,5 +23,10 @@
     "module": "es2015",
     "target": "es2017"
   },
-  "files": ["src/index.ts"]
+  "includes": ["src/*.ts"],
+  "references": [
+    {
+      "path": "../protocol-transport"
+    }
+  ]
 }

@@ -1,5 +1,7 @@
 // reduce non determinism from background networking
 export const disableBackgroundNetworking = [
+  // Disable translation
+  "--disable-features=TranslateUI",
   // Disable several subsystems which run network requests in the background.
   "--disable-background-networking",
   // Enables the recording of metrics reports but disables reporting.
@@ -9,7 +11,7 @@ export const disableBackgroundNetworking = [
   // Disables syncing browser data to a Google Account.
   "--disable-sync",
   "--disable-client-side-phishing-detection",
-  "--disable-component-update",
+  "--disable-component-update"
 ];
 
 export const disableTaskThrottling = [
@@ -17,7 +19,7 @@ export const disableTaskThrottling = [
   "--disable-backgrounding-occluded-windows",
   "--disable-background-timer-throttling",
   "--disable-ipc-flooding-protection",
-  "--disable-hang-monitor",
+  "--disable-hang-monitor"
 ];
 
 export const disableFirstRun = [
@@ -26,14 +28,15 @@ export const disableFirstRun = [
   // Disables installation of default apps on first run.
   "--disable-default-apps",
   // Disables the default browser check.
-  "--no-default-browser-check",
+  "--no-default-browser-check"
 ];
 
 export const automationFlags = [
   // Enable indication that browser is controlled by automation.
   "--enable-automation",
+  // Unresponsive page dialog
+  "--disable-hang-monitor",
   // Suppresses all error dialogs when present.
-  "--disable-breakpad",
   "--noerrdialogs",
   // Prevents permission prompts from appearing by denying instead of showing
   // prompts.
@@ -46,19 +49,19 @@ export const automationFlags = [
   "--password-store=basic",
   // mac password store
   "--use-mock-keychain",
-  "--force-color-profile=srgb",
+  "--force-color-profile=srgb"
 ];
 
 export const defaultFlags = disableFirstRun.concat(
   automationFlags,
   disableTaskThrottling,
-  disableBackgroundNetworking,
+  disableBackgroundNetworking
 );
 
 export const headlessFlags = [
   "--headless",
   "--hide-scrollbars",
-  "--mute-audio",
+  "--mute-audio"
 ];
 
 export default defaultFlags;

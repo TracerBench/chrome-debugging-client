@@ -22,9 +22,11 @@
       {
         "type": "node",
         "request": "launch",
-        "name": "protocol-connection-test",
+        "name": "QUnit Tests",
         "program": "${workspaceFolder}/node_modules/qunit/bin/qunit",
-        "args": ["test/*.js"],
+        "args": ["test/*Test.js"],
+        "internalConsoleOptions": "openOnSessionStart",
+        "skipFiles": ["<node_internals>/**"],
         "sourceMaps": true
       }
     ]

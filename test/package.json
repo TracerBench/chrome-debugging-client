@@ -9,20 +9,20 @@
   },
   "dependencies": {
     "@types/debug": "^4.1.5",
-    "@types/node": "^12.11.1",
+    "@types/node": "^12.12.11",
     "@types/qunit": "^2.9.0",
     "@types/tmp": "^0.1.0",
     "chrome-debugging-client": "^1.1.0",
-    "devtools-protocol": "0.0.704903",
-    "execa": "^3.1.0",
+    "devtools-protocol": "0.0.717480",
+    "execa": "^3.3.0",
     "qunit": "^2.9.1",
     "tmp": "^0.1.0"
   },
   "devDependencies": {
-    "prettier": "^1.18.2",
+    "prettier": "^1.19.1",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.6.4"
+    "typescript": "^3.7.2"
   }
 }

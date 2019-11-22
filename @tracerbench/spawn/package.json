@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/spawn",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "High level spawn API for spawning process with a connection to the DevTools protocol.",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
@@ -18,7 +18,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@tracerbench/message-transport": "^1.1.0",
+    "@tracerbench/message-transport": "^1.2.0",
     "debug": "^4.1.1",
     "execa": "^3.3.0",
     "race-cancellation": "^0.4.1"

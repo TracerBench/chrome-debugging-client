@@ -17,6 +17,7 @@
     "checkjs": "lerna run --stream checkjs",
     "clean": "lerna run clean",
     "lint": "lerna run --stream lint",
+    "fixlint": "lerna run --stream fixlint",
     "prepare": "yarn build && lerna run prepare && yarn readme",
     "readme": "scripts/readme.js",
     "test": "qunit test/*Test.js"

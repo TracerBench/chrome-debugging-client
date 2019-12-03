@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @ts-check
 const { writeFileSync } = require("fs");
 const { spawnChrome } = require("chrome-debugging-client");
 

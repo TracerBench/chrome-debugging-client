@@ -1,5 +1,4 @@
 import { ProcessWithPipeMessageTransport, Stdio } from "../types";
-
 import execa from "./execa";
 import createPipeMessageTransport from "./newPipeMessageTransport";
 import newProcess from "./newProcess";
@@ -8,7 +7,7 @@ export default function newProcessWithPipeMessageTransport(
   command: string,
   args: string[],
   stdio: Stdio,
-  debugCallback: (formatter: any, ...args: any[]) => void,
+  debugCallback: (formatter: unknown, ...args: unknown[]) => void,
 ): ProcessWithPipeMessageTransport {
   const child = execa(
     command,
@@ -43,21 +42,21 @@ export default function newProcessWithPipeMessageTransport(
 
     return [data => writeStream.write(data), () => writeStream.end()];
 
-    function handleReadData(buffer: Buffer) {
+    function handleReadData(buffer: Buffer): void {
       debugEvent("read", "data", buffer.byteLength);
       onRead(buffer);
     }
 
-    function handleReadEnd() {
+    function handleReadEnd(): void {
       debugEvent("read", "end");
       onReadEnd();
     }
 
-    function handleReadError(error: Error) {
+    function handleReadError(error: Error): void {
       debugEvent("read", "error", error);
     }
 
-    function handleWriteError(error: Error | NodeJS.ErrnoException) {
+    function handleWriteError(error: Error | NodeJS.ErrnoException): void {
       debugEvent("write", "error", error);
       // writes while the other side is closing can cause EPIPE
       // just wait for close to actually happen and ignore it.
@@ -67,12 +66,16 @@ export default function newProcessWithPipeMessageTransport(
       onClose(error);
     }
 
-    function handleWriteClose() {
+    function handleWriteClose(): void {
       debugEvent("write", "close");
       onClose();
     }
 
-    function debugEvent(pipe: "read" | "write", event: string, arg?: any) {
+    function debugEvent(
+      pipe: "read" | "write",
+      event: string,
+      arg?: unknown,
+    ): void {
       if (arg === undefined) {
         debugCallback("%s pipe (pid: %o) %o event", pipe, child.pid, event);
       } else {

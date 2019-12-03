@@ -10,7 +10,9 @@
       "**/dist": true,
       "**/node_modules": true,
       "**/.git": true
-    }
+    },
+    "eslint.validate": ["javascript", "typescript"],
+    "eslint.autoFixOnSave": true
   },
   "folders": [
     {

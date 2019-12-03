@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "checkjs": "tsc",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "eslint .",
+    "fixlint": "eslint . --fix"
   },
   "dependencies": {
     "@types/node": "^12.12.11",
@@ -13,10 +14,14 @@
     "execa": "^3.3.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-simple-import-sort": "^5.0.0",
     "prettier": "^1.19.1",
-    "tslint": "^5.20.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.7.2"
   }
 }

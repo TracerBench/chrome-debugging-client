@@ -18,7 +18,7 @@ export default async function openWebSocket(
   await disposablePromise((resolve, reject) => {
     ws.on("open", resolve);
     ws.on("close", onClose);
-    function onClose() {
+    function onClose(): void {
       let message = `Failed to open ${url}`;
       if (lastError !== undefined) {
         message += `: ${lastError.stack}`;
@@ -40,7 +40,7 @@ export default async function openWebSocket(
       }
 
       let called = false;
-      function handleClose() {
+      function handleClose(): void {
         if (called) {
           return;
         }

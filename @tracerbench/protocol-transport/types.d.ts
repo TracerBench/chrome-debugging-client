@@ -1,4 +1,4 @@
-import { Cancellation, RaceCancellation } from "race-cancellation";
+import { RaceCancellation } from "race-cancellation";
 
 export type AttachJsonRpcTransport = (
   onNotification: OnNotification,
@@ -25,7 +25,7 @@ export type ProtocolTransport<SessionId> = [
   AttachSession<SessionId>,
   DetachSession<SessionId>,
   SendMethod<SessionId>,
-  RaceCancellation
+  RaceCancellation,
 ];
 
 export type AttachSession<SessionId> = (
@@ -57,7 +57,7 @@ export interface ErrorResponse {
 export interface ResponseError {
   code: number;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export type Response<Result extends object | void = object | void> =
@@ -67,7 +67,7 @@ export type Response<Result extends object | void = object | void> =
 export interface Request<
   Method extends string = string,
   Params extends object = object,
-  SessionID = any
+  SessionID = unknown
 > {
   /**
    * The request gets assigned an id when it is sent.
@@ -85,7 +85,7 @@ export interface Request<
 export interface Notification<
   Method extends string = string,
   Params extends object = object,
-  SessionID = any
+  SessionID = unknown
 > {
   method: Method;
   params?: Params;

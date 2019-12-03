@@ -5,7 +5,6 @@ import {
 } from "race-cancellation";
 
 import { ProcessWithWebSocketUrl, Stdio } from "../types";
-
 import execa from "./execa";
 import newProcess from "./newProcess";
 import newWebSocketUrlParser from "./newWebSocketUrlParser";
@@ -14,7 +13,7 @@ export default function newProcessWithWebSocketUrl(
   command: string,
   args: string[],
   stdio: Stdio,
-  debugCallback: (formatter: any, ...args: any[]) => void,
+  debugCallback: (formatter: unknown, ...args: unknown[]) => void,
 ): ProcessWithWebSocketUrl {
   const child = execa(
     command,
@@ -28,8 +27,11 @@ export default function newProcessWithWebSocketUrl(
   );
 
   const process = newProcess(child, command, debugCallback);
+  if (child.stderr === null) {
+    throw new Error("missing stderr");
+  }
   return Object.assign(process, {
-    url: createUrl(child.stderr!, stdio, process.raceExit),
+    url: createUrl(child.stderr, stdio, process.raceExit),
   });
 }
 
@@ -37,13 +39,16 @@ function createUrl(
   stderr: NodeJS.ReadableStream,
   stdio: Stdio,
   raceExit: RaceCancellation,
-) {
+): (race?: RaceCancellation) => Promise<string> {
   let promise: Promise<string> | undefined;
   return url;
 
-  async function url(raceCancellation?: RaceCancellation) {
+  async function url(raceCancellation?: RaceCancellation): Promise<string> {
     return throwIfCancelled(
-      await combineRaceCancellation(raceExit, raceCancellation)(() => {
+      await combineRaceCancellation(
+        raceExit,
+        raceCancellation,
+      )(() => {
         if (promise === undefined) {
           promise = new Promise(resolve => parseUrl(stderr, stdio, resolve));
         }
@@ -57,7 +62,7 @@ function parseUrl(
   stderr: NodeJS.ReadableStream,
   stdio: "inherit" | "ignore",
   callback: (url: string) => void,
-) {
+): void {
   const parser = newWebSocketUrlParser(callback);
   stderr.pipe(parser);
   if (stdio === "inherit") {

@@ -4,8 +4,7 @@ import newAttachProtocolTransport, {
 } from "@tracerbench/protocol-transport";
 import { RaceCancellation } from "race-cancellation";
 
-import { EventEmitter } from "../types";
-
+import { EventEmitter, RootConnection } from "../types";
 import _newProtocolConnection from "./newProtocolConnection";
 
 /**
@@ -16,7 +15,7 @@ export default function newProtocolConnection(
   newEventEmitter: () => EventEmitter,
   debug: DebugCallback = () => void 0,
   raceCancellation?: RaceCancellation,
-) {
+): RootConnection {
   return _newProtocolConnection(
     newAttachProtocolTransport(attach, debug, raceCancellation),
     newEventEmitter,

@@ -1,7 +1,7 @@
 import { SpawnOptions } from "../types";
 
 const CANONICALIZE: {
-  [K in keyof SpawnOptions]: Canonicalize<SpawnOptions[K]>
+  [K in keyof SpawnOptions]: Canonicalize<SpawnOptions[K]>;
 } & {
   [key: string]: Canonicalize<SpawnOptions[keyof SpawnOptions]>;
 } = {

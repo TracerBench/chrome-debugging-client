@@ -2,7 +2,7 @@ import * as chromeFinder from "chrome-launcher/dist/chrome-finder";
 import { getPlatform } from "chrome-launcher/dist/utils";
 
 export default function findChrome(): string {
-  const platform = getPlatform() as keyof typeof chromeFinder;
+  const platform = getPlatform();
 
   let path: string | undefined;
   if (isFinder(platform)) {

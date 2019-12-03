@@ -3,6 +3,10 @@ import { AttachMessageTransport } from "@tracerbench/message-transport";
 import newBufferSplitter from "./newBufferSplitter";
 import newTaskQueue from "./newTaskQueue";
 
+const enum Char {
+  NULL = 0,
+}
+
 export type Write = (data: Buffer) => void;
 export type EndWrite = () => void;
 export type OnRead = (chunk: Buffer) => void;
@@ -27,11 +31,7 @@ export default function newPipeMessageTransport(
     }
     attached = true;
 
-    const [write, endWrite] = connect(
-      onRead,
-      onReadEnd,
-      enqueueClose,
-    );
+    const [write, endWrite] = connect(onRead, onReadEnd, enqueueClose);
 
     const enqueue = newTaskQueue();
     const splitter = newBufferSplitter(Char.NULL, split =>
@@ -40,7 +40,7 @@ export default function newPipeMessageTransport(
 
     return sendMessage;
 
-    function enqueueClose(error?: Error) {
+    function enqueueClose(error?: Error): void {
       if (closed) {
         return;
       }
@@ -56,24 +56,20 @@ export default function newPipeMessageTransport(
       endWrite();
     }
 
-    function enqueueMessage(message: string) {
+    function enqueueMessage(message: string): void {
       enqueue(() => onMessage(message));
     }
 
-    function onRead(data: Buffer) {
+    function onRead(data: Buffer): void {
       splitter.push(data);
     }
 
-    function onReadEnd() {
+    function onReadEnd(): void {
       splitter.flush();
     }
 
-    function sendMessage(message: string) {
+    function sendMessage(message: string): void {
       write(Buffer.from(message + "\0", "utf8"));
     }
   };
-}
-
-const enum Char {
-  NULL = 0,
 }

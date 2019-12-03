@@ -13,7 +13,6 @@ import {
   Request,
   Response,
 } from "../types";
-
 import newResponses from "./newResponses";
 
 /**
@@ -61,7 +60,7 @@ export default function newAttachJsonRpcTransport(
       }
     }
 
-    function onClose(error?: Error) {
+    function onClose(error?: Error): void {
       if (error) {
         debug("CLOSE %O", error);
         cancel(`transport closed: ${error.message}`);

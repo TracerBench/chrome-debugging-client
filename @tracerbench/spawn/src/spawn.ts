@@ -7,25 +7,24 @@ import {
   Stdio,
   Transport,
 } from "../types";
-
 import newProcessWithPipeMessageTransport from "./newProcessWithPipeMessageTransport";
 import newProcessWithWebSocketUrl from "./newProcessWithWebSocketUrl";
 
-export default function spawn(
+function spawn(
   executable: string,
   args: string[],
   stderr: Stdio | undefined,
   transport: "websocket",
   debugCallback?: DebugCallback,
 ): ProcessWithWebSocketUrl;
-export default function spawn(
+function spawn(
   executable: string,
   args: string[],
   stderr?: Stdio,
   transport?: "pipe",
   debugCallback?: DebugCallback,
 ): ProcessWithPipeMessageTransport;
-export default function spawn(
+function spawn(
   executable: string,
   args: string[],
   stderr: Stdio = "ignore",
@@ -52,6 +51,8 @@ export default function spawn(
   }
 }
 
-function invalidTransport(transport: never) {
+function invalidTransport(transport: never): Error {
   return new Error(`invalid transport argument "${transport}"`);
 }
+
+export default spawn;

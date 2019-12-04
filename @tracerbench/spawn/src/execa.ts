@@ -4,8 +4,8 @@ export default function wrappedExec(
   command: string,
   args: string[],
   opts: execa.Options,
-  debugCallback: (formatter: any, ...args: any[]) => void,
-) {
+  debugCallback: (formatter: string, ...args: unknown[]) => void,
+): execa.ExecaChildProcess<string> {
   const child = execa(command, args, opts);
   debugCallback(
     "execa(%o, %O, %O) => ChildProcess (pid: %o)",
@@ -21,5 +21,6 @@ export default function wrappedExec(
     // ignore unhandled rejection from sending signal
   });
 
+  //
   return child;
 }

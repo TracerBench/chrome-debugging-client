@@ -60,7 +60,7 @@ export async function spawnWithWebSocket(
 export function newProtocolConnection(
   attach: AttachMessageTransport,
   raceCancellation?: RaceCancellation,
-) {
+): RootConnection {
   return _newProtocolConnection(
     attach,
     () => new EventEmitter(),
@@ -69,9 +69,7 @@ export function newProtocolConnection(
   );
 }
 
-export {
-  default as openWebSocket,
-} from "@tracerbench/websocket-message-transport";
+export { default as openWebSocket } from "@tracerbench/websocket-message-transport";
 
 export { default as findChrome } from "@tracerbench/find-chrome";
 
@@ -84,7 +82,10 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
   const connection = newProtocolConnection(process.attach, process.raceExit);
   return Object.assign(process, { close, connection });
 
-  async function close(timeout?: number, raceCancellation?: RaceCancellation) {
+  async function close(
+    timeout?: number,
+    raceCancellation?: RaceCancellation,
+  ): Promise<void> {
     if (process.hasExited()) {
       return;
     }
@@ -102,7 +103,7 @@ function attachPipeTransport<P extends ProcessWithPipeMessageTransport>(
     }
   }
 
-  async function sendBrowserClose() {
+  async function sendBrowserClose(): Promise<void> {
     try {
       await connection.send("Browser.close");
     } catch (e) {

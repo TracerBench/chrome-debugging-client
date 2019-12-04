@@ -5,7 +5,6 @@ import {
   AttachProtocolTransport,
   Notification,
 } from "../types";
-
 import newProtocolError from "./newProtocolError";
 import newSessions from "./newSessions";
 
@@ -27,12 +26,12 @@ export default function newAttachProtocolTransport<SessionId>(
 
     return [attachSession, detachSession, send, raceClose];
 
-    function onNotification(notification: Notification) {
+    function onNotification(notification: Notification): void {
       const { method, params, sessionId } = notification;
       if (sessionId === undefined) {
         onEvent(method, params);
       } else {
-        dispatchEvent(sessionId, method, params);
+        dispatchEvent(sessionId as SessionId, method, params);
       }
     }
 

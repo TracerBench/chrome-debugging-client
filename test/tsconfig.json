@@ -13,14 +13,13 @@
     "target": "ES2017",
     "types": ["node", "debug", "qunit"]
   },
-  "files": [
-    "examplesTest.js",
-    "spawnChromeTest.js",
-    "spawnWithWebSocketTest.js"
-  ],
+  "include": ["*Test.js"],
   "references": [
     {
       "path": "../chrome-debugging-client"
+    },
+    {
+      "path": "../@tracerbench/spawn-chrome"
     }
   ]
 }

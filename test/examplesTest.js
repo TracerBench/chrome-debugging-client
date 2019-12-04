@@ -35,6 +35,7 @@ node exited`;
 /**
  * @param {string} script
  * @param {...string} args
+ * @return {Promise<string>}
  */
 async function runExample(script, ...args) {
   const { stdout } = await execa(process.execPath, [

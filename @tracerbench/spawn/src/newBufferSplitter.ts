@@ -45,7 +45,7 @@ export default function newBufferSplitter(
     _push(chunk, start, chunk.length);
   }
 
-  function flush() {
+  function flush(): void {
     if (stopped) {
       return;
     }
@@ -53,13 +53,13 @@ export default function newBufferSplitter(
     _flush();
   }
 
-  function stop() {
+  function stop(): void {
     stopped = true;
     byteLength = 0;
     buffers.length = 0;
   }
 
-  function _push(buffer: Buffer, start: number, end: number) {
+  function _push(buffer: Buffer, start: number, end: number): void {
     const length = end - start;
     if (length > 0) {
       if (length !== buffer.byteLength) {
@@ -70,7 +70,7 @@ export default function newBufferSplitter(
     }
   }
 
-  function _flush() {
+  function _flush(): void {
     let split: Buffer | undefined;
 
     if (byteLength === 0) {

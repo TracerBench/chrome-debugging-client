@@ -39,7 +39,6 @@ designed with automation in mind.
 
 ```js file=examples/printToPDF.js
 #!/usr/bin/env node
-// @ts-check
 const { writeFileSync } = require("fs");
 const { spawnChrome } = require("chrome-debugging-client");
 
@@ -98,7 +97,7 @@ printToPDF(process.argv[2], process.argv[3]);
 ### Node Debugging
 
 ```js file=examples/nodeDebug.js
-// @ts-check
+#!/usr/bin/env node
 const { spawnWithWebSocket } = require("chrome-debugging-client");
 
 async function main() {

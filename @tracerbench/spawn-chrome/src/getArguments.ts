@@ -1,35 +1,39 @@
 import { ArgumentOptions } from "../types";
-
 import defaultFlags, { headlessFlags } from "./defaultFlags";
 
 export default function getArguments(
   userDataDir: string,
-  options: ArgumentOptions
+  options: Partial<ArgumentOptions>,
 ): string[] {
   let args = [
     "--remote-debugging-pipe",
-    `--user-data-dir=${userDataDir}`
+    `--user-data-dir=${userDataDir}`,
   ] as string[];
-  if (!options.disableDefaultArguments) {
+  if (options.disableDefaultArguments !== true) {
     args.push(...defaultFlags);
   }
-  if (options.additionalArguments !== undefined) {
+
+  if (
+    options.additionalArguments !== undefined &&
+    Array.isArray(options.additionalArguments)
+  ) {
     args.push(...options.additionalArguments);
   }
-  if (options.headless) {
+
+  if (options.headless === true) {
     args.push(...headlessFlags);
   }
 
   args = cleanupArgs(args);
 
-  if (options.url !== undefined) {
+  if (typeof options.url === "string" && options.url.length > 0) {
     args.push(options.url);
   }
 
   return args;
 }
 
-function cleanupArgs(args: string[]) {
+function cleanupArgs(args: string[]): string[] {
   const set = new Set<string>();
   const disabledFeatures = new Set<string>();
   const enabledFeatures = new Set<string>();
@@ -45,12 +49,12 @@ function cleanupArgs(args: string[]) {
   const cleaned = Array.from(set);
   if (enabledFeatures.size > 0) {
     cleaned.push(
-      `--enable-features=${formatCommaDelimitedArg(enabledFeatures)}`
+      `--enable-features=${formatCommaDelimitedArg(enabledFeatures)}`,
     );
   }
   if (disabledFeatures.size > 0) {
     cleaned.push(
-      `--disable-features=${formatCommaDelimitedArg(disabledFeatures)}`
+      `--disable-features=${formatCommaDelimitedArg(disabledFeatures)}`,
     );
   }
   return cleaned;
@@ -59,7 +63,7 @@ function cleanupArgs(args: string[]) {
 function parseCommaDelimitedArg(
   set: Set<string>,
   prefix: string,
-  arg: string
+  arg: string,
 ): boolean {
   if (arg.startsWith(prefix)) {
     for (const item of arg.slice(prefix.length).split(",")) {
@@ -70,6 +74,6 @@ function parseCommaDelimitedArg(
   return false;
 }
 
-function formatCommaDelimitedArg(set: Set<string>) {
+function formatCommaDelimitedArg(set: Set<string>): string {
   return Array.from(set).join(",");
 }

@@ -1,4 +1,4 @@
-// @ts-check
+#!/usr/bin/env node
 const { spawnWithWebSocket } = require("chrome-debugging-client");
 
 async function main() {

@@ -18,7 +18,6 @@ import {
   SessionID,
   TargetID,
 } from "../types";
-
 import newEventHook, { Session } from "./newEventHook";
 
 /**
@@ -113,7 +112,7 @@ function newProtocolConnection(
   async function attachToTarget(
     targetId: TargetID | { targetId: TargetID },
     raceCancellation?: RaceCancellation,
-  ) {
+  ): Promise<SessionConnection> {
     if (typeof targetId === "object" && targetId !== null) {
       targetId = targetId.targetId;
     }
@@ -134,7 +133,7 @@ function newProtocolConnection(
     autoAttach: boolean,
     waitForDebuggerOnStart = false,
     raceCancellation?: RaceCancellation,
-  ) {
+  ): Promise<void> {
     const request: Protocol.Target.SetAutoAttachRequest = {
       autoAttach,
       flatten: true,
@@ -143,16 +142,16 @@ function newProtocolConnection(
     await send("Target.setAutoAttach", request, raceCancellation);
   }
 
-  function onEvent(event: string, params: any) {
+  function onEvent(event: string, params?: object): void {
     eventHook(event, params);
     emitter.emit(event, params);
   }
 
-  function onError(error: Error) {
+  function onError(error: Error): void {
     emitter.emit("error", error);
   }
 
-  function onDetached() {
+  function onDetached(): void {
     if (isDetached) {
       return;
     }
@@ -169,7 +168,7 @@ function newProtocolConnection(
     eventName: string,
     predicate?: (event: Event) => boolean,
     raceCancellation?: RaceCancellation,
-  ) {
+  ): Promise<Event> {
     return throwIfCancelled(
       await disposablePromise<Event>((resolve, reject) => {
         const listener =

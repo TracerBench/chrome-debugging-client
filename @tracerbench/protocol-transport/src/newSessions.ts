@@ -13,11 +13,11 @@ import {
 export type DispatchEvent<SessionId> = (
   sessionId: SessionId,
   event: string,
-  params: any,
+  params?: object,
 ) => void;
 
 interface Session {
-  onEvent: (event: string, params: any) => void;
+  onEvent: (event: string, params?: object) => void;
   onError: (error: Error) => void;
   onDetach: () => void;
 }
@@ -39,7 +39,7 @@ export default function newSessions<SessionId>(
 ): [
   AttachSession<SessionId>,
   DetachSession<SessionId>,
-  DispatchEvent<SessionId>
+  DispatchEvent<SessionId>,
 ] {
   let sessions: Map<SessionId, Session> | undefined;
 
@@ -49,7 +49,7 @@ export default function newSessions<SessionId>(
     sessionId: SessionId,
   ): AttachProtocolTransport<SessionId> {
     return (
-      onEvent: (event: string, params: any) => void,
+      onEvent: (event: string, params?: object) => void,
       onError: (err: Error) => void,
       onDetach: () => void,
     ) => {
@@ -68,21 +68,20 @@ export default function newSessions<SessionId>(
       return [
         attachSession,
         detachSession,
-        (method, params, raceCancellation) => {
-          return send(
+        (method, params, raceCancellation) =>
+          send(
             method,
             params,
             // send is already raced against close
             combineRaceCancellation(raceDetach, raceCancellation),
             sessionId,
-          );
-        },
+          ),
         combineRaceCancellation(raceClose, raceDetach),
       ];
     };
   }
 
-  function detachSession(sessionId: SessionId) {
+  function detachSession(sessionId: SessionId): void {
     if (sessions === undefined) {
       return;
     }
@@ -93,7 +92,11 @@ export default function newSessions<SessionId>(
     }
   }
 
-  function dispatchEvent(sessionId: SessionId, event: string, params: any) {
+  function dispatchEvent(
+    sessionId: SessionId,
+    event: string,
+    params?: object,
+  ): void {
     if (sessions === undefined) {
       return;
     }

@@ -13,7 +13,7 @@ import * as t from "../types";
 export default function newProcess(
   child: import("execa").ExecaChildProcess,
   command: string,
-  debugCallback: (formatter: any, ...args: any[]) => void,
+  debugCallback: (formatter: unknown, ...args: unknown[]) => void,
 ): t.Process {
   let hasExited = false;
   let lastError: Error | undefined;
@@ -51,7 +51,7 @@ export default function newProcess(
     The 'exit' event may or may not fire after an error has occurred.
     When listening to both the 'exit' and 'error' events, it is important to guard against accidentally invoking handler functions multiple times.
    */
-  function onErrorOrExit(error?: Error) {
+  function onErrorOrExit(error?: Error): void {
     if (hasExited) {
       return;
     }
@@ -91,7 +91,7 @@ export default function newProcess(
   async function waitForExit(
     timeout = 10000,
     raceCancellation?: RaceCancellation,
-  ) {
+  ): Promise<void> {
     if (hasExited) {
       return;
     }
@@ -102,7 +102,10 @@ export default function newProcess(
     return throwIfCancelled(result);
   }
 
-  async function kill(timeout?: number, raceCancellation?: RaceCancellation) {
+  async function kill(
+    timeout?: number,
+    raceCancellation?: RaceCancellation,
+  ): Promise<void> {
     if (!child.killed && child.pid) {
       child.kill();
     }

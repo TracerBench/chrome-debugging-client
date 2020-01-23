@@ -14,8 +14,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint --ext .ts src",
     "fixlint": "eslint --ext .ts src --fix",
+    "lint": "eslint --ext .ts src",
     "prepare": "yarn run build"
   },
   "dependencies": {
@@ -25,7 +25,6 @@
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {
-    "@types/node": "*",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "eslint": "^6.7.2",

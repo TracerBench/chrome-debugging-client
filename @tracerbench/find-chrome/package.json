@@ -13,8 +13,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint --ext .ts src",
     "fixlint": "eslint --ext .ts src --fix",
+    "lint": "eslint --ext .ts src",
     "prepare": "yarn run build"
   },
   "dependencies": {

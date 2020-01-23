@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint --ext .ts src",
     "fixlint": "eslint --ext .ts src --fix",
+    "lint": "eslint --ext .ts src",
     "prepare": "yarn run build"
   },
   "dependencies": {
@@ -22,7 +22,7 @@
     "ws": "^7.1.2"
   },
   "devDependencies": {
-    "@types/ws": "^6.0.3",
+    "@types/ws": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
     "eslint": "^6.7.2",

@@ -1938,10 +1938,10 @@ detect-indent@^5.0.0:
   resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-5.0.0.tgz#3871cc0a6a002e8c3e5b3cf7f336264675f06b9d"
   integrity sha1-OHHMCmoALow+Wzz38zYmRnXwa50=
 
-devtools-protocol@0.0.733829:
-  version "0.0.733829"
-  resolved "https://registry.yarnpkg.com/devtools-protocol/-/devtools-protocol-0.0.733829.tgz#fadb03366474dc9869cb2cafea30f0d1fa6264f7"
-  integrity sha512-gbilcph98TOtpzZwP/7I/zW8WosRP+6JWO5q03temt9yYIZcCONNqcO+7kuIjwwdkucfgkq+UZQ0Lrn0o/2uCw==
+devtools-protocol@0.0.765004:
+  version "0.0.765004"
+  resolved "https://registry.yarnpkg.com/devtools-protocol/-/devtools-protocol-0.0.765004.tgz#18fe4d540dcf1e6bfae3cbcc8fc881286c674158"
+  integrity sha512-p2O4lkFBvLZfQi68q3HTMOV0C0KJVWiS9/FD72qpDA19RRUpKncINwhZA17z3GAeZ79zLO2fxcgWt2je11HkTg==
 
 dezalgo@^1.0.0:
   version "1.0.3"

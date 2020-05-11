@@ -16,7 +16,7 @@
     "@types/tmp": "^0.1.0",
     "chrome-debugging-client": "^1.2.0",
     "devtools-protocol": "0.0.765004",
-    "execa": "^3.3.0",
+    "execa": "^4.0.1",
     "qunit": "^2.9.1",
     "tmp": "^0.1.0"
   },

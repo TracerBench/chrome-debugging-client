@@ -15,10 +15,10 @@
     "@types/qunit": "^2.9.0",
     "@types/tmp": "^0.1.0",
     "chrome-debugging-client": "^1.2.0",
-    "devtools-protocol": "0.0.765004",
-    "execa": "^4.0.1",
+    "devtools-protocol": "0.0.770484",
+    "execa": "^4.0.2",
     "qunit": "^2.9.1",
-    "tmp": "^0.1.0"
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.10.0",

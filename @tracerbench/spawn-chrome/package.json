@@ -20,7 +20,7 @@
   "dependencies": {
     "@tracerbench/find-chrome": "^1.2.0",
     "@tracerbench/spawn": "^1.2.0",
-    "tmp": "^0.1.0"
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/tmp": "^0.1.0",

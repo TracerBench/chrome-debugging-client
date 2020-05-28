@@ -19,7 +19,7 @@
   "dependencies": {
     "@tracerbench/message-transport": "^1.2.0",
     "race-cancellation": "^0.4.1",
-    "ws": "^7.1.2"
+    "ws": "^7.3.0"
   },
   "devDependencies": {
     "@types/ws": "^7.2.0",

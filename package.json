@@ -16,13 +16,42 @@
     "build": "tsc -b",
     "checkjs": "lerna run --stream checkjs",
     "clean": "lerna run clean",
-    "lint": "lerna run --stream lint",
     "fixlint": "lerna run --stream fixlint",
+    "lint": "lerna run --stream lint",
     "prepare": "yarn build && lerna run prepare && yarn readme",
     "readme": "scripts/readme.js",
     "test": "qunit test/*Test.js"
   },
   "dependencies": {
     "lerna": "^3.22.0"
+  },
+  "devDependencies": {
+    "release-it": "^13.6.0",
+    "release-it-lerna-changelog": "^2.3.0",
+    "release-it-yarn-workspaces": "^1.4.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "release-it": {
+    "plugins": {
+      "release-it-lerna-changelog": {
+        "infile": "CHANGELOG.md",
+        "launchEditor": true
+      },
+      "release-it-yarn-workspaces": true
+    },
+    "git": {
+      "tagName": "v${version}"
+    },
+    "github": {
+      "release": true,
+      "tokenRef": "GITHUB_AUTH"
+    },
+    "npm": false
+  },
+  "volta": {
+    "node": "14.3.0",
+    "yarn": "1.22.4"
   }
 }

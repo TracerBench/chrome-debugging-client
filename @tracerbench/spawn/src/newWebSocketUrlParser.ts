@@ -28,7 +28,7 @@ export type UrlParsedCallback = (url: string) => void;
 export default function newWebSocketUrlParser(
   onUrlParsed: UrlParsedCallback,
 ): NodeJS.ReadWriteStream {
-  let state = createParsingState(url => {
+  let state = createParsingState((url) => {
     onUrlParsed(url);
     state = PASSTHROUGH;
   });
@@ -43,7 +43,7 @@ export default function newWebSocketUrlParser(
 }
 
 function createParsingState(onUrlParsed: UrlParsedCallback): ParserState {
-  const splitter = newBufferSplitter(Char.LF, split => {
+  const splitter = newBufferSplitter(Char.LF, (split) => {
     const url = findUrl(split);
     if (url !== undefined) {
       splitter.stop();

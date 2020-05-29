@@ -9,7 +9,7 @@ const vfile = require("vfile");
 
 const importCode = require("./import-code");
 
-main();
+void main();
 
 async function main() {
   const processor = unified()

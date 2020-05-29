@@ -5,5 +5,6 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: "module",
   },
+  ignorePatterns: ["dist/", ".eslintrc.js"],
   extends: ["../../.eslintrc"],
 };

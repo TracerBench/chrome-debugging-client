@@ -21,13 +21,13 @@ export default function newProcess(
   const emitter = new EventEmitter();
   const [raceExit, cancel] = cancellableRace();
 
-  child.on("error", error => {
+  void child.on("error", (error) => {
     lastError = error;
     debugCallback("%o (pid: %o) 'error' event: %O", command, child.pid, error);
     onErrorOrExit(error);
   });
 
-  child.on("exit", () => {
+  void child.on("exit", () => {
     debugCallback("%o (pid: %o) 'exit' event", command, child.pid);
     onErrorOrExit();
   });
@@ -79,11 +79,11 @@ export default function newProcess(
     }
 
     return await disposablePromise((resolve, reject) => {
-      child.on("exit", resolve);
-      child.on("error", reject);
+      void child.on("exit", resolve);
+      void child.on("error", reject);
       return () => {
-        child.removeListener("exit", resolve);
-        child.removeListener("error", reject);
+        void child.removeListener("exit", resolve);
+        void child.removeListener("error", reject);
       };
     }, raceCancellation);
   }

@@ -45,7 +45,7 @@ export default function newAttachJsonRpcTransport(
 
     function onMessage(message: string): void {
       try {
-        const notification: Notification | Response = JSON.parse(message);
+        const notification = JSON.parse(message) as Notification | Response;
         debug("RECV %O", notification);
         if (notification !== undefined) {
           if ("id" in notification) {

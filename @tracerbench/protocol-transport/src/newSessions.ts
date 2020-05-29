@@ -59,7 +59,7 @@ export default function newSessions<SessionId>(
       const [raceDetach, cancel] = cancellableRace();
       sessions.set(sessionId, {
         onDetach() {
-          cancel(`session detached ${sessionId}`);
+          cancel(`session detached ${String(sessionId)}`);
           onDetach();
         },
         onError,

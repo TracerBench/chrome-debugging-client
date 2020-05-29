@@ -47,7 +47,7 @@ async function main() {
     // Right now we are paused at the start of the script
     console.log(`paused reason: ${reason}`); //= paused: Break on start
     console.log(`set breakpoint on line 3`);
-    connection.send("Debugger.setBreakpoint", {
+    await connection.send("Debugger.setBreakpoint", {
       location: {
         lineNumber: 3,
         scriptId,
@@ -97,4 +97,6 @@ async function main() {
   }
 }
 
-main();
+main().catch((err) => {
+  console.log("print failed %o", err);
+});

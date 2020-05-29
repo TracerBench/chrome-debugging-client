@@ -1,7 +1,7 @@
 const { getArguments } = require("@tracerbench/spawn-chrome");
 
 QUnit.module("getArguments", () => {
-  QUnit.test("merges disable-features and enable-features", assert => {
+  QUnit.test("merges disable-features and enable-features", (assert) => {
     assert.deepEqual(
       getArguments("/user-data-dir", {
         disableDefaultArguments: true,
@@ -10,7 +10,7 @@ QUnit.module("getArguments", () => {
     );
   });
 
-  QUnit.test("merges disable-features", assert => {
+  QUnit.test("merges disable-features", (assert) => {
     assert.deepEqual(
       getArguments("/user-data-dir", {
         disableDefaultArguments: true,
@@ -27,7 +27,7 @@ QUnit.module("getArguments", () => {
     );
   });
 
-  QUnit.test("merges enabled-features", assert => {
+  QUnit.test("merges enabled-features", (assert) => {
     assert.deepEqual(
       getArguments("/user-data-dir", {
         disableDefaultArguments: true,

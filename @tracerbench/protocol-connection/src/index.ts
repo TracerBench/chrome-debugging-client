@@ -1,10 +1,10 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
+import type { AttachMessageTransport } from "@tracerbench/message-transport";
 import newAttachProtocolTransport, {
   DebugCallback,
 } from "@tracerbench/protocol-transport";
-import { RaceCancellation } from "race-cancellation";
+import type { RaceCancellation } from "race-cancellation";
 
-import { EventEmitter, RootConnection } from "../types";
+import type { EventEmitter, RootConnection } from "../types";
 import _newProtocolConnection from "./newProtocolConnection";
 
 /**
@@ -23,4 +23,31 @@ export default function newProtocolConnection(
 }
 
 export { default as newProtocolConnection } from "./newProtocolConnection";
-export * from "../types";
+export type {
+  ProtocolConnection,
+  SessionConnection,
+  RootConnection,
+  ProtocolConnectionBase,
+  EventListener,
+  EventEmitter,
+  EventPredicate,
+  NewEventEmitter,
+  TargetID,
+  TargetInfo,
+  SessionID,
+  Method,
+  Event,
+  EventMapping,
+  RequestMapping,
+  ResponseMapping,
+  VoidRequestMethod,
+  MappedRequestMethod,
+  MaybeMappedRequestMethod,
+  VoidResponseMethod,
+  MappedResponseMethod,
+  VoidRequestVoidResponseMethod,
+  VoidRequestMappedResponseMethod,
+  VoidEvent,
+  MappedEvent,
+  SessionIdentifier,
+} from "../types";

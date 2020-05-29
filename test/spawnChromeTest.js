@@ -4,15 +4,15 @@ const { spawnChrome } = require("chrome-debugging-client");
 QUnit.module("spawnChrome", () => {
   QUnit.test(
     "connect to browser, create and attach to page target",
-    async assert => {
+    async (assert) => {
       const chrome = spawnChrome({
         headless: true,
       });
       try {
         const browser = chrome.connection;
 
-        browser.on("error", err => {
-          assert.ok(false, `browser error ${err.stack}`);
+        browser.on("error", (err) => {
+          assert.ok(false, `browser error ${err.stack ?? ""}`);
         });
 
         const browserVersion = await browser.send("Browser.getVersion");
@@ -39,13 +39,13 @@ QUnit.module("spawnChrome", () => {
         assert.ok(page.targetInfo.type, "page");
         assert.ok(page.targetInfo.url, "about:blank");
 
-        page.on("error", err => {
-          assert.ok(false, `target connection error ${err.stack}`);
+        page.on("error", (err) => {
+          assert.ok(false, `target connection error ${err.stack ?? ""}`);
         });
 
         let buffer = "";
         await page.send("HeapProfiler.enable");
-        page.on("HeapProfiler.addHeapSnapshotChunk", params => {
+        page.on("HeapProfiler.addHeapSnapshotChunk", (params) => {
           buffer += params.chunk;
         });
 
@@ -54,7 +54,10 @@ QUnit.module("spawnChrome", () => {
         });
 
         assert.ok(buffer.length > 0, "received chunks");
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = JSON.parse(buffer);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         assert.ok(data.snapshot.meta, "has snapshot");
 
         await browser.send("Target.closeTarget", { targetId });
@@ -68,7 +71,7 @@ QUnit.module("spawnChrome", () => {
     },
   );
 
-  QUnit.test("spawn chrome at bad path", async assert => {
+  QUnit.test("spawn chrome at bad path", async (assert) => {
     const chrome = spawnChrome({
       chromeExecutable: "bad/path/to/chrome",
       headless: true,
@@ -81,6 +84,7 @@ QUnit.module("spawnChrome", () => {
         assert.ok(false, "should not get here");
       } catch (e) {
         assert.equal(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           e.message,
           "process exited early: spawn bad/path/to/chrome ENOENT",
         );

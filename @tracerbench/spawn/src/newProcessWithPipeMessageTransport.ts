@@ -30,8 +30,8 @@ export default function newProcessWithPipeMessageTransport(
   ];
 
   const attach = createPipeMessageTransport((onRead, onReadEnd, onClose) => {
-    child.on("error", onClose);
-    child.on("exit", onClose);
+    void child.on("error", onClose);
+    void child.on("exit", onClose);
 
     readStream.on("data", handleReadData);
     readStream.on("end", handleReadEnd);
@@ -40,7 +40,7 @@ export default function newProcessWithPipeMessageTransport(
     writeStream.on("close", handleWriteClose);
     writeStream.on("error", handleWriteError);
 
-    return [data => writeStream.write(data), () => writeStream.end()];
+    return [(data) => writeStream.write(data), () => writeStream.end()];
 
     function handleReadData(buffer: Buffer): void {
       debugEvent("read", "data", buffer.byteLength);

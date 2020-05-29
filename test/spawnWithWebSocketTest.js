@@ -2,7 +2,7 @@
 const { spawnWithWebSocket } = require("chrome-debugging-client");
 
 QUnit.module("spawnWithWebSocket", () => {
-  QUnit.test("run script with break on start", async assert => {
+  QUnit.test("run script with break on start", async (assert) => {
     // start node requesting it break on start at debug port that
     // is available
     const node = await spawnWithWebSocket(process.execPath, [

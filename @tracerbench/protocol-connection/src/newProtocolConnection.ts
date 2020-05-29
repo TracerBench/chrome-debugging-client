@@ -104,7 +104,7 @@ function newProtocolConnection(
       targetInfo: {
         get: () => session.targetInfo,
       },
-    });
+    }) as SessionConnection;
   }
 
   return base;

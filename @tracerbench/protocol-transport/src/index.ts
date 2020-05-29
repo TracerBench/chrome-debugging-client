@@ -18,4 +18,24 @@ export default function newAttachProtocolTransport<SessionId>(
 export { default as newAttachJsonRpcTransport } from "./newAttachJsonRpcTransport";
 export { default as newAttachProtocolTransport } from "./newAttachProtocolTransport";
 export { isProtocolError } from "./newProtocolError";
-export * from "../types";
+export type {
+  AttachJsonRpcTransport,
+  SendRequest,
+  AttachProtocolTransport,
+  ProtocolTransport,
+  AttachSession,
+  DetachSession,
+  SendMethod,
+  SuccessResponse,
+  ErrorResponse,
+  ResponseError,
+  Response,
+  Request,
+  Notification,
+  DebugCallback,
+  ProtocolError,
+  OnNotification,
+  OnError,
+  OnClose,
+  OnEvent,
+} from "../types";

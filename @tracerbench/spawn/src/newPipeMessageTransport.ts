@@ -34,7 +34,7 @@ export default function newPipeMessageTransport(
     const [write, endWrite] = connect(onRead, onReadEnd, enqueueClose);
 
     const enqueue = newTaskQueue();
-    const splitter = newBufferSplitter(Char.NULL, split =>
+    const splitter = newBufferSplitter(Char.NULL, (split) =>
       enqueueMessage(split.toString("utf8")),
     );
 

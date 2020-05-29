@@ -1,6 +1,6 @@
 import Protocol from "devtools-protocol";
 
-import {
+import type {
   SessionConnection,
   SessionID,
   SessionIdentifier,

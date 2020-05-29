@@ -13,7 +13,7 @@ module.exports = importCode;
  * @param {import("vfile").VFile} file
  */
 function replaceCodeTransform(tree, file) {
-  visit(tree, "code", code => processCodeNode(code, file));
+  visit(tree, "code", (code) => processCodeNode(code, file));
   return tree;
 }
 

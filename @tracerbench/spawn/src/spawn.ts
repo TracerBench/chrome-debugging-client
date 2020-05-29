@@ -52,7 +52,7 @@ function spawn(
 }
 
 function invalidTransport(transport: never): Error {
-  return new Error(`invalid transport argument "${transport}"`);
+  return new Error(`invalid transport argument "${String(transport)}"`);
 }
 
 export default spawn;

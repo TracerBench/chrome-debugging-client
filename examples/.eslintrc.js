@@ -9,8 +9,8 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: "module",
   },
+  ignorePatterns: ["dist/", ".eslintrc.js"],
   extends: ["../.eslintrc"],
-  ignorePatterns: ["dist/"],
   rules: {
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/explicit-function-return-type": "off",

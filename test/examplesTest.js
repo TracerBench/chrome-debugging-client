@@ -3,7 +3,7 @@ const path = require("path");
 const tmp = require("tmp");
 
 QUnit.module("examples", () => {
-  QUnit.test("nodeDebug.js", async assert => {
+  QUnit.test("nodeDebug.js", async (assert) => {
     const expected = `paused reason: Break on start
 set breakpoint on line 3
 resume and wait for next paused event
@@ -19,7 +19,7 @@ node exited`;
     assert.equal(stdout, expected);
   });
 
-  QUnit.test("printToPDF.js", async assert => {
+  QUnit.test("printToPDF.js", async (assert) => {
     const dir = tmp.dirSync({ unsafeCleanup: true });
     try {
       const outPath = path.resolve(dir.name, `blank.pdf`);

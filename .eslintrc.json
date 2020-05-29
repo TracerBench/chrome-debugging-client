@@ -27,6 +27,8 @@
       "error",
       { "allowExpressions": true }
     ],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-types": "off",
     "simple-import-sort/sort": "error"
   }
 }

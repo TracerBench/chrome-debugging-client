@@ -50,4 +50,6 @@ if (process.argv.length < 4) {
   process.exit(1);
 }
 
-printToPDF(process.argv[2], process.argv[3]);
+printToPDF(process.argv[2], process.argv[3]).catch((err) => {
+  console.log("print failed %o", err);
+});

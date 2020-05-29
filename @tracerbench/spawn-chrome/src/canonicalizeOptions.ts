@@ -42,7 +42,7 @@ function enumOf<T extends readonly string[]>(
         return (value as unknown) as T[Exclude<keyof T, keyof string[]>];
       }
     }
-    return invalidOption(key, tuple.map(v => JSON.stringify(v)).join(" | "));
+    return invalidOption(key, tuple.map((v) => JSON.stringify(v)).join(" | "));
   };
 }
 
@@ -56,7 +56,7 @@ function arrayOf<T extends keyof PrimitiveMapping>(
           return invalidOption(key, `${type}[]`);
         }
       }
-      return array;
+      return array as PrimitiveMapping[T][];
     }
     return invalidOption(key, `${type}[]`);
   };

@@ -10,7 +10,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: "module",
   },
-  ignorePatterns: ["dist/"],
+  ignorePatterns: ["dist/", ".eslintrc.js"],
   extends: ["../.eslintrc"],
   rules: {
     "@typescript-eslint/no-var-requires": "off",

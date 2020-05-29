@@ -20,10 +20,54 @@ import {
 const debugSpawn = debug("chrome-debugging-client:spawn");
 const debugTransport = debug("chrome-debugging-client:transport");
 
-export * from "@tracerbench/message-transport";
-export * from "@tracerbench/protocol-connection/types";
-export * from "@tracerbench/spawn/types";
-export * from "@tracerbench/spawn-chrome/types";
+export type {
+  AttachMessageTransport,
+  OnMessage,
+  OnClose,
+  SendMessage,
+} from "@tracerbench/message-transport";
+export type {
+  ProtocolConnection,
+  RootConnection,
+  SessionConnection,
+  ProtocolConnectionBase,
+  EventListener,
+  EventEmitter,
+  EventPredicate,
+  NewEventEmitter,
+  TargetID,
+  TargetInfo,
+  SessionID,
+  Method,
+  Event,
+  EventMapping,
+  RequestMapping,
+  ResponseMapping,
+  VoidRequestMethod,
+  MappedRequestMethod,
+  MaybeMappedRequestMethod,
+  VoidResponseMethod,
+  MappedResponseMethod,
+  VoidRequestVoidResponseMethod,
+  VoidRequestMappedResponseMethod,
+  VoidEvent,
+  MappedEvent,
+  SessionIdentifier,
+} from "@tracerbench/protocol-connection/types";
+export type {
+  DebugCallback,
+  Process,
+  ProcessWithPipeMessageTransport,
+  ProcessWithWebSocketUrl,
+  Stdio,
+  TransportMapping,
+  Transport,
+} from "@tracerbench/spawn/types";
+export type {
+  ArgumentOptions,
+  SpawnOptions,
+  Chrome,
+} from "@tracerbench/spawn-chrome/types";
 
 export function spawnChrome(
   options?: Partial<SpawnOptions>,

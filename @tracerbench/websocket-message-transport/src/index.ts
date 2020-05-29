@@ -20,7 +20,7 @@ export default async function openWebSocket(
     ws.on("close", onClose);
     function onClose(): void {
       let message = `Failed to open ${url}`;
-      if (lastError !== undefined) {
+      if (lastError !== undefined && lastError.stack) {
         message += `: ${lastError.stack}`;
       }
       reject(new Error(message));
@@ -52,7 +52,7 @@ export default async function openWebSocket(
 
       ws.on("message", onMessage);
       ws.on("close", handleClose);
-      return message => ws.send(message);
+      return (message) => ws.send(message);
     },
     () => ws.close(),
   ];

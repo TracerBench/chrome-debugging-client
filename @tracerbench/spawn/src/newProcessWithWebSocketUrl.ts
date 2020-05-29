@@ -50,7 +50,7 @@ function createUrl(
         raceCancellation,
       )(() => {
         if (promise === undefined) {
-          promise = new Promise(resolve => parseUrl(stderr, stdio, resolve));
+          promise = new Promise((resolve) => parseUrl(stderr, stdio, resolve));
         }
         return promise;
       }),
@@ -70,6 +70,8 @@ function parseUrl(
   } else if (stdio === "ignore") {
     parser.on("data", () => void 0);
   } else {
-    throw new Error(`invalid stdio arg ${stdio} expected ignore or inherit`);
+    throw new Error(
+      `invalid stdio arg ${String(stdio)} expected ignore or inherit`,
+    );
   }
 }

@@ -1,3 +1,13 @@
+## v1.3.0 (2020-06-16)
+
+#### :rocket: Enhancement
+* [#83](https://github.com/TracerBench/chrome-debugging-client/pull/83) Improve performance of finding the Chrome executable for common cases. ([@krisselden](https://github.com/krisselden))
+
+#### Committers: 2
+- Kris Selden ([@krisselden](https://github.com/krisselden))
+- [@dependabot-preview[bot]](https://github.com/apps/dependabot-preview)
+
+
 ## 1.1.0 (2019-10-16)
 
 - v1.1.0 ([5952575](https://github.com/TracerBench/chrome-debugging-client/commit/5952575))

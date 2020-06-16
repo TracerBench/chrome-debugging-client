@@ -2447,10 +2447,10 @@ detect-repo-changelog@1.0.1:
     lodash.find "^4.6.0"
     pify "^2.3.0"
 
-devtools-protocol@^0.0.772852:
-  version "0.0.772852"
-  resolved "https://registry.yarnpkg.com/devtools-protocol/-/devtools-protocol-0.0.772852.tgz#9dd87a50d0425d86dc4f36e270e9c06a94160c67"
-  integrity sha512-BTNnZFhh/ogi12dCzYAoXaaM+zo++BMr8FBV/5DT4Ug1ufYS9QS7vNSfrcJOLIRH+NshZS3Au4iXH7fdJysN/w==
+devtools-protocol@^0.0.778922:
+  version "0.0.778922"
+  resolved "https://registry.yarnpkg.com/devtools-protocol/-/devtools-protocol-0.0.778922.tgz#ba8b2c21f74589026c2c745ddbb344cd89c621fa"
+  integrity sha512-SiA5FFgOx/bXe5OZlIn5Zp5ISiEYxYI9UJIjgNnSIaOP1b4GnuCSQMT3K2V+IJGmP22HbYiZQk87pdozQ/zQEQ==
 
 dezalgo@^1.0.0:
   version "1.0.3"

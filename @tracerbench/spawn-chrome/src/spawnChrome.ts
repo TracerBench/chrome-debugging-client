@@ -18,23 +18,37 @@ export default function spawnChrome(
   }
 
   let userDataDir = canonicalized.userDataDir;
-  let removeTmp: (() => void) | undefined;
+  let onExit: (() => void) | undefined;
   if (userDataDir === undefined) {
-    [userDataDir, removeTmp] = createTempDir(canonicalized.userDataRoot);
+    const [tmpDir, removeTmpDir] = createTempDir(canonicalized.userDataRoot);
+    userDataDir = tmpDir;
+    onExit = () => {
+      try {
+        removeTmpDir();
+      } catch (e) {
+        if (debugCallback !== undefined) {
+          debugCallback(
+            "Removing temp user data dir %o failed with %o",
+            tmpDir,
+            e,
+          );
+        }
+      }
+    };
   }
 
   const args = getArguments(userDataDir, canonicalized);
 
-  const process = Object.assign(
+  const chromeProcess = Object.assign(
     spawn(chromeExecutable, args, canonicalized.stdio, "pipe", debugCallback),
     {
       userDataDir,
     },
   );
 
-  if (removeTmp !== undefined) {
-    process.once("exit", removeTmp);
+  if (onExit !== undefined) {
+    chromeProcess.once("exit", onExit);
   }
 
-  return process;
+  return chromeProcess;
 }

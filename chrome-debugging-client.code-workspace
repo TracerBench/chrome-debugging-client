@@ -12,7 +12,9 @@
       "**/.git": true
     },
     "eslint.validate": ["javascript", "typescript"],
-    "eslint.autoFixOnSave": true
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
   },
   "folders": [
     {

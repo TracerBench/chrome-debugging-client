@@ -2,7 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "lib": ["scripthost", "es2017"],
-    "types": ["tmp"],
+    "types": ["tmp", "node"],
 
     "outDir": "dist",
     "rootDir": "src",

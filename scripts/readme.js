@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const { resolve } = require("path");
+const path = require("path");
 const unified = require("unified");
 const parse = require("remark-parse");
 const stringify = require("remark-stringify");
@@ -18,12 +18,12 @@ async function main() {
     .use(importCode)
     .use(stringify);
 
-  let readme = readReadme(resolve(__dirname, "../README.md"));
+  let readme = readReadme(path.resolve(__dirname, "../README.md"));
 
   readme = await processor.process(readme);
 
   writeReadme(
-    resolve(__dirname, "../chrome-debugging-client/README.md"),
+    path.resolve(__dirname, "../chrome-debugging-client/README.md"),
     readme,
   );
 }

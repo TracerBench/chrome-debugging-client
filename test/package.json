@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client-test",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "private": true,
   "scripts": {
     "checkjs": "tsc",
@@ -9,12 +9,12 @@
     "test": "qunit *Test.js"
   },
   "dependencies": {
-    "@tracerbench/spawn-chrome": "^1.3.0",
+    "@tracerbench/spawn-chrome": "^1.3.1",
     "@types/debug": "^4.1.5",
     "@types/node": "^14.0.5",
     "@types/qunit": "^2.9.0",
     "@types/tmp": "^0.2.0",
-    "chrome-debugging-client": "^1.3.0",
+    "chrome-debugging-client": "^1.3.1",
     "devtools-protocol": "^0.0.781568",
     "execa": "^4.0.2",
     "qunit": "^2.9.1",

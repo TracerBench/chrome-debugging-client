@@ -1,3 +1,13 @@
+## v1.3.1 (2020-06-26)
+
+#### :bug: Bug Fix
+* [#112](https://github.com/TracerBench/chrome-debugging-client/pull/112) Make temp user data dir cleanup infallible ([@krisselden](https://github.com/krisselden))
+
+#### Committers: 2
+- Kris Selden ([@krisselden](https://github.com/krisselden))
+- [@dependabot-preview[bot]](https://github.com/apps/dependabot-preview)
+
+
 ## v1.3.0 (2020-06-16)
 
 #### :rocket: Enhancement

@@ -1,3 +1,15 @@
+## v2.0.0 (2020-06-28)
+
+#### :boom: Breaking Change
+* [#115](https://github.com/TracerBench/chrome-debugging-client/pull/115) feat: add more spawn options ([@krisselden](https://github.com/krisselden))
+
+#### :rocket: Enhancement
+* [#115](https://github.com/TracerBench/chrome-debugging-client/pull/115) feat: add more spawn options ([@krisselden](https://github.com/krisselden))
+
+#### Committers: 1
+- Kris Selden ([@krisselden](https://github.com/krisselden))
+
+
 ## v1.3.1 (2020-06-26)
 
 #### :bug: Bug Fix

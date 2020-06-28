@@ -1,4 +1,20 @@
-import { RaceCancellation } from "race-cancellation";
+import {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+} from "@tracerbench/message-transport";
+import { Cancellation, RaceCancellation, Task } from "race-cancellation";
+
+export type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+  Cancellation,
+  RaceCancellation,
+  Task,
+};
 
 export type AttachJsonRpcTransport = (
   onNotification: OnNotification,
@@ -92,7 +108,7 @@ export interface Notification<
   sessionId?: SessionID;
 }
 
-export type DebugCallback = (fmt: string, ...args: any[]) => void;
+export type DebugCallback = (formatter: unknown, ...args: unknown[]) => void;
 
 export interface ProtocolError<
   Method extends string = string,
@@ -110,7 +126,6 @@ export type OnNotification = <
   notification: Notification<Method, Params>,
 ) => void;
 export type OnError = (error: Error) => void;
-export type OnClose = () => void;
 export type OnEvent = <
   Event extends string = string,
   Params extends object = object

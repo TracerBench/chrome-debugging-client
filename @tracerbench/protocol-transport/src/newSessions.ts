@@ -1,13 +1,10 @@
-import {
-  cancellableRace,
-  combineRaceCancellation,
-  RaceCancellation,
-} from "race-cancellation";
+import { cancellableRace, combineRaceCancellation } from "race-cancellation";
 
 import {
   AttachProtocolTransport,
   AttachSession,
   DetachSession,
+  RaceCancellation,
 } from "../types";
 
 export type DispatchEvent<SessionId> = (

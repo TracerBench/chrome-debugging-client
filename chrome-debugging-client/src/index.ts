@@ -1,76 +1,28 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
-import _newProtocolConnection, {
+import type {
+  AttachMessageTransport,
   RootConnection,
 } from "@tracerbench/protocol-connection";
-import _spawn, {
+import _newProtocolConnection from "@tracerbench/protocol-connection";
+import _spawn from "@tracerbench/spawn";
+import type {
+  Chrome,
+  ChromeSpawnOptions,
   Process,
   ProcessWithPipeMessageTransport,
   Stdio,
-} from "@tracerbench/spawn";
-import _spawnChrome, { Chrome, SpawnOptions } from "@tracerbench/spawn-chrome";
+} from "@tracerbench/spawn-chrome";
+import _spawnChrome from "@tracerbench/spawn-chrome";
 import openWebSocket from "@tracerbench/websocket-message-transport";
 import debug = require("debug");
 import { EventEmitter } from "events";
-import {
-  combineRaceCancellation,
-  isCancellation,
-  RaceCancellation,
-} from "race-cancellation";
+import type { RaceCancellation } from "race-cancellation";
+import { combineRaceCancellation, isCancellation } from "race-cancellation";
 
 const debugSpawn = debug("chrome-debugging-client:spawn");
 const debugTransport = debug("chrome-debugging-client:transport");
 
-export type {
-  AttachMessageTransport,
-  OnMessage,
-  OnClose,
-  SendMessage,
-} from "@tracerbench/message-transport";
-export type {
-  ProtocolConnection,
-  RootConnection,
-  SessionConnection,
-  ProtocolConnectionBase,
-  EventListener,
-  EventEmitter,
-  EventPredicate,
-  NewEventEmitter,
-  TargetID,
-  TargetInfo,
-  SessionID,
-  Method,
-  Event,
-  EventMapping,
-  RequestMapping,
-  ResponseMapping,
-  VoidRequestMethod,
-  MappedRequestMethod,
-  MaybeMappedRequestMethod,
-  VoidResponseMethod,
-  MappedResponseMethod,
-  VoidRequestVoidResponseMethod,
-  VoidRequestMappedResponseMethod,
-  VoidEvent,
-  MappedEvent,
-  SessionIdentifier,
-} from "@tracerbench/protocol-connection/types";
-export type {
-  DebugCallback,
-  Process,
-  ProcessWithPipeMessageTransport,
-  ProcessWithWebSocketUrl,
-  Stdio,
-  TransportMapping,
-  Transport,
-} from "@tracerbench/spawn/types";
-export type {
-  ArgumentOptions,
-  SpawnOptions,
-  Chrome,
-} from "@tracerbench/spawn-chrome/types";
-
 export function spawnChrome(
-  options?: Partial<SpawnOptions>,
+  options?: Partial<ChromeSpawnOptions>,
 ): ChromeWithPipeConnection {
   return attachPipeTransport(_spawnChrome(options, debugSpawn));
 }
@@ -78,10 +30,10 @@ export function spawnChrome(
 export function spawnWithPipe(
   executable: string,
   args: string[],
-  stdio?: Stdio,
+  options?: Partial<ChromeSpawnOptions>,
 ): ProcessWithPipeConnection {
   return attachPipeTransport(
-    _spawn(executable, args, stdio, "pipe", debugSpawn),
+    _spawn(executable, args, options, "pipe", debugSpawn),
   );
 }
 
@@ -195,3 +147,71 @@ export interface ProcessWithWebSocketConnection extends Process {
    */
   close(): void;
 }
+
+export type {
+  AttachJsonRpcTransport,
+  AttachMessageTransport,
+  AttachProtocolTransport,
+  AttachSession,
+  Cancellation,
+  DebugCallback,
+  DetachSession,
+  ErrorResponse,
+  Notification,
+  OnClose,
+  OnError,
+  OnEvent,
+  OnMessage,
+  OnNotification,
+  Protocol,
+  ProtocolMapping,
+  ProtocolError,
+  ProtocolTransport,
+  RaceCancellation,
+  Request,
+  Response,
+  ResponseError,
+  SendMessage,
+  SendMethod,
+  SendRequest,
+  SuccessResponse,
+  Task,
+  ProtocolConnection,
+  SessionConnection,
+  RootConnection,
+  ProtocolConnectionBase,
+  EventListener,
+  EventEmitter,
+  EventPredicate,
+  NewEventEmitter,
+  TargetID,
+  TargetInfo,
+  SessionID,
+  Method,
+  Event,
+  EventMapping,
+  RequestMapping,
+  ResponseMapping,
+  VoidRequestMethod,
+  MappedRequestMethod,
+  MaybeMappedRequestMethod,
+  VoidResponseMethod,
+  MappedResponseMethod,
+  VoidRequestVoidResponseMethod,
+  VoidRequestMappedResponseMethod,
+  VoidEvent,
+  MappedEvent,
+  SessionIdentifier,
+} from "@tracerbench/protocol-connection";
+export type {
+  Process,
+  ProcessWithPipeMessageTransport,
+  ProcessWithWebSocketUrl,
+  SpawnOptions,
+  Stdio,
+  Transport,
+  TransportMapping,
+  ArgumentOptions,
+  ChromeSpawnOptions,
+  Chrome,
+} from "@tracerbench/spawn-chrome";

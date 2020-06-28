@@ -1,6 +1,7 @@
-import { Complete, oneshot } from "race-cancellation";
+import type { Complete } from "race-cancellation";
+import { oneshot } from "race-cancellation";
 
-import { Response } from "../types";
+import type { Response } from "../types";
 
 export default function newResponses(): [UsingResponse, ResolveResponse] {
   let seq = 0;

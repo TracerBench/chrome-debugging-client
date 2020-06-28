@@ -1,4 +1,38 @@
-import { ProcessWithPipeMessageTransport, Stdio } from "@tracerbench/spawn";
+import type {
+  AttachMessageTransport,
+  Cancellation,
+  DebugCallback,
+  OnClose,
+  OnMessage,
+  Process,
+  ProcessWithPipeMessageTransport,
+  ProcessWithWebSocketUrl,
+  RaceCancellation,
+  SendMessage,
+  SpawnOptions,
+  Stdio,
+  Task,
+  Transport,
+  TransportMapping,
+} from "@tracerbench/spawn";
+
+export type {
+  AttachMessageTransport,
+  Cancellation,
+  DebugCallback,
+  OnClose,
+  OnMessage,
+  Process,
+  ProcessWithPipeMessageTransport,
+  ProcessWithWebSocketUrl,
+  RaceCancellation,
+  SendMessage,
+  SpawnOptions,
+  Stdio,
+  Task,
+  Transport,
+  TransportMapping,
+};
 
 export interface ArgumentOptions {
   /**
@@ -24,12 +58,7 @@ export interface ArgumentOptions {
   headless: boolean;
 }
 
-export interface SpawnOptions extends ArgumentOptions {
-  /**
-   * Whether the stdio output should be inherited or ignored.
-   */
-  stdio: Stdio;
-
+export interface ChromeSpawnOptions extends ArgumentOptions, SpawnOptions {
   /**
    * Override finding the chrome executable.
    */

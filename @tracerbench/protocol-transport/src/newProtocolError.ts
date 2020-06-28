@@ -1,4 +1,4 @@
-import { ErrorResponse, ProtocolError, Request } from "../types";
+import type { ErrorResponse, ProtocolError, Request } from "../types";
 
 export default function newProtocolError(
   request: Request,

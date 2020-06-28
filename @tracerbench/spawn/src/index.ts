@@ -1,10 +1,18 @@
 export { default } from "./spawn";
 export type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+  Cancellation,
+  RaceCancellation,
+  Task,
   DebugCallback,
   Process,
-  ProcessWithPipeMessageTransport,
   ProcessWithWebSocketUrl,
-  Stdio,
+  ProcessWithPipeMessageTransport,
   TransportMapping,
   Transport,
+  Stdio,
+  SpawnOptions,
 } from "../types";

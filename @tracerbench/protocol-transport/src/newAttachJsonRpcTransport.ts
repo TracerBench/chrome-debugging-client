@@ -1,15 +1,15 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
 import {
   cancellableRace,
   combineRaceCancellation,
-  RaceCancellation,
   throwIfCancelled,
 } from "race-cancellation";
 
-import {
+import type {
   AttachJsonRpcTransport,
+  AttachMessageTransport,
   DebugCallback,
   Notification,
+  RaceCancellation,
   Request,
   Response,
 } from "../types";

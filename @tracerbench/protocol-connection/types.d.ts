@@ -1,6 +1,62 @@
-import Protocol from "devtools-protocol";
-import { ProtocolMapping } from "devtools-protocol/types/protocol-mapping";
-import { RaceCancellation } from "race-cancellation";
+import type {
+  AttachJsonRpcTransport,
+  AttachMessageTransport,
+  AttachProtocolTransport,
+  AttachSession,
+  Cancellation,
+  DebugCallback,
+  DetachSession,
+  ErrorResponse,
+  Notification,
+  OnClose,
+  OnError,
+  OnEvent,
+  OnMessage,
+  OnNotification,
+  ProtocolError,
+  ProtocolTransport,
+  RaceCancellation,
+  Request,
+  Response,
+  ResponseError,
+  SendMessage,
+  SendMethod,
+  SendRequest,
+  SuccessResponse,
+  Task,
+} from "@tracerbench/protocol-transport";
+import type { Protocol } from "devtools-protocol";
+import type { ProtocolMapping } from "devtools-protocol/types/protocol-mapping";
+
+export type {
+  AttachJsonRpcTransport,
+  AttachMessageTransport,
+  AttachProtocolTransport,
+  AttachSession,
+  Cancellation,
+  DebugCallback,
+  DetachSession,
+  ErrorResponse,
+  Notification,
+  OnClose,
+  OnError,
+  OnEvent,
+  OnMessage,
+  OnNotification,
+  Protocol,
+  ProtocolMapping,
+  ProtocolError,
+  ProtocolTransport,
+  RaceCancellation,
+  Request,
+  Response,
+  ResponseError,
+  SendMessage,
+  SendMethod,
+  SendRequest,
+  SuccessResponse,
+  Task,
+};
 
 export type ProtocolConnection = SessionConnection | RootConnection;
 

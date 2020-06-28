@@ -1,5 +1,4 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
-
+import type { AttachMessageTransport } from "../types";
 import newBufferSplitter from "./newBufferSplitter";
 import newTaskQueue from "./newTaskQueue";
 

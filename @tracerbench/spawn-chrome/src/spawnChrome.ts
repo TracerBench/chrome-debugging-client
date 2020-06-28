@@ -1,13 +1,13 @@
 import findChrome from "@tracerbench/find-chrome";
-import spawn, { DebugCallback } from "@tracerbench/spawn";
+import spawn from "@tracerbench/spawn";
 
-import { Chrome, SpawnOptions } from "../types";
+import type { Chrome, ChromeSpawnOptions, DebugCallback } from "../types";
 import canonicalizeOptions from "./canonicalizeOptions";
 import createTempDir from "./createTmpDir";
 import getArguments from "./getArguments";
 
 export default function spawnChrome(
-  options?: Partial<SpawnOptions>,
+  options?: Partial<ChromeSpawnOptions>,
   debugCallback?: DebugCallback,
 ): Chrome {
   const canonicalized = canonicalizeOptions(options);
@@ -40,7 +40,7 @@ export default function spawnChrome(
   const args = getArguments(userDataDir, canonicalized);
 
   const chromeProcess = Object.assign(
-    spawn(chromeExecutable, args, canonicalized.stdio, "pipe", debugCallback),
+    spawn(chromeExecutable, args, canonicalized, "pipe", debugCallback),
     {
       userDataDir,
     },

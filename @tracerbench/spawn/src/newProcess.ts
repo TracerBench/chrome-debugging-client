@@ -1,20 +1,24 @@
 import { EventEmitter } from "events";
+import type { ExecaChildProcess } from "execa";
 import {
   cancellableRace,
-  Cancellation,
   disposablePromise,
-  RaceCancellation,
   throwIfCancelled,
   withRaceTimeout,
 } from "race-cancellation";
 
-import * as t from "../types";
+import type {
+  Cancellation,
+  DebugCallback,
+  Process,
+  RaceCancellation,
+} from "../types";
 
 export default function newProcess(
-  child: import("execa").ExecaChildProcess,
+  child: ExecaChildProcess,
   command: string,
-  debugCallback: (formatter: unknown, ...args: unknown[]) => void,
-): t.Process {
+  debugCallback: DebugCallback,
+): Process {
   let hasExited = false;
   let lastError: Error | undefined;
 

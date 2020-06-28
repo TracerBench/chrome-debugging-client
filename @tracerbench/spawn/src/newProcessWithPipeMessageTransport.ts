@@ -1,4 +1,4 @@
-import { ProcessWithPipeMessageTransport, Stdio } from "../types";
+import type { ProcessWithPipeMessageTransport, SpawnOptions } from "../types";
 import execa from "./execa";
 import createPipeMessageTransport from "./newPipeMessageTransport";
 import newProcess from "./newProcess";
@@ -6,9 +6,10 @@ import newProcess from "./newProcess";
 export default function newProcessWithPipeMessageTransport(
   command: string,
   args: string[],
-  stdio: Stdio,
+  options: Partial<SpawnOptions>,
   debugCallback: (formatter: unknown, ...args: unknown[]) => void,
 ): ProcessWithPipeMessageTransport {
+  const { stdio = "ignore", cwd, env, extendEnv } = options;
   const child = execa(
     command,
     args,
@@ -16,6 +17,9 @@ export default function newProcessWithPipeMessageTransport(
       // disable buffer, pipe or drain
       buffer: false,
       stdio: [stdio, stdio, stdio, "pipe", "pipe"],
+      cwd,
+      extendEnv,
+      env,
     },
     debugCallback,
   );

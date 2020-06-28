@@ -1,4 +1,5 @@
-import { Transform, TransformCallback } from "stream";
+import type { TransformCallback } from "stream";
+import { Transform } from "stream";
 
 import newBufferSplitter from "./newBufferSplitter";
 

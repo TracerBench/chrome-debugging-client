@@ -1,7 +1,22 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
-import { disposablePromise, RaceCancellation } from "race-cancellation";
+import type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+} from "@tracerbench/message-transport";
+import type { Cancellation, RaceCancellation, Task } from "race-cancellation";
+import { disposablePromise } from "race-cancellation";
 import NodeWebSocket = require("ws");
 
+export type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+  Cancellation,
+  RaceCancellation,
+  Task,
+};
 export type CloseWebSocket = () => void;
 
 export default async function openWebSocket(

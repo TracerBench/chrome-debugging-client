@@ -1,4 +1,4 @@
-import { ArgumentOptions } from "../types";
+import type { ArgumentOptions } from "../types";
 import defaultFlags, { headlessFlags } from "./defaultFlags";
 
 export default function getArguments(

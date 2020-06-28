@@ -1,7 +1,9 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
-import { RaceCancellation } from "race-cancellation";
-
-import { AttachProtocolTransport, DebugCallback } from "../types";
+import type {
+  AttachMessageTransport,
+  AttachProtocolTransport,
+  DebugCallback,
+  RaceCancellation,
+} from "../types";
 import newAttachJsonRpcTransport from "./newAttachJsonRpcTransport";
 import _newAttachProtocolTransport from "./newAttachProtocolTransport";
 
@@ -19,6 +21,13 @@ export { default as newAttachJsonRpcTransport } from "./newAttachJsonRpcTranspor
 export { default as newAttachProtocolTransport } from "./newAttachProtocolTransport";
 export { isProtocolError } from "./newProtocolError";
 export type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+  Cancellation,
+  RaceCancellation,
+  Task,
   AttachJsonRpcTransport,
   SendRequest,
   AttachProtocolTransport,
@@ -36,6 +45,5 @@ export type {
   ProtocolError,
   OnNotification,
   OnError,
-  OnClose,
   OnEvent,
 } from "../types";

@@ -1,9 +1,10 @@
 import debug from "debug";
 
-import {
+import type {
   DebugCallback,
   ProcessWithPipeMessageTransport,
   ProcessWithWebSocketUrl,
+  SpawnOptions,
   Stdio,
   Transport,
 } from "../types";
@@ -13,37 +14,40 @@ import newProcessWithWebSocketUrl from "./newProcessWithWebSocketUrl";
 function spawn(
   executable: string,
   args: string[],
-  stderr: Stdio | undefined,
+  options: Stdio | Partial<SpawnOptions> | undefined,
   transport: "websocket",
   debugCallback?: DebugCallback,
 ): ProcessWithWebSocketUrl;
 function spawn(
   executable: string,
   args: string[],
-  stderr?: Stdio,
+  options?: Stdio | Partial<SpawnOptions>,
   transport?: "pipe",
   debugCallback?: DebugCallback,
 ): ProcessWithPipeMessageTransport;
 function spawn(
   executable: string,
   args: string[],
-  stderr: Stdio = "ignore",
+  options: Stdio | Partial<SpawnOptions> = { stdio: "ignore" },
   transport: Transport = "pipe",
   debugCallback: DebugCallback = debug("@tracerbench/spawn"),
 ): ProcessWithPipeMessageTransport | ProcessWithWebSocketUrl {
+  if (typeof options === "string") {
+    options = { stdio: options };
+  }
   switch (transport) {
     case "pipe":
       return newProcessWithPipeMessageTransport(
         executable,
         args,
-        stderr,
+        options,
         debugCallback,
       );
     case "websocket":
       return newProcessWithWebSocketUrl(
         executable,
         args,
-        stderr,
+        options,
         debugCallback,
       );
     default:

@@ -1,9 +1,9 @@
-import { SpawnOptions } from "../types";
+import type { ChromeSpawnOptions } from "../types";
 
 const CANONICALIZE: {
-  [K in keyof SpawnOptions]: Canonicalize<SpawnOptions[K]>;
+  [K in keyof ChromeSpawnOptions]: Canonicalize<ChromeSpawnOptions[K]>;
 } & {
-  [key: string]: Canonicalize<SpawnOptions[keyof SpawnOptions]>;
+  [key: string]: Canonicalize<ChromeSpawnOptions[keyof ChromeSpawnOptions]>;
 } = {
   additionalArguments: arrayOf("string"),
   chromeExecutable: primitive("string"),
@@ -13,6 +13,9 @@ const CANONICALIZE: {
   url: primitive("string"),
   userDataDir: primitive("string"),
   userDataRoot: primitive("string"),
+  cwd: primitive("string"),
+  extendEnv: primitive("boolean"),
+  env: env(),
 };
 
 type Canonicalize<T> = (value: unknown, key: string) => T;
@@ -62,9 +65,20 @@ function arrayOf<T extends keyof PrimitiveMapping>(
   };
 }
 
-export default function canonicalizeOptions(options: unknown): SpawnOptions {
-  const canonical: SpawnOptions & {
-    [key: string]: SpawnOptions[keyof SpawnOptions];
+function env(): Canonicalize<{ [name: string]: string | undefined }> {
+  return (value, key) => {
+    if (isObject(value)) {
+      return value as { [name: string]: string | undefined };
+    }
+    return invalidOption(key, "env");
+  };
+}
+
+export default function canonicalizeOptions(
+  options: unknown,
+): ChromeSpawnOptions {
+  const canonical: ChromeSpawnOptions & {
+    [key: string]: ChromeSpawnOptions[keyof ChromeSpawnOptions];
   } = {
     additionalArguments: undefined,
     chromeExecutable: undefined,
@@ -74,6 +88,9 @@ export default function canonicalizeOptions(options: unknown): SpawnOptions {
     url: undefined,
     userDataDir: undefined,
     userDataRoot: undefined,
+    cwd: undefined,
+    extendEnv: undefined,
+    env: undefined,
   };
 
   if (isObject(options)) {

@@ -1,9 +1,8 @@
-import { RaceCancellation } from "race-cancellation";
-
-import {
+import type {
   AttachJsonRpcTransport,
   AttachProtocolTransport,
   Notification,
+  RaceCancellation,
 } from "../types";
 import newProtocolError from "./newProtocolError";
 import newSessions from "./newSessions";

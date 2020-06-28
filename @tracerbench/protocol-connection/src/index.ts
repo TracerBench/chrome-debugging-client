@@ -1,10 +1,12 @@
-import type { AttachMessageTransport } from "@tracerbench/message-transport";
-import newAttachProtocolTransport, {
-  DebugCallback,
-} from "@tracerbench/protocol-transport";
-import type { RaceCancellation } from "race-cancellation";
+import newAttachProtocolTransport from "@tracerbench/protocol-transport";
 
-import type { EventEmitter, RootConnection } from "../types";
+import type {
+  AttachMessageTransport,
+  DebugCallback,
+  EventEmitter,
+  RaceCancellation,
+  RootConnection,
+} from "../types";
 import _newProtocolConnection from "./newProtocolConnection";
 
 /**
@@ -24,6 +26,33 @@ export default function newProtocolConnection(
 
 export { default as newProtocolConnection } from "./newProtocolConnection";
 export type {
+  AttachJsonRpcTransport,
+  AttachMessageTransport,
+  AttachProtocolTransport,
+  AttachSession,
+  Cancellation,
+  DebugCallback,
+  DetachSession,
+  ErrorResponse,
+  Notification,
+  OnClose,
+  OnError,
+  OnEvent,
+  OnMessage,
+  OnNotification,
+  Protocol,
+  ProtocolMapping,
+  ProtocolError,
+  ProtocolTransport,
+  RaceCancellation,
+  Request,
+  Response,
+  ResponseError,
+  SendMessage,
+  SendMethod,
+  SendRequest,
+  SuccessResponse,
+  Task,
   ProtocolConnection,
   SessionConnection,
   RootConnection,

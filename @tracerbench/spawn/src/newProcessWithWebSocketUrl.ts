@@ -4,7 +4,7 @@ import {
   throwIfCancelled,
 } from "race-cancellation";
 
-import { ProcessWithWebSocketUrl, Stdio } from "../types";
+import type { ProcessWithWebSocketUrl, SpawnOptions, Stdio } from "../types";
 import execa from "./execa";
 import newProcess from "./newProcess";
 import newWebSocketUrlParser from "./newWebSocketUrlParser";
@@ -12,9 +12,10 @@ import newWebSocketUrlParser from "./newWebSocketUrlParser";
 export default function newProcessWithWebSocketUrl(
   command: string,
   args: string[],
-  stdio: Stdio,
+  options: Partial<SpawnOptions>,
   debugCallback: (formatter: unknown, ...args: unknown[]) => void,
 ): ProcessWithWebSocketUrl {
+  const { stdio = "ignore", cwd, env, extendEnv } = options;
   const child = execa(
     command,
     args,
@@ -22,6 +23,9 @@ export default function newProcessWithWebSocketUrl(
       // disable buffer, pipe or drain
       buffer: false,
       stdio: [stdio, stdio, "pipe"],
+      cwd,
+      extendEnv,
+      env,
     },
     debugCallback,
   );
@@ -60,7 +64,7 @@ function createUrl(
 
 function parseUrl(
   stderr: NodeJS.ReadableStream,
-  stdio: "inherit" | "ignore",
+  stdio: Stdio,
   callback: (url: string) => void,
 ): void {
   const parser = newWebSocketUrlParser(callback);

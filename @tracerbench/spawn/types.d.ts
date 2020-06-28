@@ -1,7 +1,22 @@
-import { AttachMessageTransport } from "@tracerbench/message-transport";
-import { RaceCancellation } from "race-cancellation";
+import type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+} from "@tracerbench/message-transport";
+import type { Cancellation, RaceCancellation, Task } from "race-cancellation";
 
-export type DebugCallback = (formatter: any, ...args: any[]) => void;
+export type {
+  AttachMessageTransport,
+  OnClose,
+  OnMessage,
+  SendMessage,
+  Cancellation,
+  RaceCancellation,
+  Task,
+};
+
+export type DebugCallback = (formatter: unknown, ...args: unknown[]) => void;
 
 export interface Process {
   /**
@@ -60,3 +75,14 @@ export type TransportMapping = {
 export type Transport = keyof TransportMapping;
 
 export type Stdio = "ignore" | "inherit";
+
+export interface SpawnOptions {
+  stdio: Stdio;
+  cwd: string | undefined;
+  extendEnv: boolean | undefined;
+  env:
+    | {
+        [name: string]: string | undefined;
+      }
+    | undefined;
+}

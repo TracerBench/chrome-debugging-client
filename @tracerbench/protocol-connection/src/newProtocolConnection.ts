@@ -1,24 +1,23 @@
 import {
-  AttachProtocolTransport,
-  AttachSession,
-} from "@tracerbench/protocol-transport";
-import Protocol from "devtools-protocol";
-import {
   combineRaceCancellation,
   disposablePromise,
-  RaceCancellation,
   throwIfCancelled,
 } from "race-cancellation";
 
-import {
+import type {
+  AttachProtocolTransport,
+  AttachSession,
   NewEventEmitter,
+  Protocol,
   ProtocolConnection,
+  RaceCancellation,
   RootConnection,
   SessionConnection,
   SessionID,
   TargetID,
 } from "../types";
-import newEventHook, { Session } from "./newEventHook";
+import type { Session } from "./newEventHook";
+import newEventHook from "./newEventHook";
 
 /**
  * This method adapts a AttachProtocolTransport into higher level

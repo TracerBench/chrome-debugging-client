@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "lib": ["scripthost", "es2017"],
     "typeRoots": [],
     "types": [],

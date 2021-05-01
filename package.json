@@ -26,7 +26,7 @@
     "lerna": "^3.22.0"
   },
   "devDependencies": {
-    "release-it": "^13.6.0",
+    "release-it": "^14.6.1",
     "release-it-lerna-changelog": "^2.3.0",
     "release-it-yarn-workspaces": "^1.4.0"
   },

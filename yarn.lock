@@ -1147,16 +1147,6 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@typescript-eslint/experimental-utils@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-3.4.0.tgz#8a44dfc6fb7f1d071937b390fe27608ebda122b8"
-  integrity sha512-rHPOjL43lOH1Opte4+dhC0a/+ks+8gOBwxXnyrZ/K4OTAChpSjP76fbI8Cglj7V5GouwVAGaK+xVwzqTyE/TPw==
-  dependencies:
-    "@types/json-schema" "^7.0.3"
-    "@typescript-eslint/typescript-estree" "3.4.0"
-    eslint-scope "^5.0.0"
-    eslint-utils "^2.0.0"
-
 "@typescript-eslint/experimental-utils@3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-3.6.0.tgz#0138152d66e3e53a6340f606793fb257bf2d76a1"
@@ -1183,19 +1173,6 @@
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-3.6.0.tgz#4bd6eee55d2f9d35a4b36c4804be1880bf68f7bc"
   integrity sha512-JwVj74ohUSt0ZPG+LZ7hb95fW8DFOqBuR6gE7qzq55KDI3BepqsCtHfBIoa0+Xi1AI7fq5nCu2VQL8z4eYftqg==
-
-"@typescript-eslint/typescript-estree@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-3.4.0.tgz#6a787eb70b48969e4cd1ea67b057083f96dfee29"
-  integrity sha512-zKwLiybtt4uJb4mkG5q2t6+W7BuYx2IISiDNV+IY68VfoGwErDx/RfVI7SWL4gnZ2t1A1ytQQwZ+YOJbHHJ2rw==
-  dependencies:
-    debug "^4.1.1"
-    eslint-visitor-keys "^1.1.0"
-    glob "^7.1.6"
-    is-glob "^4.0.1"
-    lodash "^4.17.15"
-    semver "^7.3.2"
-    tsutils "^3.17.1"
 
 "@typescript-eslint/typescript-estree@3.6.0":
   version "3.6.0"
@@ -3454,9 +3431,9 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
 
 handlebars@^4.7.6:
-  version "4.7.6"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.6.tgz#d4c05c1baf90e9945f77aa68a7a219aa4a7df74e"
-  integrity sha512-1f2BACcBfiwAfStCKZNrUCgqNZkGsAT7UM3kkYtXuLo0KnaVfjKOyf7PRzB6++aK9STyT1Pd2ZCPe3EGOXleXA==
+  version "4.7.7"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.7.tgz#9ce33416aad02dbd6c8fafa8240d5d98004945a1"
+  integrity sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==
   dependencies:
     minimist "^1.2.5"
     neo-async "^2.6.0"
@@ -5028,9 +5005,9 @@ natural-compare@^1.4.0:
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
 neo-async@^2.6.0:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
-  integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
+  integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -7222,9 +7199,9 @@ typescript@^3.7.2:
   integrity sha512-Pspx3oKAPJtjNwE92YS05HQoY7z2SFyOpHo9MqJor3BXAGNaPUs83CuVp9VISFkSjyRfiTpmKuAYGJB7S7hOxw==
 
 uglify-js@^3.1.4:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.10.0.tgz#397a7e6e31ce820bfd1cb55b804ee140c587a9e7"
-  integrity sha512-Esj5HG5WAyrLIdYU74Z3JdG2PxdIusvj6IWHMtlyESxc7kcDz7zYlYjpnSokn1UbpV0d/QX9fan7gkCNd/9BQA==
+  version "3.13.5"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.13.5.tgz#5d71d6dbba64cf441f32929b1efce7365bb4f113"
+  integrity sha512-xtB8yEqIkn7zmOyS2zUNBsYCBRhDkvlNxMMY2smuJ/qA8NCHeQvKCF3i9Z4k8FJH4+PJvZRtMrPynfZ75+CSZw==
 
 uid-number@0.0.6:
   version "0.0.6"

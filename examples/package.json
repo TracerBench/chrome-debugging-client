@@ -8,7 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@types/node": "^14.0.5",
+    "@types/node": "^16.4.9",
     "chrome-debugging-client": "^2.0.0",
     "devtools-protocol": "^0.0.787341",
     "execa": "^4.0.2"

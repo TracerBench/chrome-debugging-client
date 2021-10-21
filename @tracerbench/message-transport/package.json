@@ -6,6 +6,11 @@
   "files": [
     "index.d.ts"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TracerBench/chrome-debugging-client.git",
+    "directory": "@tracerbench/message-transport"
+  },
   "types": "index.d.ts",
   "main": "index.js",
   "devDependencies": {

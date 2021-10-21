@@ -7,6 +7,11 @@
     "dist",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TracerBench/chrome-debugging-client.git",
+    "directory": "@tracerbench/websocket-message-transport"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

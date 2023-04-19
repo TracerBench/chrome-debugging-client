@@ -3,7 +3,7 @@ import { Transform } from "stream";
 
 import newBufferSplitter from "./newBufferSplitter";
 
-const WS_URL_REGEX = /^(?:DevTools|Debugger) listening on (ws:\/\/\d+\.\d+\.\d+\.\d+:\d+\/.+$)/;
+const WS_URL_REGEX = /^(?:DevTools|Debugger) listening on (ws:\/\/[^:]+:\d+\/.+$)/;
 
 const enum Char {
   LF = 10,

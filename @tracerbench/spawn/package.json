@@ -9,6 +9,11 @@
     "src",
     "types.d.ts"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TracerBench/chrome-debugging-client.git",
+    "directory": "@tracerbench/spawn"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

@@ -101,7 +101,14 @@ export default function newSessions<SessionId>(
     if (session !== undefined) {
       try {
         session.onEvent(event, params);
-      } catch (err) {
+      } catch (e) {
+        let err: Error & { cause?: unknown };
+        if (e instanceof Error) {
+          err = e;
+        } else {
+          err = new Error("error dispatching event");
+          err.cause = e;
+        }
         session.onError(err);
       }
     }

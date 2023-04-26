@@ -9,8 +9,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:prettier/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
   "rules": {
     "sort-imports": "off",
@@ -29,6 +28,6 @@
     ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/ban-types": "off",
-    "simple-import-sort/sort": "error"
+    "simple-import-sort/imports": "error"
   }
 }

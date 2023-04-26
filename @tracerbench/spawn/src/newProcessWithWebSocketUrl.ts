@@ -1,8 +1,5 @@
-import {
-  combineRaceCancellation,
-  RaceCancellation,
-  throwIfCancelled,
-} from "race-cancellation";
+import type { RaceCancellation } from "race-cancellation";
+import { combineRaceCancellation, throwIfCancelled } from "race-cancellation";
 
 import type { ProcessWithWebSocketUrl, SpawnOptions, Stdio } from "../types";
 import execa from "./execa";

@@ -42,7 +42,7 @@ function enumOf<T extends readonly string[]>(
   return (value, key) => {
     if (typeof value === "string") {
       if (tuple.includes(value)) {
-        return (value as unknown) as T[Exclude<keyof T, keyof string[]>];
+        return value as unknown as T[Exclude<keyof T, keyof string[]>];
       }
     }
     return invalidOption(key, tuple.map((v) => JSON.stringify(v)).join(" | "));
@@ -106,9 +106,7 @@ export default function canonicalizeOptions(
   return canonical;
 }
 
-function isObject(
-  options: unknown,
-): options is {
+function isObject(options: unknown): options is {
   [key: string]: unknown;
 } {
   return typeof options === "object" && options !== null;

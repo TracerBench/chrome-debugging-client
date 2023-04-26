@@ -3,7 +3,8 @@ import { Transform } from "stream";
 
 import newBufferSplitter from "./newBufferSplitter";
 
-const WS_URL_REGEX = /^(?:DevTools|Debugger) listening on (ws:\/\/[^:]+:\d+\/.+$)/;
+const WS_URL_REGEX =
+  /^(?:DevTools|Debugger) listening on (ws:\/\/[^:]+:\d+\/.+$)/;
 
 const enum Char {
   LF = 10,
@@ -34,7 +35,7 @@ export default function newWebSocketUrlParser(
     state = PASSTHROUGH;
   });
   return new Transform({
-    transform(chunk, encoding, callback) {
+    transform(chunk: Buffer, encoding, callback) {
       state.transform(chunk, encoding, callback);
     },
     flush(callback) {

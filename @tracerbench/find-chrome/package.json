@@ -23,7 +23,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "chrome-launcher": "^0.13.2"
+    "chrome-launcher": "^0.15.2"
   },
   "devDependencies": {
     "@types/node": "^18.16.0",

@@ -55,8 +55,15 @@ export default function newAttachJsonRpcTransport(
           }
         }
       } catch (e) {
-        debug("ERROR %O", e);
-        emitError(e);
+        let err: Error & { cause?: unknown };
+        if (e instanceof Error) {
+          err = e;
+        } else {
+          err = new Error("error dispatching message");
+          err.cause = e;
+        }
+        debug("ERROR %O", err);
+        emitError(err);
       }
     }
 

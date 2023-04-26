@@ -2,9 +2,6 @@
 const fs = require("fs");
 const path = require("path");
 const unified = require("unified");
-const parse = require("remark-parse");
-const stringify = require("remark-stringify");
-const toc = require("remark-toc");
 const vfile = require("vfile");
 
 const importCode = require("./import-code");
@@ -12,6 +9,9 @@ const importCode = require("./import-code");
 void main();
 
 async function main() {
+  const { default: parse } = await import("remark-parse");
+  const { default: stringify } = await import("remark-stringify");
+  const { default: toc } = await import("remark-toc");
   const processor = unified()
     .use(parse)
     .use(toc)

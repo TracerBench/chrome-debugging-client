@@ -31,7 +31,7 @@ export default function newTaskQueue(): (task: Task) => void {
   function dequeue(): void {
     const task = queue[read];
     // release memory
-    queue[read++] = (undefined as unknown) as Task;
+    queue[read++] = undefined as unknown as Task;
     if (read < write) {
       schedule();
     } else {

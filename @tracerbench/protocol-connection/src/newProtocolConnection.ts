@@ -63,12 +63,8 @@ function newProtocolConnection(
 
   let isDetached = false;
 
-  const [
-    onTargetAttached,
-    onTargetDetached,
-    send,
-    raceDetached,
-  ] = attachTransport(onEvent, onError, onDetached);
+  const [onTargetAttached, onTargetDetached, send, raceDetached] =
+    attachTransport(onEvent, onError, onDetached);
 
   const [eventHook, connection, clearSessions] = newEventHook(
     newSessionConnection.bind(null, onTargetAttached, newEventEmitter),

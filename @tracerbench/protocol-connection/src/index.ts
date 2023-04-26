@@ -1,4 +1,4 @@
-import newAttachProtocolTransport from "@tracerbench/protocol-transport";
+import _newAttachProtocolTransport from "@tracerbench/protocol-transport";
 
 import type {
   AttachMessageTransport,
@@ -19,7 +19,7 @@ export default function newProtocolConnection(
   raceCancellation?: RaceCancellation,
 ): RootConnection {
   return _newProtocolConnection(
-    newAttachProtocolTransport(attach, debug, raceCancellation),
+    _newAttachProtocolTransport(attach, debug, raceCancellation),
     newEventEmitter,
   );
 }

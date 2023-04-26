@@ -25,7 +25,7 @@ export type AttachJsonRpcTransport = (
 export type SendRequest = <
   Method extends string,
   Params extends object,
-  Result extends object
+  Result extends object,
 >(
   request: Request<Method, Params>,
   raceCancellation?: RaceCancellation,
@@ -53,7 +53,7 @@ export type DetachSession<SessionId> = (sessionId: SessionId) => void;
 export type SendMethod<SessionId> = <
   Method extends string,
   Params extends object,
-  Result extends object
+  Result extends object,
 >(
   method: Method,
   params?: Params,
@@ -83,7 +83,7 @@ export type Response<Result extends object | void = object | void> =
 export interface Request<
   Method extends string = string,
   Params extends object = object,
-  SessionID = unknown
+  SessionID = unknown,
 > {
   /**
    * The request gets assigned an id when it is sent.
@@ -101,7 +101,7 @@ export interface Request<
 export interface Notification<
   Method extends string = string,
   Params extends object = object,
-  SessionID = unknown
+  SessionID = unknown,
 > {
   method: Method;
   params?: Params;
@@ -112,7 +112,7 @@ export type DebugCallback = (formatter: unknown, ...args: unknown[]) => void;
 
 export interface ProtocolError<
   Method extends string = string,
-  Params extends object = object
+  Params extends object = object,
 > extends Error {
   name: "ProtocolError";
   request: Request<Method, Params>;
@@ -121,14 +121,14 @@ export interface ProtocolError<
 
 export type OnNotification = <
   Method extends string = string,
-  Params extends object = object
+  Params extends object = object,
 >(
   notification: Notification<Method, Params>,
 ) => void;
 export type OnError = (error: Error) => void;
 export type OnEvent = <
   Event extends string = string,
-  Params extends object = object
+  Params extends object = object,
 >(
   event: Event,
   params?: Params,

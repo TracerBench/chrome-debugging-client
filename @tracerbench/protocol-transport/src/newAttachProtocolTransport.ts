@@ -19,9 +19,8 @@ export default function newAttachProtocolTransport<SessionId>(
 ): AttachProtocolTransport<SessionId> {
   return (onEvent, onError, onClose) => {
     const [sendRequest, raceClose] = attach(onNotification, onError, onClose);
-    const [attachSession, detachSession, dispatchEvent] = newSessions<
-      SessionId
-    >(send, raceClose);
+    const [attachSession, detachSession, dispatchEvent] =
+      newSessions<SessionId>(send, raceClose);
 
     return [attachSession, detachSession, send, raceClose];
 
@@ -37,7 +36,7 @@ export default function newAttachProtocolTransport<SessionId>(
     async function send<
       Method extends string,
       Params extends object,
-      Result extends object
+      Result extends object,
     >(
       method: Method,
       params?: Params,

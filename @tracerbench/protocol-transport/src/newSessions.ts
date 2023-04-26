@@ -22,7 +22,7 @@ interface Session {
 export type Send<SessionId> = <
   Method extends string,
   Params extends object,
-  Result extends object
+  Result extends object,
 >(
   method: Method,
   params?: Params,

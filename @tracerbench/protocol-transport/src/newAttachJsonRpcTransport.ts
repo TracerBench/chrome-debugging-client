@@ -81,7 +81,7 @@ export default function newAttachJsonRpcTransport(
     async function sendRequest<
       Method extends string,
       Params extends object,
-      Result extends object
+      Result extends object,
     >(
       request: Request<Method, Params, unknown>,
       sendRaceCancellation?: RaceCancellation,

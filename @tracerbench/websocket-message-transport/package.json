@@ -24,10 +24,10 @@
   "dependencies": {
     "@tracerbench/message-transport": "^2.0.0",
     "race-cancellation": "^0.4.1",
-    "ws": "^7.3.0"
+    "ws": "^8.13.0"
   },
   "devDependencies": {
-    "@types/ws": "^7.2.0",
+    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^3.0.2",
     "@typescript-eslint/parser": "^3.0.2",
     "eslint": "^7.1.0",

@@ -7672,7 +7672,7 @@ vfile-message@^3.0.0:
     "@types/unist" "^2.0.0"
     unist-util-stringify-position "^3.0.0"
 
-vfile@^4.0.0, vfile@^4.0.1:
+vfile@^4.0.0:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/vfile/-/vfile-4.2.1.tgz#03f1dce28fc625c625bc6514350fbdb00fa9e624"
   integrity sha512-O6AE4OskCG5S1emQ/4gl8zK586RqA3srz3nfK/Viy0UPToBc5Trp9BVFb1u0CjsKrAWwnpr4ifM/KBXPWwJbCA==
@@ -7682,7 +7682,7 @@ vfile@^4.0.0, vfile@^4.0.1:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vfile@^5.0.0:
+vfile@^5.0.0, vfile@^5.3.7:
   version "5.3.7"
   resolved "https://registry.yarnpkg.com/vfile/-/vfile-5.3.7.tgz#de0677e6683e3380fafc46544cfe603118826ab7"
   integrity sha512-r7qlzkgErKjobAmyNIkkSpizsFPYiUPuJb5pNW1RB4JcYVZhs4lIbVqk8XPk033CV/1z8ss5pkax8SuhGpcG8g==

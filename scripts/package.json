@@ -8,7 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@types/node": "^18.16.0",
+    "@types/node": "^20.3.3",
     "remark": "^14.0.2",
     "remark-parse": "^10.0.1",
     "remark-stringify": "^10.0.2",

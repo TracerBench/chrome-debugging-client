@@ -10,7 +10,7 @@
   "dependencies": {
     "@types/node": "^18.16.0",
     "chrome-debugging-client": "^2.0.0",
-    "devtools-protocol": "^0.0.1135028",
+    "devtools-protocol": "^0.0.1165014",
     "execa": "^5.1.1"
   },
   "devDependencies": {

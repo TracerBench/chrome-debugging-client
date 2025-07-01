@@ -12,7 +12,7 @@
     "remark": "^14.0.2",
     "remark-parse": "^10.0.1",
     "remark-stringify": "^10.0.2",
-    "remark-toc": "^8.0.1",
+    "remark-toc": "^9.0.0",
     "shell-split": "^1.0.0",
     "unified": "^9.0.0",
     "unist-util-visit": "^2.0.0",

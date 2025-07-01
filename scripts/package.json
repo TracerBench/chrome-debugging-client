@@ -11,7 +11,7 @@
     "@types/node": "^18.16.0",
     "remark": "^14.0.2",
     "remark-parse": "^10.0.1",
-    "remark-stringify": "^10.0.2",
+    "remark-stringify": "^11.0.0",
     "remark-toc": "^8.0.1",
     "shell-split": "^1.0.0",
     "unified": "^9.0.0",

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import importCode from "./import-code/index.js";
-import { VFile } from "vfile";
-import { fileURLToPath } from "url";
 import remarkParse from "remark-parse";
-import { unified } from "unified";
 import remarkStringify from "remark-stringify";
+import { unified } from "unified";
+import { fileURLToPath } from "url";
+import { VFile } from "vfile";
+
+import importCode from "./import-code/index.js";
 
 void main();
 

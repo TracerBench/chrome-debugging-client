@@ -1,24 +1,23 @@
-const fs = require("fs");
-const path = require("path");
-const { split } = require("shell-split");
-const visit = require("unist-util-visit");
+import * as fs from "fs";
+import * as path from "path";
+import { visit } from "unist-util-visit";
 
-/** @type {import("unified").Plugin} */
-const importCode = () => replaceCodeTransform;
-
-module.exports = importCode;
+/** @type {import("unified").Plugin<[], import("mdast").Root, import("vfile").VFile>} */
+const importCode = replaceCodeTransform;
+export default importCode;
 
 /**
- * @param {import("unist").Node} tree
- * @param {import("vfile").VFile} file
+ * @param {unknown[]} options
+ * @return {import("unified").Transformer<import("mdast").Root, import("mdast").Root>}
  */
-function replaceCodeTransform(tree, file) {
-  visit(tree, "code", (code) => processCodeNode(code, file));
-  return tree;
+function replaceCodeTransform(...options) {
+  return (tree, file) => {
+    visit(tree, "code", (code) => processCodeNode(code, file));
+  };
 }
 
 /**
- * @param {import("unist").Node} code
+ * @param {import("mdast").Code} code
  * @param {import("vfile").VFile} file
  */
 function processCodeNode(code, file) {
@@ -37,7 +36,7 @@ function processCodeNode(code, file) {
  */
 function parseCodeMeta(meta, file) {
   if (meta) {
-    const parts = split(meta);
+    const parts = meta.split(/\s+/);
     for (const part of parts) {
       const [key, value] = part.split("=", 2);
       if (key === "file") {

@@ -4,9 +4,10 @@
     "allowJs": true,
     "checkJs": true,
     "strict": true,
+    "esModuleInterop": true,
     "moduleResolution": "node",
-    "module": "commonjs",
-    "target": "ES2017"
+    "module": "esnext",
+    "target": "es2024"
   },
   "files": ["types.d.ts", "readme.js"]
 }

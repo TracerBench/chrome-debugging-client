@@ -1,29 +1,31 @@
 #!/usr/bin/env node
-const fs = require("fs");
-const path = require("path");
-const unified = require("unified");
-const vfile = require("vfile");
-
-const importCode = require("./import-code");
+import * as fs from "fs";
+import * as path from "path";
+import importCode from "./import-code/index.js";
+import { VFile } from "vfile";
+import { fileURLToPath } from "url";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
+import remarkStringify from "remark-stringify";
 
 void main();
 
 async function main() {
-  const { default: parse } = await import("remark-parse");
-  const { default: stringify } = await import("remark-stringify");
-  const { default: toc } = await import("remark-toc");
+  const toc = await import("remark-toc");
   const processor = unified()
-    .use(parse)
-    .use(toc)
+    .use(remarkParse)
+    .use(toc.default)
     .use(importCode)
-    .use(stringify);
+    .use(remarkStringify);
 
-  let readme = readReadme(path.resolve(__dirname, "../README.md"));
+  const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+  let readme = readReadme(path.resolve(dirname, "../README.md"));
 
   readme = await processor.process(readme);
 
   writeReadme(
-    path.resolve(__dirname, "../chrome-debugging-client/README.md"),
+    path.resolve(dirname, "../chrome-debugging-client/README.md"),
     readme,
   );
 }
@@ -33,10 +35,7 @@ async function main() {
  */
 function readReadme(path) {
   const contents = fs.readFileSync(path, "utf8");
-  return vfile({
-    contents,
-    path,
-  });
+  return new VFile({ value: contents, path });
 }
 
 /**

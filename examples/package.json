@@ -11,7 +11,7 @@
     "@types/node": "^24.0.14",
     "chrome-debugging-client": "^2.1.0",
     "devtools-protocol": "^0.0.1488040",
-    "execa": "^5.1.1"
+    "execa": "^9.6.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.59.1",

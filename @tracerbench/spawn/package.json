@@ -26,7 +26,7 @@
   "dependencies": {
     "@tracerbench/message-transport": "^2.1.0",
     "debug": "^4.1.1",
-    "execa": "^5.1.1",
+    "execa": "^9.6.0",
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {

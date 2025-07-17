@@ -9,29 +9,27 @@ designed with automation in mind.
 
 ## Table of Contents
 
-*   [Features](#features)
-
-*   [Examples](#examples)
-
-    *   [Print URL as PDF](#print-url-as-pdf)
-    *   [Node Debugging](#node-debugging)
+* [Features](#features)
+* [Examples](#examples)
+  * [Print URL as PDF](#print-url-as-pdf)
+  * [Node Debugging](#node-debugging)
 
 ## Features
 
-*   Promise API for async/await (most debugger commands are meant to be sequential).
-*   TypeScript support and uses "devtools-protocol" types, allowing you to pick a protocol version.
-*   Launches Chrome with a new temp user data folder so Chrome launches an isolated instance.
-    (regardless if you already have Chrome open).
-*   Opens Chrome with a pipe message transport to the browser connection and supports
-    attaching flattened session connections to targets.
-*   Supports cancellation in a way that avoids unhandled rejections, and allows you to add combine
-    additional cancellation concerns.
-*   Supports seeing protocol debug messages with `DEBUG=chrome-debugging-client:*`
-*   Use with race-cancellation library to add timeouts or other cancellation concerns to tasks
-    using the connection.
-*   The library was designed to be careful about not floating promises (promises are
-    chained immediately after being created, combining concurrent promises with all
-    or race), this avoids unhandled rejections.
+* Promise API for async/await (most debugger commands are meant to be sequential).
+* TypeScript support and uses "devtools-protocol" types, allowing you to pick a protocol version.
+* Launches Chrome with a new temp user data folder so Chrome launches an isolated instance.
+  (regardless if you already have Chrome open).
+* Opens Chrome with a pipe message transport to the browser connection and supports
+  attaching flattened session connections to targets.
+* Supports cancellation in a way that avoids unhandled rejections, and allows you to add combine
+  additional cancellation concerns.
+* Supports seeing protocol debug messages with `DEBUG=chrome-debugging-client:*`
+* Use with race-cancellation library to add timeouts or other cancellation concerns to tasks
+  using the connection.
+* The library was designed to be careful about not floating promises (promises are
+  chained immediately after being created, combining concurrent promises with all
+  or race), this avoids unhandled rejections.
 
 ## Examples
 

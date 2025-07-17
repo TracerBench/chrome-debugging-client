@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/protocol-transport",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
   "files": [
@@ -24,7 +24,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@tracerbench/message-transport": "^2.0.0",
+    "@tracerbench/message-transport": "^2.1.0",
     "race-cancellation": "^0.4.1"
   },
   "devDependencies": {

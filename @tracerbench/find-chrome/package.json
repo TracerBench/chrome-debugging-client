@@ -1,6 +1,6 @@
 {
   "name": "@tracerbench/find-chrome",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Small wrapper for chrome-launcher to extract just finding chrome.",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",

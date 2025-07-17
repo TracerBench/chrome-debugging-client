@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client-examples",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "checkjs": "tsc",
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@types/node": "^24.0.14",
-    "chrome-debugging-client": "^2.0.0",
+    "chrome-debugging-client": "^2.1.0",
     "devtools-protocol": "^0.0.1488040",
     "execa": "^5.1.1"
   },

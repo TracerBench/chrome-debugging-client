@@ -1,6 +1,6 @@
 {
   "name": "chrome-debugging-client",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "An async/await friendly Chrome debugging client with TypeScript support",
   "license": "BSD-2-Clause",
   "author": "Kris Selden <kris.selden@gmail.com>",
@@ -23,12 +23,12 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@tracerbench/find-chrome": "^2.0.0",
-    "@tracerbench/message-transport": "^2.0.0",
-    "@tracerbench/protocol-connection": "^2.0.0",
-    "@tracerbench/spawn": "^2.0.0",
-    "@tracerbench/spawn-chrome": "^2.0.0",
-    "@tracerbench/websocket-message-transport": "^2.0.0",
+    "@tracerbench/find-chrome": "^2.1.0",
+    "@tracerbench/message-transport": "^2.1.0",
+    "@tracerbench/protocol-connection": "^2.1.0",
+    "@tracerbench/spawn": "^2.1.0",
+    "@tracerbench/spawn-chrome": "^2.1.0",
+    "@tracerbench/websocket-message-transport": "^2.1.0",
     "debug": "^4.1.1",
     "race-cancellation": "^0.4.1"
   },

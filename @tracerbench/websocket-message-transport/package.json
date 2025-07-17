@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@tracerbench/message-transport": "^2.1.0",
-    "race-cancellation": "^0.4.1",
+    "race-cancellation": "^0.5.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {

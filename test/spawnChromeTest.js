@@ -85,7 +85,7 @@ QUnit.module("spawnChrome", () => {
       } catch (e) {
         assert.equal(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          e.message,
+          typeof e == "object" && e !== null && "message" in e && e.message,
           "process exited early: spawn bad/path/to/chrome ENOENT",
         );
       }

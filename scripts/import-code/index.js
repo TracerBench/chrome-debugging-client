@@ -7,10 +7,9 @@ const importCode = replaceCodeTransform;
 export default importCode;
 
 /**
- * @param {unknown[]} options
  * @return {import("unified").Transformer<import("mdast").Root, import("mdast").Root>}
  */
-function replaceCodeTransform(...options) {
+function replaceCodeTransform() {
   return (tree, file) => {
     visit(tree, "code", (code) => processCodeNode(code, file));
   };
